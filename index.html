@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FC Salomé — Apontamento Financeiro</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <?!= include('src/web/css') ?>
+</head>
+<body>
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <div class="lg-brand">
+      <div class="logo-mark" style="width:34px;height:34px;font-size:15px">S</div>
+      <div><div style="font-weight:700;font-size:17px;letter-spacing:.02em">SALOMÉ<span class="ph">logo</span></div>
+      <div style="font-size:11.5px;color:var(--ink-3)">FC · Apontamento Financeiro de Compras</div></div>
+    </div>
+    <div class="f"><label>E-mail</label><input value="carlos@salome.com.br"></div>
+    <div class="f"><label>Senha</label><input type="password" value="............"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--ink-3)">
+      <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" style="accent-color:var(--navy)">Manter conectado por 8h</label>
+      <a href="#" style="color:var(--navy)" onclick="event.preventDefault();toast('E-mail com senha temporária enviado. Troca obrigatória no 1º acesso.')">Esqueci a senha</a>
+    </div>
+    <button class="btn pri" style="justify-content:center;padding:10px" onclick="closeLogin();toast('LOGIN_OK gravado em LOG_ACESSO_2026-S39 · sessão de 8h aberta')">Entrar</button>
+    <div style="font-size:11.5px;color:var(--ink-3);line-height:1.5;border-top:1px solid var(--line);padding-top:12px">
+      Senha guardada como <b>hash SHA-256 com salt por usuário</b> — nunca em texto. Bloqueio após 5 tentativas,
+      expiração em 90 dias e toda tentativa registrada no log de acesso.
+    </div>
+    <button class="btn" style="justify-content:center" onclick="closeLogin()">Fechar prévia</button>
+  </div>
+</div>
+
+<header class="topbar">
+  <button class="tb-btn" id="mobBtn" aria-label="Menu" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="19" height="19"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <div class="brand">
+    <div class="logo-sal">
+      <div class="logo-mark">S</div>
+      <div class="logo-txt">SALOMÉ<span class="ph">logo</span></div>
+    </div>
+    <div class="logo-div"></div>
+    <div class="logo-ip"><b>iProcesso</b>tecnologia<span class="ph">logo</span></div>
+  </div>
+  <div class="appname"><b>FC</b> · Apontamento Financeiro</div>
+  <div class="spacer"></div>
+  <div class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input placeholder="Buscar nº, fornecedor, valor…" id="gsearch">
+    <kbd>Ctrl K</kbd>
+  </div>
+  <button class="tb-btn" id="themeBtn" aria-label="Tema">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+  </button>
+  <div class="who">
+    <div class="av" id="avatar">CS</div>
+    <div>
+      <div class="nm" id="uname">Celso Martins</div>
+      <select id="roleSel" aria-label="Perfil">
+        <option value="SOLICITANTE">Solicitante</option>
+        <option value="FINANCEIRO">Financeiro</option>
+        <option value="DIRETORIA" selected>Diretoria</option>
+        <option value="ADMIN">Administrador</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="rail">
+    <div class="rail-scroll" id="menu"></div>
+    <div class="rail-foot">
+      <button class="collapse" id="colBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17" id="colIcon"><path d="M15 6l-6 6 6 6"/></svg>
+        <span>Recolher menu</span>
+      </button>
+    </div>
+  </nav>
+  <main><div class="page" id="view"></div></main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dr-h">
+    <div style="flex:1;min-width:0">
+      <h2 id="drTitle">—</h2>
+      <div class="m" id="drMeta"></div>
+    </div>
+    <button class="tb-btn" id="drClose" aria-label="Fechar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="19" height="19"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="dr-b" id="drBody"></div>
+</aside>
+
+<div class="phone-wrap" id="phoneWrap">
+  <button class="phone-x" id="phoneX">Fechar visão mobile</button>
+  <div class="phone">
+    <div class="ph-top">
+      <div class="r1">
+        <div class="logo-mark" style="width:22px;height:22px;font-size:10px;background:rgba(255,255,255,.22)">S</div>
+        FC Salomé · Aprovações
+      </div>
+      <div class="r2">
+        <div>Pendentes<b id="mPend">—</b></div>
+        <div>Valor<b id="mVal">—</b></div>
+        <div>Caixa hoje<b id="mCx">—</b></div>
+      </div>
+    </div>
+    <div class="ph-body" id="phBody"></div>
+    <div class="ph-bar">
+      <span class="cnt" id="mSel">Nenhuma selecionada</span>
+      <button class="btn sm cr" onclick="mBulk('Reprogramar')">Reprogramar</button>
+      <button class="btn sm ok" onclick="mBulk('Aprovar')">Aprovar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<?!= include('src/web/js') ?>
+</body>
+</html>
