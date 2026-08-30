@@ -296,6 +296,42 @@ legend{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:upperc
 .phone-x{position:fixed;top:22px;right:26px;z-index:71;background:var(--surface);border:1px solid var(--line-2);
   border-radius:20px;padding:7px 15px;font-size:13px;font-weight:600;box-shadow:var(--sh-2)}
 
+
+/* ---- acordeão do formulário ---- */
+.acc{border:1px solid var(--line);border-left:3px solid var(--line-2);border-radius:8px;
+  background:var(--surface);margin-bottom:12px;overflow:hidden;transition:border-color .18s}
+.acc.pend{border-left-color:var(--warn)}
+.acc.ok{border-left-color:var(--ok)}
+.acc.cr{border-left-color:var(--crit)}
+.acc-h{display:flex;align-items:center;gap:11px;width:100%;padding:13px 16px;background:transparent;
+  border:0;text-align:left;font:inherit}
+.acc-h:hover{background:var(--surface-2)}
+.acc-n{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);
+  border:1px solid var(--line-2);border-radius:4px;width:20px;height:20px;display:grid;place-items:center;flex:none}
+.acc.ok .acc-n{border-color:var(--ok);color:var(--ok)}
+.acc-t{font-weight:600;font-size:14.5px;flex:1;min-width:0}
+.acc-s{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;
+  padding:2px 9px;border-radius:11px;white-space:nowrap}
+.acc-s svg{width:13px;height:13px}
+.st-pend{background:var(--warn-soft);color:var(--warn)}
+.st-ok{background:var(--ok-soft);color:var(--ok)}
+.st-mu{background:var(--surface-3);color:var(--ink-3)}
+.st-cr{background:var(--crit-soft);color:var(--crit)}
+.acc-caret{width:15px;height:15px;color:var(--ink-3);transition:transform .16s;flex:none}
+.acc.closed .acc-caret{transform:rotate(-90deg)}
+.acc.closed .acc-c{display:none}
+.acc-c{padding:2px 16px 18px}
+.f input.falta,.f select.falta{border-color:var(--warn);background:var(--warn-soft)}
+.f .req{color:var(--warn)}
+.form-foot{position:sticky;bottom:0;background:var(--surface);border:1px solid var(--line);
+  border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  box-shadow:0 -4px 16px -10px rgba(20,28,38,.3);margin-top:4px}
+.prog{flex:1;min-width:190px}
+.prog .t{font-size:12px;color:var(--ink-3);margin-bottom:5px}
+.prog .bar{height:4px;background:var(--surface-3);border-radius:3px;overflow:hidden}
+.prog .bar i{display:block;height:100%;background:var(--ok);border-radius:3px;transition:width .25s}
+.foot-acts{display:flex;gap:8px}
+
 /* misc */
 .note{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--navy);
   border-radius:0 7px 7px 0;padding:12px 15px;font-size:12.5px;color:var(--ink-2)}
@@ -750,91 +786,201 @@ function vMinhas(){
    ${PERMS[ROLE].escopo==='PROPRIO'?`<div class="note" style="margin-top:14px"><b>Escopo do perfil Solicitante:</b> você só enxerga o que lançou. Financeiro e Diretoria veem todas as filiais.</div>`:''}`;
 }
 
-function vNova(){
-  return head()+`
-  <div class="card"><div class="card-b">
-    <fieldset><legend>1 · Identificação</legend>
-      <div class="form">
-        <div class="f"><label>Nº da solicitação</label><input class="calc" value="SOL-2026-00033" readonly></div>
-        <div class="f"><label>Data da solicitação</label><input class="calc" value="21/09/2026" readonly></div>
-        <div class="f"><label>Solicitante</label><input class="calc" value="${USERS[ROLE][0]}" readonly></div>
-        <div class="f"><label>Área solicitante <span class="req">*</span></label>
-          <select><option>Manutenção / Frota</option><option>Administrativo</option><option>Operação Armazém</option><option>TI</option></select></div>
-        <div class="f"><label>Filial de emissão da NF <span class="req">*</span></label>
-          <select><option>RP · Rio Preto (Matriz)</option><option>CPQ · Campinas</option><option>OSA · Osasco</option><option>SPO · São Paulo</option></select></div>
-        <div class="f"><label>Fornecedor <span class="req">*</span></label>
-          <select id="fForn"><option>Recapadora Paulista S/A</option><option>Truck Center Peças e Serviços ME</option><option>Posto Rodoviário Rio Preto Ltda</option></select>
-          <span class="hint">Só fornecedores com status ATIVO aparecem aqui.</span></div>
-      </div>
-    </fieldset>
-    <fieldset><legend>2 · Classificação contábil</legend>
-      <div class="form">
-        <div class="f"><label>Classificação <span class="req">*</span></label>
-          <select id="fCod" onchange="calc()">
-            <option value="3.01.003">3.01.003 · Pneus e Recapagem</option>
-            <option value="3.01.001">3.01.001 · Combustível / Diesel</option>
-            <option value="3.03.004">3.03.004 · Material de Escritório</option>
-            <option value="3.05.001">3.05.001 · Equipamentos de TI</option></select></div>
-        <div class="f"><label>Grupo DRE</label><input class="calc" id="fGrp" readonly></div>
-        <div class="f"><label>Natureza</label><input class="calc" id="fNat" readonly></div>
-        <div class="f"><label>Exige rateio?</label><input class="calc" id="fRat" readonly></div>
-      </div>
-    </fieldset>
-    <fieldset><legend>3 · Valor e condições</legend>
-      <div class="form">
-        <div class="f w2"><label>Descrição do item / serviço</label><input value="Recapagem de 16 pneus 295/80 R22.5" placeholder="Opcional — a classificação já detalha"></div>
-        <div class="f"><label>Valor bruto estimado (R$) <span class="req">*</span></label><input id="fVal" value="12600" oninput="calc()"></div>
-        <div class="f"><label>Condição de pagamento</label><select id="fCond"><option>30/60 dias</option><option>À vista</option><option>Fora semana / próx. quarta</option></select></div>
-        <div class="f"><label>Forma de pagamento</label><select><option>Boleto bancário</option><option>PIX</option><option>Cartão de crédito</option><option>Transferência (TED)</option></select></div>
-        <div class="f"><label>Data prevista de pagamento <span class="req">*</span></label><input id="fDt" type="date" value="2026-10-16" onchange="calc()"></div>
-      </div>
-    </fieldset>
-    <fieldset><legend>4 · Validação automática</legend>
-      <div class="form">
-        <div class="f"><label>Antecedência mínima</label><input class="calc" id="fAntM" readonly></div>
-        <div class="f"><label>Antecedência praticada</label><input class="calc" id="fAntP" readonly></div>
-        <div class="f"><label>Alçada requerida</label><input class="calc" id="fAlc" readonly></div>
-        <div class="f"><label>Aprovador</label><input class="calc" id="fApr" readonly></div>
-        <div class="f"><label>Semana do pagamento</label><input class="calc" id="fSem" readonly></div>
-        <div class="f"><label>Saldo projetado da semana</label><input class="calc" id="fSaldo" readonly></div>
-      </div>
-      <div id="fVerdict" style="margin-top:14px"></div>
-    </fieldset>
-    <div style="display:flex;gap:9px;justify-content:flex-end;border-top:1px solid var(--line);padding-top:16px">
-      <button class="btn" onclick="toast('Rascunho salvo no navegador (localStorage).')">Salvar rascunho</button>
-      <button class="btn pri" onclick="toast('Solicitação SOL-2026-00033 enviada para aprovação. Log registrado.')">${svg(I.check)}Enviar para aprovação</button>
-    </div>
-  </div></div>`;
+/* ============================================================
+   NOVA SOLICITAÇÃO — acordeão com estado por seção
+   ============================================================ */
+const PC_MAP={
+ '3.01.001':{g:'Custo Operacional - Frota',n:'Custo',r:'Sim',ant:1, cond:'À vista'},
+ '3.01.002':{g:'Custo Operacional - Frota',n:'Custo',r:'Sim',ant:3, cond:'28 dias'},
+ '3.01.003':{g:'Custo Operacional - Frota',n:'Custo',r:'Sim',ant:7, cond:'30/60 dias'},
+ '3.03.004':{g:'Despesa Administrativa',   n:'Despesa',r:'Sim',ant:7, cond:'Fora semana / próx. quarta'},
+ '3.05.001':{g:'Investimento (CAPEX)',     n:'Investimento',r:'Sim',ant:10,cond:'30/60 dias'}
+};
+const ALC=[[2000,'Alçada 1 · Supervisão','Supervisor Administrativo'],
+           [10000,'Alçada 2 · Gerência','Gerente Adm./Financeiro'],
+           [50000,'Alçada 3 · Diretoria Financeira','Diretor Financeiro'],
+           [9e9,'Alçada 4 · Diretoria','Diretor Financeiro + CEO']];
+
+const REQ={1:['fArea','fFil','fForn'],2:['fCod'],3:['fVal','fDt']};
+const ROTULO={fArea:'Área solicitante',fFil:'Filial de emissão',fForn:'Fornecedor',
+              fCod:'Classificação',fVal:'Valor bruto',fDt:'Data prevista de pagamento'};
+let FORM={aberto:{1:true,2:true,3:true,4:true},tocado:{},tentou:false};
+
+const val = id => (document.getElementById(id)||{}).value || '';
+const opt = (v,t)=>`<option value="${v}">${t||v}</option>`;
+
+function campo(id,label,obrig,html,hint){
+  return `<div class="f"><label for="${id}">${label}${obrig?' <span class="req">*</span>':''}</label>
+    ${html}${hint?`<span class="hint">${hint}</span>`:''}</div>`;
 }
-const PC_MAP={'3.01.003':['Custo Operacional - Frota','Custo','Sim',7],'3.01.001':['Custo Operacional - Frota','Custo','Sim',1],
- '3.03.004':['Despesa Administrativa','Despesa','Sim',7],'3.05.001':['Investimento (CAPEX)','Investimento','Sim',10]};
-const ALC=[[2000,'Alçada 1 · Supervisão','Supervisor Administrativo'],[10000,'Alçada 2 · Gerência','Gerente Adm./Financeiro'],
- [50000,'Alçada 3 · Diretoria Financeira','Diretor Financeiro'],[9e9,'Alçada 4 · Diretoria','Diretor Financeiro + CEO']];
+function sel(id,itens,vazio){
+  return `<select id="${id}" onchange="marcar('${id}');checar()" onblur="marcar('${id}');checar()">
+    <option value="">${vazio||'— selecione —'}</option>${itens.map(i=>opt(i.v||i,i.t||i)).join('')}</select>`;
+}
+function calcField(id,label){
+  return `<div class="f"><label>${label}</label><input class="calc" id="${id}" readonly></div>`;
+}
+function secao(n,titulo,corpo){
+  return `<section class="acc ${FORM.aberto[n]?'':'closed'}" id="acc${n}">
+    <button class="acc-h" onclick="toggleSec(${n})" aria-expanded="${FORM.aberto[n]}" aria-controls="c${n}">
+      <svg class="acc-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      <span class="acc-n">${n}</span><span class="acc-t">${titulo}</span>
+      <span class="acc-s st-mu" id="st${n}">—</span>
+    </button>
+    <div class="acc-c" id="c${n}">${corpo}</div></section>`;
+}
+function toggleSec(n){
+  FORM.aberto[n]=!FORM.aberto[n];
+  const a=document.getElementById('acc'+n);
+  a.classList.toggle('closed',!FORM.aberto[n]);
+  a.querySelector('.acc-h').setAttribute('aria-expanded',FORM.aberto[n]);
+}
+function marcar(id){ FORM.tocado[id]=true; }
+
+function vNova(){
+  return head(`<button class="btn" onclick="preencherExemplo()">Preencher exemplo</button>`)+
+  secao(1,'Identificação',`<div class="form">
+    ${campo('fNum','Nº da solicitação',false,'<input class="calc" value="SOL-2026-00033" readonly>')}
+    ${campo('fData','Data da solicitação',false,'<input class="calc" value="21/09/2026" readonly>')}
+    ${campo('fSol','Solicitante',false,`<input class="calc" value="${USERS[ROLE][0]}" readonly>`)}
+    ${campo('fArea','Área solicitante',true,sel('fArea',['Manutenção / Frota','Administrativo','Operação Armazém','TI','RH','Diretoria']))}
+    ${campo('fFil','Filial de emissão da NF',true,sel('fFil',[{v:'RP',t:'RP · Rio Preto (Matriz)'},{v:'CPQ',t:'CPQ · Campinas'},{v:'OSA',t:'OSA · Osasco'},{v:'SPO',t:'SPO · São Paulo'}]))}
+    ${campo('fForn','Fornecedor',true,sel('fForn',['Recapadora Paulista S/A','Truck Center Peças e Serviços ME','Posto Rodoviário Rio Preto Ltda','Papelaria Central Distribuidora']),'Só fornecedores com status ATIVO aparecem aqui.')}
+  </div>`)+
+  secao(2,'Classificação contábil',`<div class="form">
+    ${campo('fCod','Classificação',true,sel('fCod',[{v:'3.01.001',t:'3.01.001 · Combustível / Diesel'},{v:'3.01.002',t:'3.01.002 · Peças e Manutenção de Frota'},{v:'3.01.003',t:'3.01.003 · Pneus e Recapagem'},{v:'3.03.004',t:'3.03.004 · Material de Escritório'},{v:'3.05.001',t:'3.05.001 · Equipamentos de TI'}]),'Define natureza, prazo mínimo, condição padrão e rateio.')}
+    ${calcField('fGrp','Grupo DRE')}${calcField('fNat','Natureza')}${calcField('fRat','Exige rateio?')}
+  </div>`)+
+  secao(3,'Valor e condições',`<div class="form">
+    <div class="f w2"><label for="fDesc">Descrição do item / serviço</label>
+      <input id="fDesc" placeholder="Opcional — a classificação já detalha">
+      <span class="hint">Opcional.</span></div>
+    ${campo('fVal','Valor bruto estimado (R$)',true,`<input id="fVal" inputmode="decimal" placeholder="0,00" oninput="checar()" onblur="marcar('fVal');checar()">`)}
+    ${campo('fCond','Condição de pagamento',false,sel('fCond',['À vista','Fora semana / próx. quarta','15 dias','28 dias','30/60 dias'],'— usar a padrão da classificação —'))}
+    ${campo('fForma','Forma de pagamento',false,sel('fForma',['Boleto bancário','PIX','Cartão de crédito','Transferência (TED)','Débito automático']))}
+    ${campo('fDt','Data prevista de pagamento',true,`<input id="fDt" type="date" onchange="marcar('fDt');checar()" onblur="marcar('fDt');checar()">`)}
+  </div>`)+
+  secao(4,'Validação e impacto no caixa',`<div class="form">
+    ${calcField('fAntM','Antecedência mínima')}${calcField('fAntP','Antecedência praticada')}
+    ${calcField('fAlc','Alçada requerida')}${calcField('fApr','Aprovador')}
+    ${calcField('fSem','Semana do pagamento')}${calcField('fSaldo','Saldo projetado da semana')}
+  </div><div id="fVerdict" style="margin-top:14px"></div>`)+
+  `<div class="form-foot">
+     <div class="prog"><div class="t" id="progT">—</div><div class="bar"><i id="progB" style="width:0"></i></div></div>
+     <div class="foot-acts">
+       <button class="btn" onclick="toast('Rascunho salvo no navegador. Você pode fechar e voltar depois.')">Salvar rascunho</button>
+       <button class="btn pri" id="btnEnviar" onclick="enviar()">${svg(I.check)}Enviar para aprovação</button>
+     </div>
+   </div>`;
+}
+
+/** Recalcula estado das seções, campos, barra de progresso e o veredito. */
+function checar(){
+  let completas=0, primeiraIncompleta=null, faltaGeral=[];
+  [1,2,3].forEach(n=>{
+    const faltam=REQ[n].filter(id=>!val(id));
+    faltam.forEach(id=>faltaGeral.push(ROTULO[id]));
+    REQ[n].forEach(id=>{
+      const el=document.getElementById(id); if(!el)return;
+      el.classList.toggle('falta', Boolean(!val(id) && (FORM.tentou || FORM.tocado[id])));
+    });
+    const acc=document.getElementById('acc'+n), st=document.getElementById('st'+n);
+    if(!acc)return;
+    acc.classList.toggle('ok',faltam.length===0);
+    acc.classList.toggle('pend',faltam.length>0);
+    st.className='acc-s '+(faltam.length===0?'st-ok':'st-pend');
+    st.innerHTML=faltam.length===0
+      ? svg(I.check)+'Completo'
+      : faltam.length+(faltam.length===1?' campo pendente':' campos pendentes');
+    if(faltam.length===0)completas++; else if(primeiraIncompleta===null)primeiraIncompleta=n;
+  });
+
+  const pct=Math.round(completas/3*100);
+  document.getElementById('progB').style.width=pct+'%';
+  const resumo = faltaGeral.length<=2
+      ? 'falta ' + faltaGeral.join(' e ').toLowerCase()
+      : faltaGeral.length + ' campos obrigatórios pendentes';
+  document.getElementById('progT').textContent=
+    completas===3 ? 'Pronta para enviar' : `${completas} de 3 seções completas · ${resumo}`;
+
+  calc();
+  return {completas:completas, primeira:primeiraIncompleta, faltam:faltaGeral};
+}
+
+/** Seção 4 — só calcula o que já dá para calcular. */
 function calc(){
-  const cod=document.getElementById('fCod').value, pc=PC_MAP[cod];
-  document.getElementById('fGrp').value=pc[0];
-  document.getElementById('fNat').value=pc[1];
-  document.getElementById('fRat').value=pc[2];
-  document.getElementById('fAntM').value=pc[3]+' dias';
-  const dt=new Date(document.getElementById('fDt').value+'T00:00:00'), hoje=new Date('2026-09-21T00:00:00');
+  const cod=val('fCod'), pc=PC_MAP[cod];
+  const set=(id,v)=>{const e=document.getElementById(id); if(e)e.value=v;};
+  set('fGrp',pc?pc.g:''); set('fNat',pc?pc.n:''); set('fRat',pc?pc.r:'');
+  set('fAntM',pc?pc.ant+' dias':'');
+
+  const acc4=document.getElementById('acc4'), st4=document.getElementById('st4');
+  const dtTxt=val('fDt'), valor=Number(String(val('fVal')).replace(/\./g,'').replace(',','.'))||0;
+
+  if(!pc||!dtTxt||!valor){
+    ['fAntP','fAlc','fApr','fSem','fSaldo'].forEach(id=>set(id,''));
+    if(acc4){acc4.classList.remove('ok','pend','cr');}
+    if(st4){st4.className='acc-s st-mu';st4.textContent='Aguardando os campos acima';}
+    const v=document.getElementById('fVerdict');
+    if(v)v.innerHTML=`<div class="verdict" style="background:var(--surface-2);color:var(--ink-3)">
+      <div style="flex:none">${svg('M12 8v5M12 16.5h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18')}</div>
+      <div><b>Nada a validar ainda</b><p>Preencha a classificação, o valor e a data prevista — a regra e o saldo aparecem aqui na hora.</p></div></div>`;
+    return;
+  }
+
+  const dt=new Date(dtTxt+'T00:00:00'), hoje=new Date('2026-09-21T00:00:00');
   const dias=Math.round((dt-hoje)/864e5);
-  document.getElementById('fAntP').value=dias+' dias';
-  const val=Number(document.getElementById('fVal').value||0);
-  const a=ALC.find(x=>val<=x[0]);
-  document.getElementById('fAlc').value=a[1]; document.getElementById('fApr').value=a[2];
-  let wi=-1; for(let i=WDATE.length-1;i>=0;i--){const [d,m]=WDATE[i].split('/');const wd=new Date(2026,+m-1,+d);if(wd<=dt){wi=i;break}}
+  set('fAntP',dias+' dias');
+  const a=ALC.find(x=>valor<=x[0]);
+  set('fAlc',a[1]); set('fApr',a[2]);
+
+  let wi=-1;
+  for(let i=WDATE.length-1;i>=0;i--){const [d,m]=WDATE[i].split('/');
+    if(new Date(2026,+m-1,+d)<=dt){wi=i;break}}
   const saldo=wi>=0?FLOW.saldoAcu[wi]:null;
-  document.getElementById('fSem').value=wi>=0?WEEKS[wi]+' · '+WDATE[wi]:'fora do horizonte';
-  document.getElementById('fSaldo').value=saldo!==null?'R$ '+m0(saldo):'—';
+  set('fSem',wi>=0?WEEKS[wi]+' · '+WDATE[wi]:'fora do horizonte');
+  set('fSaldo',saldo!==null?'R$ '+m0(saldo):'—');
+
   let k,t,d;
   if(saldo===null){k='wa';t='SEM PROJEÇÃO DE CAIXA';d='A data está fora das 12 semanas do fluxo.';}
   else if(saldo<0){k='cr';t='REPROGRAMAR';d='A semana fecha com caixa negativo.';}
   else if(saldo<150000){k='wa';t='AVALIAR NA REUNIÃO';d='Saldo abaixo do mínimo de segurança (R$ 150.000).';}
-  else if(dias<pc[3]){k='wa';t='AVALIAR — fora do prazo';d=`A classificação exige ${pc[3]} dias de antecedência; foram pedidos ${dias}.`;}
+  else if(dias<pc.ant){k='wa';t='AVALIAR — fora do prazo';
+    d=`A classificação exige ${pc.ant} dias de antecedência; foram pedidos ${dias}.`;}
   else {k='ok';t='LIBERAR';d='Há caixa na semana e a regra de antecedência foi cumprida.';}
+
+  if(acc4){acc4.classList.toggle('ok',k==='ok');acc4.classList.toggle('pend',k==='wa');
+           acc4.classList.toggle('cr',k==='cr');}
+  if(st4){st4.className='acc-s '+(k==='ok'?'st-ok':k==='cr'?'st-cr':'st-pend');st4.textContent=t;}
   document.getElementById('fVerdict').innerHTML=`<div class="verdict ${k}">
     <div style="flex:none">${svg(k==='ok'?I.check:'M12 8v5M12 16.5h.01M10.3 3.9 2.4 17.4A1.9 1.9 0 0 0 4 20.3h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z')}</div>
     <div><b>${t}</b><p>${d}</p></div></div>`;
+}
+
+/** Não bloqueia o botão: deixa clicar e diz exatamente o que falta. */
+function enviar(){
+  FORM.tentou=true;
+  const r=checar();
+  if(r.completas<3){
+    if(!FORM.aberto[r.primeira])toggleSec(r.primeira);
+    const alvo=REQ[r.primeira].find(id=>!val(id));
+    const el=document.getElementById(alvo);
+    el.scrollIntoView({block:'center',behavior:'smooth'}); el.focus();
+    toast(r.faltam.length===1 ? 'Falta preencher: '+r.faltam[0]+'.'
+                              : 'Faltam '+r.faltam.length+' campos. Comece por '+r.faltam[0]+'.');
+    return;
+  }
+  toast('Solicitação SOL-2026-00033 enviada para aprovação. Log registrado.');
+}
+
+function preencherExemplo(){
+  const p={fArea:'Manutenção / Frota',fFil:'RP',fForn:'Recapadora Paulista S/A',fCod:'3.01.003',
+           fDesc:'Recapagem de 16 pneus 295/80 R22.5',fVal:'12600',fCond:'30/60 dias',
+           fForma:'Boleto bancário',fDt:'2026-10-16'};
+  Object.keys(p).forEach(id=>{const e=document.getElementById(id);if(e)e.value=p[id];FORM.tocado[id]=true;});
+  checar();
+  toast('Exemplo preenchido — veja as quatro seções mudarem de estado.');
 }
 
 function vAprov(){
@@ -1106,7 +1252,7 @@ const VIEWS={inicio:vInicio,minhas:vMinhas,nova:vNova,aprovacoes:vAprov,fluxo:vF
  usuarios:vUsuarios,perfis:vPerfis,import:vImport,logs:vLogs,params:vParams};
 function render(){
   document.getElementById('view').innerHTML=(VIEWS[VIEW]||vInicio)();
-  if(VIEW==='nova')calc();
+  if(VIEW==='nova')checar();
 }
 
 /* ============================================================
