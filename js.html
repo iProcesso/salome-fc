@@ -1,0 +1,865 @@
+<!-- js.html — UI do protótipo. Substitua os blocos de DADOS FICTÍCIOS pelas chamadas a api(). -->
+<script>
+/* ---------------------------------------------------------------------------
+ * Ponte com o servidor. TODA chamada passa por aqui.
+ * --------------------------------------------------------------------------- */
+const Sessao = {
+  token()      { try { return localStorage.getItem('fc_token') || ''; } catch (e) { return ''; } },
+  set(t)       { try { localStorage.setItem('fc_token', t); } catch (e) {} },
+  limpar()     { try { localStorage.removeItem('fc_token'); } catch (e) {} }
+};
+
+function api(acao, payload = {}) {
+  return new Promise((resolve, reject) => {
+    if (typeof google === 'undefined' || !google.script) {
+      return reject({ codigo: 'OFFLINE', mensagem: 'Rodando fora do Apps Script (modo protótipo).' });
+    }
+    google.script.run
+      .withSuccessHandler(r => r.ok ? resolve(r.dados) : reject(r))
+      .withFailureHandler(e => reject({ codigo: 'ERRO_SERVIDOR', mensagem: String(e && e.message || e) }))
+      .api(acao, payload, Sessao.token());
+  });
+}
+
+/* Exemplo de troca: substitua os arrays fictícios por
+ *   const dados = await api('bootstrap');
+ *   const pendentes = await api('sol.listar', { status: ['AGUARDANDO_APROVACAO','REPROGRAMADO'] });
+ * mantendo o restante da UI como está.
+ */
+
+/* ============================================================
+   ÍCONES
+   ============================================================ */
+const I = {
+  home:'M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
+  doc:'M6 2h8l4 4v16H6zM14 2v4h4',
+  plus:'M12 5v14M5 12h14',
+  check:'M4 12l5 5L20 6',
+  flow:'M3 17l5-5 4 3 8-8M21 7v5h-5',
+  pay:'M3 7h18v11H3zM3 11h18M7 15h3',
+  rec:'M3 7h18v11H3zM7 11h6M7 15h3',
+  split:'M6 3v6a3 3 0 0 0 3 3h9M18 8l3 4-3 4M6 21v-6',
+  chart:'M4 20V9M10 20V4M16 20v-7M22 20H2',
+  budget:'M4 5h16v14H4zM4 10h16M9 10v9',
+  book:'M4 4h13a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3zM7 4v13',
+  truck:'M2 7h11v9H2zM13 10h4l3 3v3h-7M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4M17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4',
+  pin:'M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11M12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5',
+  user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M4 21a8 8 0 0 1 16 0',
+  key:'M14 8a4 4 0 1 1-3.4 6.1L4 21H2v-2l6.9-6.6A4 4 0 0 1 14 8M15.5 7.5h.01',
+  up:'M12 19V5M6 11l6-6 6 6M4 21h16',
+  log:'M4 4h16v16H4zM8 9h8M8 13h8M8 17h5',
+  cog:'M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7.9 19.4l-.1.1A2 2 0 1 1 5 16.7l.1-.1A1.6 1.6 0 0 0 4 13.9H4a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 5.2 7.2L5.1 7A2 2 0 1 1 7.9 4.2l.1.1a1.6 1.6 0 0 0 2.7-1.1V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1A2 2 0 1 1 20.3 7l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1.2',
+  phone:'M7 2h10v20H7zM11 18h2'
+};
+const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+
+/* ============================================================
+   PERMISSÕES (espelha a aba PERMISSOES do Google Sheets)
+   ============================================================ */
+const PERMS = {
+  SOLICITANTE:{ver:['inicio','minhas','nova'],acao:{incluir:['SOLICITACAO'],alterar:['SOLICITACAO'],inativar:[],aprovar:[]},limite:0,escopo:'PROPRIO'},
+  FINANCEIRO :{ver:['inicio','minhas','nova','aprovacoes','fluxo','pagar','receber','rateio','gerencial','orcamento','plano','fornecedores','filiais','import'],
+               acao:{incluir:['SOLICITACAO','TITULO','FORNECEDOR'],alterar:['SOLICITACAO','TITULO','FORNECEDOR','RATEIO'],inativar:['FORNECEDOR'],aprovar:['SOLICITACAO']},limite:10000,escopo:'TODAS'},
+  DIRETORIA  :{ver:['inicio','minhas','nova','aprovacoes','fluxo','pagar','receber','rateio','gerencial','orcamento','plano','fornecedores','filiais'],
+               acao:{incluir:['SOLICITACAO'],alterar:['SOLICITACAO','ORCAMENTO'],inativar:[],aprovar:['SOLICITACAO']},limite:9999999,escopo:'TODAS'},
+  ADMIN      :{ver:'*',acao:{incluir:['*'],alterar:['*'],inativar:['*'],aprovar:[]},limite:0,escopo:'TODAS'}
+};
+let ROLE='DIRETORIA';
+const can = (a,r)=>{const p=PERMS[ROLE].acao[a]||[];return p.includes('*')||p.includes(r)};
+const sees = v => PERMS[ROLE].ver==='*'||PERMS[ROLE].ver.includes(v);
+const podeAprovar = valor => PERMS[ROLE].acao.aprovar.includes('SOLICITACAO') && valor<=PERMS[ROLE].limite;
+
+const USERS={SOLICITANTE:['Celso Martins','CS'],FINANCEIRO:['Ana Paula Cruz','AC'],
+             DIRETORIA:['Carlos Salomé','CS'],ADMIN:['Kleber Zumiotti','KZ']};
+
+/* ============================================================
+   DADOS FICTÍCIOS
+   ============================================================ */
+const money = n => n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const m0 = n => n.toLocaleString('pt-BR',{maximumFractionDigits:0});
+const SOL = [
+ {id:'SOL-2026-00013',dt:'26/08',sol:'Celso Martins',area:'Manutenção / Frota',fil:'RP',forn:'Recapadora Paulista S/A',cod:'3.01.003',cls:'Pneus e Recapagem',desc:'12 pneus 295/80 R22.5 — reposição frota',val:31800,cond:'30/60 dias',forma:'Boleto',prev:'30/09',ant:'OK',alc:'Diretoria Financeira',st:'Reprogramado',sem:'S5',saldo:372050,rec:'AVALIAR',obs:'Sem caixa em 09/09 — reprogramado na reunião'},
+ {id:'SOL-2026-00024',dt:'18/09',sol:'Maitê Ribeiro',area:'Administrativo',fil:'RP',forn:'Papelaria Central Distribuidora',cod:'3.03.004',cls:'Material de Escritório',desc:'Material de escritório — reposição',val:1180,cond:'Fora semana / próx. quarta',forma:'Cartão',prev:'23/09',ant:'FORA DO PRAZO',alc:'Supervisão',st:'Aguardando Aprovação',sem:'S4',saldo:225500,rec:'AVALIAR',obs:'Pediu 5 dias; a classificação exige 7'},
+ {id:'SOL-2026-00025',dt:'07/09',sol:'Erick Souza',area:'Manutenção / Frota',fil:'CPQ',forn:'Truck Center Peças e Serviços ME',cod:'3.01.002',cls:'Peças e Manutenção de Frota',desc:'Peças diversas — manutenção preventiva',val:7300,cond:'28 dias',forma:'Boleto',prev:'05/10',ant:'OK',alc:'Gerência',st:'Aguardando Aprovação',sem:'S6',saldo:29950,rec:'REPROGRAMAR',obs:''},
+ {id:'SOL-2026-00027',dt:'09/09',sol:'Diretoria',area:'Diretoria',fil:'RP',forn:'Construtora Predial Rio Preto',cod:'3.05.003',cls:'Benfeitorias e Obras',desc:'Ampliação de docas — barracão RP (etapa 1)',val:86000,cond:'30/60 dias',forma:'Boleto',prev:'09/10',ant:'OK',alc:'Diretoria (2 assinaturas)',st:'Aguardando Aprovação',sem:'S6',saldo:29950,rec:'REPROGRAMAR',obs:'CAPEX — exige dupla aprovação'},
+ {id:'SOL-2026-00030',dt:'15/09',sol:'Fausto Lima',area:'Administrativo',fil:'RP',forn:'Sascar Tecnologia e Segurança',cod:'3.01.005',cls:'Rastreamento e Telemetria',desc:'Rastreamento 38 veículos — out/26',val:6080,cond:'10 dias',forma:'Boleto',prev:'12/10',ant:'OK',alc:'Gerência',st:'Aguardando Aprovação',sem:'S7',saldo:169270,rec:'LIBERAR',obs:''},
+ {id:'SOL-2026-00031',dt:'16/09',sol:'Josimar Naldo',area:'Operação Armazém',fil:'SPO',forn:'Transportes Agregados JM Ltda',cod:'3.02.003',cls:'Armazenagem e Movimentação',desc:'Movimentação extra — pico de volume cliente Axo',val:11800,cond:'21 dias',forma:'Boleto',prev:'07/10',ant:'OK',alc:'Diretoria Financeira',st:'Aguardando Aprovação',sem:'S6',saldo:29950,rec:'REPROGRAMAR',obs:''},
+ {id:'SOL-2026-00032',dt:'17/09',sol:'Celso Martins',area:'Manutenção / Frota',fil:'RP',forn:'Recapadora Paulista S/A',cod:'3.01.003',cls:'Pneus e Recapagem',desc:'Recapagem 16 pneus',val:12600,cond:'30/60 dias',forma:'Boleto',prev:'16/10',ant:'OK',alc:'Diretoria Financeira',st:'Aguardando Aprovação',sem:'S7',saldo:169270,rec:'LIBERAR',obs:''},
+ {id:'SOL-2026-00016',dt:'28/08',sol:'Lucas Andrade',area:'TI',fil:'RP',forn:'InfoTech Soluções em TI Ltda',cod:'3.05.001',cls:'Equipamentos de TI',desc:'3 notebooks — novos colaboradores',val:13500,cond:'30/60 dias',forma:'Boleto',prev:'16/09',ant:'OK',alc:'Diretoria Financeira',st:'Comprometido',sem:'S3',saldo:108080,rec:'—',obs:'NF 4471 recebida'},
+ {id:'SOL-2026-00020',dt:'01/09',sol:'Josimar Naldo',area:'Operação Armazém',fil:'OSA',forn:'Transportes Agregados JM Ltda',cod:'3.02.001',cls:'Freteiro / Agregado',desc:'Frete agregado — 1ª quinzena set',val:26000,cond:'Fora semana / próx. quarta',forma:'PIX',prev:'16/09',ant:'OK',alc:'Diretoria Financeira',st:'Comprometido',sem:'S3',saldo:108080,rec:'—',obs:'NF R$ 26.400 — divergência de R$ 400'},
+ {id:'SOL-2026-00028',dt:'10/09',sol:'Celso Martins',area:'Manutenção / Frota',fil:'RP',forn:'Posto Rodoviário Rio Preto Ltda',cod:'3.01.001',cls:'Combustível / Diesel',desc:'Diesel S10 — 8.000 L',val:38900,cond:'À vista',forma:'PIX',prev:'14/09',ant:'OK',alc:'Diretoria Financeira',st:'Pago',sem:'S3',saldo:108080,rec:'—',obs:''},
+ {id:'SOL-2026-00011',dt:'25/08',sol:'Ana Paula Cruz',area:'RH',fil:'RP',forn:'Folha — interno',cod:'3.04.001',cls:'Folha de Pagamento',desc:'Folha de pagamento — ago/26',val:412000,cond:'À vista',forma:'TED',prev:'04/09',ant:'OK',alc:'Diretoria (2 assinaturas)',st:'Pago',sem:'S1',saldo:48310,rec:'—',obs:'Estrutural'},
+ {id:'SOL-2026-00021',dt:'01/09',sol:'Fausto Lima',area:'Administrativo',fil:'RP',forn:'CPFL Paulista',cod:'3.03.002',cls:'Energia Elétrica',desc:'Energia elétrica — ago/26',val:15100,cond:'À vista',forma:'Déb. automático',prev:'18/09',ant:'OK',alc:'Diretoria Financeira',st:'Pago',sem:'S3',saldo:108080,rec:'—',obs:''}
+];
+const STMAP={'Aguardando Aprovação':'t-wa','Aprovado':'t-nv','Reprogramado':'t-cr','Comprometido':'t-in','Pago':'t-ok','Reprovado':'t-mu'};
+const RECMAP={'LIBERAR':'ok','AVALIAR':'wa','REPROGRAMAR':'cr','—':'mu'};
+const PEND = SOL.filter(s=>['Aguardando Aprovação','Reprogramado'].includes(s.st));
+
+const WEEKS=['S1','S2','S3','S4','S5','S6','S7','S8','S9','S10','S11','S12'];
+const WDATE=['31/08','07/09','14/09','21/09','28/09','05/10','12/10','19/10','26/10','02/11','09/11','16/11'];
+const FLOW={
+ entradas:[['Recebido (liquidado)',[60000,0,0,0,0,0,0,0,0,0,0,0]],
+           ['Recebível confirmado',[90000,113900,107200,0,0,0,0,0,0,0,0,0]],
+           ['CT-e previsto',[0,56100,52800,172000,165000,178000,158000,175000,168000,160000,172000,166000]]],
+ saidas:[['Combustível / Diesel',[38200,0,38900,0,0,0,0,0,0,0,0,0]],
+         ['Peças e Manutenção de Frota',[7120,18900,0,0,9400,7300,0,0,0,0,0,0]],
+         ['Pneus e Recapagem',[0,0,0,0,31800,0,12600,0,0,0,0,0]],
+         ['Rastreamento e Telemetria',[0,6080,0,0,0,6080,0,0,0,0,0,0]],
+         ['Freteiro / Agregado',[27950,0,26400,0,0,0,0,0,0,0,0,0]],
+         ['Armazenagem e Movimentação',[0,0,0,0,0,11800,0,0,0,0,0,0]],
+         ['Energia Elétrica',[0,0,15100,0,0,0,0,0,0,0,0,0]],
+         ['Material de Escritório',[1420,0,0,1180,0,0,0,0,0,0,0,0]],
+         ['Material de Limpeza e Copa',[0,3050,0,0,0,0,0,0,0,0,0,0]],
+         ['Licenças de Software / SaaS',[0,0,0,0,9050,0,0,0,0,0,0,0]],
+         ['Seguros',[0,0,0,22400,0,0,0,0,0,0,0,0]],
+         ['Folha de Pagamento',[412000,0,0,0,0,415000,0,0,0,0,0,0]],
+         ['Encargos e Impostos s/ Folha',[0,148300,0,0,0,0,0,0,0,0,0,0]],
+         ['Equipamentos de TI',[0,0,13500,0,0,0,0,0,0,0,0,0]],
+         ['Benfeitorias e Obras',[0,0,0,0,0,86000,0,0,0,0,0,0]]],
+ tres:[['Previstas',[0,0,0,23580,50250,520100,18680,0,0,0,0,0]],
+       ['Comprometidas',[0,0,39900,0,0,0,0,0,0,0,0,0]],
+       ['Realizadas',[486690,176330,54000,0,0,0,0,0,0,0,0,0]]],
+ saldoIni:[385000,48310,41980,108080,256500,371250,29150,168470,343470,511470,671470,843470],
+ saldoAcu:[48310,41980,108080,256500,371250,29150,168470,343470,511470,671470,843470,1009470],
+ sit:['ATENÇÃO','ATENÇÃO','ATENÇÃO','OK','OK','ATENÇÃO','OK','OK','OK','OK','OK','OK']
+};
+const PLANO=[
+ ['3.01.001','Custo Operacional - Frota','Combustível / Diesel','Custo','Previsão',1,'À vista','Sim','Não','ATIVO'],
+ ['3.01.002','Custo Operacional - Frota','Peças e Manutenção de Frota','Custo','Previsão',3,'28 dias','Sim','Sim','ATIVO'],
+ ['3.01.003','Custo Operacional - Frota','Pneus e Recapagem','Custo','Previsão',7,'30/60 dias','Sim','Sim','ATIVO'],
+ ['3.01.004','Custo Operacional - Frota','Licenciamento, Taxas e Multas','Custo','Provisão',15,'À vista','Sim','Não','ATIVO'],
+ ['3.01.005','Custo Operacional - Frota','Rastreamento e Telemetria','Custo','Provisão',10,'10 dias','Sim','Não','ATIVO'],
+ ['3.02.001','Custo com Terceiros','Freteiro / Agregado','Custo','Previsão',5,'Fora semana','Sim','Não','ATIVO'],
+ ['3.03.004','Despesa Administrativa','Material de Escritório','Despesa','Previsão',7,'Fora semana','Sim','Não','ATIVO'],
+ ['3.03.009','Despesa Administrativa','Brindes e Cortesias','Despesa','Previsão',15,'30 dias','Não','Sim','INATIVO'],
+ ['3.04.001','Despesa com Pessoal','Folha de Pagamento','Despesa','Provisão',0,'À vista','Sim','Não','ATIVO'],
+ ['3.05.001','Investimento (CAPEX)','Equipamentos de TI','Investimento','Previsão',10,'30/60 dias','Sim','Sim','ATIVO']
+];
+const USUARIOS=[
+ ['USR-001','Carlos Salomé','carlos@salome.com.br','Diretoria','Todas','—','ATIVO','21/09/2026 08:12'],
+ ['USR-002','Ana Paula Cruz','anapaula@salome.com.br','Financeiro','Todas','R$ 10.000','ATIVO','21/09/2026 07:58'],
+ ['USR-003','Celso Martins','celso@salome.com.br','Solicitante','Rio Preto','—','ATIVO','20/09/2026 16:41'],
+ ['USR-004','Maitê Ribeiro','maite@salome.com.br','Solicitante','Rio Preto','—','ATIVO','19/09/2026 09:03'],
+ ['USR-005','Erick Souza','erick@salome.com.br','Solicitante','Campinas','—','ATIVO','18/09/2026 14:22'],
+ ['USR-006','Josimar Naldo','josimar@salome.com.br','Solicitante','Osasco','—','ATIVO','17/09/2026 11:35'],
+ ['USR-007','Fausto Lima','fausto@salome.com.br','Financeiro','Todas','R$ 10.000','ATIVO','21/09/2026 08:44'],
+ ['USR-008','Marcos Tolentino','marcos@salome.com.br','Solicitante','São Paulo','—','INATIVO','04/07/2026 10:11']
+];
+const RECURSOS=['Solicitação','Aprovação','Título a pagar','Título a receber','Rateio','Orçamento','Plano de contas','Fornecedor','Filial','Usuário','Perfil','Log'];
+const LOGATIV=[
+ ['21/09 08:47:12','carlos@salome.com.br','Diretoria','SOLICITACAO','APROVAR','SOL-2026-00030','STATUS','Aguardando Aprovação','Aprovado','MOBILE'],
+ ['21/09 08:46:55','carlos@salome.com.br','Diretoria','SESSAO','LOGIN_OK','—','—','—','—','MOBILE'],
+ ['21/09 08:12:04','anapaula@salome.com.br','Financeiro','SOLICITACAO','ALTERAR','SOL-2026-00020','VALOR_COMPROMETIDO','26.000,00','26.400,00','WEB'],
+ ['21/09 08:11:30','anapaula@salome.com.br','Financeiro','SOLICITACAO','ALTERAR','SOL-2026-00020','STATUS','Aprovado','Comprometido','WEB'],
+ ['20/09 17:22:41','kleber@iprocesso.com','Administrador','PLANO_CONTAS','INATIVAR','3.03.009','STATUS','ATIVO','INATIVO','WEB'],
+ ['20/09 16:41:09','celso@salome.com.br','Solicitante','SOLICITACAO','INCLUIR','SOL-2026-00032','—','—','—','WEB'],
+ ['20/09 16:39:58','celso@salome.com.br','Solicitante','SESSAO','LOGIN_FALHA','—','—','—','—','WEB'],
+ ['20/09 11:03:17','kleber@iprocesso.com','Administrador','USUARIO','ALTERAR','USR-008','STATUS','ATIVO','INATIVO','WEB']
+];
+const IMPORTS=[
+ ['IMP-2026-0014','20/09/2026 10:12','Plano de contas','plano_contas_v3.csv',22,22,0,'CONCLUIDA','kleber@iprocesso.com'],
+ ['IMP-2026-0013','18/09/2026 15:40','Fornecedores','fornecedores_set.csv',15,13,2,'CONCLUIDA COM ERROS','anapaula@salome.com.br'],
+ ['IMP-2026-0012','12/09/2026 09:05','Filiais','filiais.csv',4,4,0,'CONCLUIDA','kleber@iprocesso.com'],
+ ['IMP-2026-0011','11/09/2026 17:31','Orçamento 2026','orcamento_2026.csv',110,0,110,'REJEITADA','anapaula@salome.com.br']
+];
+
+/* ============================================================
+   MENU
+   ============================================================ */
+const MENU=[
+ {g:'',itens:[
+   {k:'inicio',t:'Início',i:I.home},
+   {k:'minhas',t:'Minhas solicitações',i:I.doc},
+   {k:'nova',t:'Nova solicitação',i:I.plus}]},
+ {g:'Financeiro',itens:[
+   {k:'aprovacoes',t:'Aprovações',i:I.check,badge:()=>PEND.length},
+   {k:'fluxo',t:'Fluxo de caixa',i:I.flow},
+   {k:'pagar',t:'Contas a pagar',i:I.pay},
+   {k:'receber',t:'Contas a receber',i:I.rec},
+   {k:'rateio',t:'Rateio',i:I.split}]},
+ {g:'Gestão',itens:[
+   {k:'gerencial',t:'Painel gerencial',i:I.chart},
+   {k:'orcamento',t:'Orçamento',i:I.budget}]},
+ {g:'Cadastros',itens:[
+   {k:'plano',t:'Plano de contas',i:I.book},
+   {k:'fornecedores',t:'Fornecedores',i:I.truck},
+   {k:'filiais',t:'Filiais e centros de custo',i:I.pin}]},
+ {g:'Administração',itens:[
+   {k:'usuarios',t:'Usuários',i:I.user},
+   {k:'perfis',t:'Perfis e permissões',i:I.key},
+   {k:'import',t:'Importações',i:I.up},
+   {k:'logs',t:'Logs e auditoria',i:I.log},
+   {k:'params',t:'Parâmetros',i:I.cog}]}
+];
+const TITLES={inicio:'Início',minhas:'Minhas solicitações',nova:'Nova solicitação',aprovacoes:'Aprovações',
+ fluxo:'Fluxo de caixa',pagar:'Contas a pagar',receber:'Contas a receber',rateio:'Rateio',
+ gerencial:'Painel gerencial',orcamento:'Orçamento',plano:'Plano de contas',fornecedores:'Fornecedores',
+ filiais:'Filiais e centros de custo',usuarios:'Usuários',perfis:'Perfis e permissões',
+ import:'Importações',logs:'Logs e auditoria',params:'Parâmetros'};
+const CRUMB={inicio:'',minhas:'',nova:'',aprovacoes:'Financeiro',fluxo:'Financeiro',pagar:'Financeiro',
+ receber:'Financeiro',rateio:'Financeiro',gerencial:'Gestão',orcamento:'Gestão',plano:'Cadastros',
+ fornecedores:'Cadastros',filiais:'Cadastros',usuarios:'Administração',perfis:'Administração',
+ import:'Administração',logs:'Administração',params:'Administração'};
+
+let VIEW='inicio';
+function renderMenu(){
+  const el=document.getElementById('menu'); let h='';
+  MENU.forEach(gr=>{
+    const vis=gr.itens.filter(it=>sees(it.k));
+    if(!vis.length)return;
+    if(gr.g)h+=`<div class="grp">${gr.g}</div>`;
+    vis.forEach(it=>{
+      const b=it.badge?it.badge():0;
+      h+=`<button class="nav ${VIEW===it.k?'on':''}" onclick="go('${it.k}')" title="${it.t}">
+            ${svg(it.i)}<span class="lb">${it.t}</span>${b?`<span class="bdg">${b}</span>`:''}</button>`;
+    });
+  });
+  el.innerHTML=h;
+}
+function go(k){ if(!sees(k))k='inicio'; VIEW=k; renderMenu(); render(); document.getElementById('rail').classList.remove('mob'); window.scrollTo(0,0);}
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+function head(extra=''){
+  const c=CRUMB[VIEW];
+  return `<div class="crumb">${c?`<b>${c}</b> <span>/</span> `:''}${TITLES[VIEW]}</div>
+  <div class="ph1"><div><h1>${TITLES[VIEW]}</h1><p class="sub">${SUBS[VIEW]||''}</p></div>
+  <div class="acts">${extra}</div></div>`;
+}
+const SUBS={
+ inicio:'Sua posição de hoje — 21 de setembro de 2026',
+ minhas:'Tudo que você lançou, em qualquer estágio',
+ nova:'A regra e o impacto no caixa aparecem enquanto você preenche',
+ aprovacoes:'A fila da reunião de aprovação financeira',
+ fluxo:'12 semanas · previsto, comprometido e realizado',
+ pagar:'Títulos comprometidos e pagos',
+ receber:'CT-e previsto, recebível confirmado e recebido',
+ rateio:'Distribuição das notas entre as filiais que consomem',
+ gerencial:'Orçado × previsto × comprometido × realizado',
+ orcamento:'Plano orçamentário mensal por classificação',
+ plano:'A espinha dorsal do processo — classificação e suas regras',
+ fornecedores:'Só fornecedor ativo pode ser selecionado numa solicitação',
+ filiais:'Unidades e centros de custo para rateio',
+ usuarios:'Acesso, perfil, escopo de filial e limite de alçada',
+ perfis:'O que cada perfil pode ver e fazer, recurso por recurso',
+ import:'Baixe o modelo, preencha, valide e confirme',
+ logs:'Log de acesso e trilha de auditoria — uma aba por semana',
+ params:'Saldo inicial, alçadas, calendário de pagamento e integrações'
+};
+const btnImport = rec => (can('incluir',rec)||can('incluir','*'))
+  ? `<button class="btn" onclick="toast('Baixando modelo XLSX com os cabeçalhos exatos…')">${svg('M12 3v12M7 10l5 5 5-5M4 21h16')}Baixar modelo</button>
+     <button class="btn pri" onclick="go('import')">${svg(I.up)}Importar</button>`
+  : `<span class="lock">${svg('M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z')} sem permissão de inclusão</span>`;
+
+function tblSol(list,cols){
+  if(!list.length)return `<div class="empty">Nada por aqui.</div>`;
+  return `<div class="tw"><table><thead><tr>
+    <th>Nº</th><th>Fornecedor</th><th>Classificação</th><th style="text-align:right">Valor</th>
+    <th>Prev. pgto</th><th>Prazo</th><th>Status</th>${cols?'<th>Recomendação</th>':''}</tr></thead><tbody>
+    ${list.map(s=>`<tr onclick="openSol('${s.id}')">
+      <td class="id">${s.id.slice(-5)}</td>
+      <td>${s.forn}<div style="font-size:11px;color:var(--ink-3)">${s.desc}</div></td>
+      <td>${s.cls}</td>
+      <td class="n">${money(s.val)}</td>
+      <td class="n">${s.prev}</td>
+      <td>${s.ant==='OK'?'<span class="tag t-ok"><i class="dot"></i>OK</span>':'<span class="tag t-cr"><i class="dot"></i>Fora do prazo</span>'}</td>
+      <td><span class="tag ${STMAP[s.st]}">${s.st}</span></td>
+      ${cols?`<td><span class="tag t-${RECMAP[s.rec]==='ok'?'ok':RECMAP[s.rec]==='wa'?'wa':RECMAP[s.rec]==='cr'?'cr':'mu'}">${s.rec}</span></td>`:''}
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+function vInicio(){
+  const pend=PEND.reduce((a,s)=>a+s.val,0);
+  return head()+`
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card kpi b"><div class="l">Pendentes de aprovação</div><div class="v">${PEND.length}</div><div class="d">R$ ${m0(pend)} parados</div></div>
+    <div class="card kpi a"><div class="l">Saldo projetado hoje</div><div class="v">108.080</div><div class="d">semana S3 · 14 a 20/09</div></div>
+    <div class="card kpi d2"><div class="l">Semanas em atenção</div><div class="v">4</div><div class="d">S1, S2, S3 e S6</div></div>
+    <div class="card kpi c"><div class="l">Realizado no mês</div><div class="v">717.020</div><div class="d">70% do orçado de setembro</div></div>
+  </div>
+  <div class="grid" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <div class="card">
+      <div class="card-h"><h3>Precisa da sua decisão</h3><div class="r"><button class="btn sm" onclick="go('aprovacoes')">Ver todas</button></div></div>
+      <div class="card-b" style="display:flex;flex-direction:column;gap:9px;padding-top:13px">
+        ${PEND.slice(0,5).map(s=>`<div class="row-c" onclick="openSol('${s.id}')">
+          <span class="tag t-${RECMAP[s.rec]}" style="flex:none">${s.rec}</span>
+          <div style="flex:1;min-width:0">
+            <div class="t">${s.forn}</div>
+            <div class="d">${s.cls} · prev. ${s.prev} · ${s.sem} · saldo R$ ${m0(s.saldo)}</div>
+          </div>
+          <div class="v">${m0(s.val)}</div>
+          <div style="flex:none;opacity:.5">${svg('M9 6l6 6-6 6')}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Consistência do processo</h3></div>
+      <div class="card-b" style="display:flex;flex-direction:column;gap:11px">
+        ${cons('2 notas com valor divergente do aprovado','Precisam de reaprovação do saldo antes do pagamento','cr','pagar')}
+        ${cons('1 solicitação fora do prazo mínimo','Material de escritório pedido com 5 dias; a regra exige 7','wa','aprovacoes')}
+        ${cons('3 solicitações sem orçamento anexo','A classificação exige anexo de cotação','wa','minhas')}
+        ${cons('Rateio conferido','Todas as notas somam 100% entre as filiais','ok','rateio')}
+        ${cons('Plano de contas sincronizado','22 classificações ativas, última importação em 20/09','ok','plano')}
+      </div>
+    </div>
+  </div>`;
+}
+const cons=(t,d,k,go_)=>`<div class="verdict ${k}" style="padding:11px 13px;cursor:pointer" onclick="go('${go_}')">
+  <div style="flex:none;margin-top:1px">${svg(k==='ok'?I.check:'M12 8v5M12 16.5h.01M10.3 3.9 2.4 17.4A1.9 1.9 0 0 0 4 20.3h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z')}</div>
+  <div><b>${t}</b><p>${d}</p></div>
+  <div style="margin-left:auto;flex:none;opacity:.6">${svg('M9 6l6 6-6 6')}</div></div>`;
+
+function vMinhas(){
+  const me=USERS[ROLE][0];
+  const list=PERMS[ROLE].escopo==='PROPRIO'?SOL.filter(s=>s.sol===me):SOL;
+  return head(`<button class="btn pri" onclick="go('nova')">${svg(I.plus)}Nova solicitação</button>`)+
+  `<div class="chips">${['Todas','Aguardando Aprovação','Aprovado','Reprogramado','Comprometido','Pago'].map((c,i)=>`<span class="chip ${i===0?'on':''}">${c}</span>`).join('')}</div>
+   <div class="card">${tblSol(list,false)}</div>
+   ${PERMS[ROLE].escopo==='PROPRIO'?`<div class="note" style="margin-top:14px"><b>Escopo do perfil Solicitante:</b> você só enxerga o que lançou. Financeiro e Diretoria veem todas as filiais.</div>`:''}`;
+}
+
+function vNova(){
+  return head()+`
+  <div class="card"><div class="card-b">
+    <fieldset><legend>1 · Identificação</legend>
+      <div class="form">
+        <div class="f"><label>Nº da solicitação</label><input class="calc" value="SOL-2026-00033" readonly></div>
+        <div class="f"><label>Data da solicitação</label><input class="calc" value="21/09/2026" readonly></div>
+        <div class="f"><label>Solicitante</label><input class="calc" value="${USERS[ROLE][0]}" readonly></div>
+        <div class="f"><label>Área solicitante <span class="req">*</span></label>
+          <select><option>Manutenção / Frota</option><option>Administrativo</option><option>Operação Armazém</option><option>TI</option></select></div>
+        <div class="f"><label>Filial de emissão da NF <span class="req">*</span></label>
+          <select><option>RP · Rio Preto (Matriz)</option><option>CPQ · Campinas</option><option>OSA · Osasco</option><option>SPO · São Paulo</option></select></div>
+        <div class="f"><label>Fornecedor <span class="req">*</span></label>
+          <select id="fForn"><option>Recapadora Paulista S/A</option><option>Truck Center Peças e Serviços ME</option><option>Posto Rodoviário Rio Preto Ltda</option></select>
+          <span class="hint">Só fornecedores com status ATIVO aparecem aqui.</span></div>
+      </div>
+    </fieldset>
+    <fieldset><legend>2 · Classificação contábil</legend>
+      <div class="form">
+        <div class="f"><label>Classificação <span class="req">*</span></label>
+          <select id="fCod" onchange="calc()">
+            <option value="3.01.003">3.01.003 · Pneus e Recapagem</option>
+            <option value="3.01.001">3.01.001 · Combustível / Diesel</option>
+            <option value="3.03.004">3.03.004 · Material de Escritório</option>
+            <option value="3.05.001">3.05.001 · Equipamentos de TI</option></select></div>
+        <div class="f"><label>Grupo DRE</label><input class="calc" id="fGrp" readonly></div>
+        <div class="f"><label>Natureza</label><input class="calc" id="fNat" readonly></div>
+        <div class="f"><label>Exige rateio?</label><input class="calc" id="fRat" readonly></div>
+      </div>
+    </fieldset>
+    <fieldset><legend>3 · Valor e condições</legend>
+      <div class="form">
+        <div class="f w2"><label>Descrição do item / serviço</label><input value="Recapagem de 16 pneus 295/80 R22.5" placeholder="Opcional — a classificação já detalha"></div>
+        <div class="f"><label>Valor bruto estimado (R$) <span class="req">*</span></label><input id="fVal" value="12600" oninput="calc()"></div>
+        <div class="f"><label>Condição de pagamento</label><select id="fCond"><option>30/60 dias</option><option>À vista</option><option>Fora semana / próx. quarta</option></select></div>
+        <div class="f"><label>Forma de pagamento</label><select><option>Boleto bancário</option><option>PIX</option><option>Cartão de crédito</option><option>Transferência (TED)</option></select></div>
+        <div class="f"><label>Data prevista de pagamento <span class="req">*</span></label><input id="fDt" type="date" value="2026-10-16" onchange="calc()"></div>
+      </div>
+    </fieldset>
+    <fieldset><legend>4 · Validação automática</legend>
+      <div class="form">
+        <div class="f"><label>Antecedência mínima</label><input class="calc" id="fAntM" readonly></div>
+        <div class="f"><label>Antecedência praticada</label><input class="calc" id="fAntP" readonly></div>
+        <div class="f"><label>Alçada requerida</label><input class="calc" id="fAlc" readonly></div>
+        <div class="f"><label>Aprovador</label><input class="calc" id="fApr" readonly></div>
+        <div class="f"><label>Semana do pagamento</label><input class="calc" id="fSem" readonly></div>
+        <div class="f"><label>Saldo projetado da semana</label><input class="calc" id="fSaldo" readonly></div>
+      </div>
+      <div id="fVerdict" style="margin-top:14px"></div>
+    </fieldset>
+    <div style="display:flex;gap:9px;justify-content:flex-end;border-top:1px solid var(--line);padding-top:16px">
+      <button class="btn" onclick="toast('Rascunho salvo no navegador (localStorage).')">Salvar rascunho</button>
+      <button class="btn pri" onclick="toast('Solicitação SOL-2026-00033 enviada para aprovação. Log registrado.')">${svg(I.check)}Enviar para aprovação</button>
+    </div>
+  </div></div>`;
+}
+const PC_MAP={'3.01.003':['Custo Operacional - Frota','Custo','Sim',7],'3.01.001':['Custo Operacional - Frota','Custo','Sim',1],
+ '3.03.004':['Despesa Administrativa','Despesa','Sim',7],'3.05.001':['Investimento (CAPEX)','Investimento','Sim',10]};
+const ALC=[[2000,'Alçada 1 · Supervisão','Supervisor Administrativo'],[10000,'Alçada 2 · Gerência','Gerente Adm./Financeiro'],
+ [50000,'Alçada 3 · Diretoria Financeira','Diretor Financeiro'],[9e9,'Alçada 4 · Diretoria','Diretor Financeiro + CEO']];
+function calc(){
+  const cod=document.getElementById('fCod').value, pc=PC_MAP[cod];
+  document.getElementById('fGrp').value=pc[0];
+  document.getElementById('fNat').value=pc[1];
+  document.getElementById('fRat').value=pc[2];
+  document.getElementById('fAntM').value=pc[3]+' dias';
+  const dt=new Date(document.getElementById('fDt').value+'T00:00:00'), hoje=new Date('2026-09-21T00:00:00');
+  const dias=Math.round((dt-hoje)/864e5);
+  document.getElementById('fAntP').value=dias+' dias';
+  const val=Number(document.getElementById('fVal').value||0);
+  const a=ALC.find(x=>val<=x[0]);
+  document.getElementById('fAlc').value=a[1]; document.getElementById('fApr').value=a[2];
+  let wi=-1; for(let i=WDATE.length-1;i>=0;i--){const [d,m]=WDATE[i].split('/');const wd=new Date(2026,+m-1,+d);if(wd<=dt){wi=i;break}}
+  const saldo=wi>=0?FLOW.saldoAcu[wi]:null;
+  document.getElementById('fSem').value=wi>=0?WEEKS[wi]+' · '+WDATE[wi]:'fora do horizonte';
+  document.getElementById('fSaldo').value=saldo!==null?'R$ '+m0(saldo):'—';
+  let k,t,d;
+  if(saldo===null){k='wa';t='SEM PROJEÇÃO DE CAIXA';d='A data está fora das 12 semanas do fluxo.';}
+  else if(saldo<0){k='cr';t='REPROGRAMAR';d='A semana fecha com caixa negativo.';}
+  else if(saldo<150000){k='wa';t='AVALIAR NA REUNIÃO';d='Saldo abaixo do mínimo de segurança (R$ 150.000).';}
+  else if(dias<pc[3]){k='wa';t='AVALIAR — fora do prazo';d=`A classificação exige ${pc[3]} dias de antecedência; foram pedidos ${dias}.`;}
+  else {k='ok';t='LIBERAR';d='Há caixa na semana e a regra de antecedência foi cumprida.';}
+  document.getElementById('fVerdict').innerHTML=`<div class="verdict ${k}">
+    <div style="flex:none">${svg(k==='ok'?I.check:'M12 8v5M12 16.5h.01M10.3 3.9 2.4 17.4A1.9 1.9 0 0 0 4 20.3h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z')}</div>
+    <div><b>${t}</b><p>${d}</p></div></div>`;
+}
+
+function vAprov(){
+  return head(`<button class="btn" onclick="openPhone()">${svg(I.phone)}Ver no celular</button>
+    <button class="btn pri" onclick="toast('Selecione as linhas para aprovar em lote.')">${svg(I.check)}Aprovar em lote</button>`)+
+  `<div class="note" style="margin-bottom:14px"><b>Regra da reunião:</b> sem caixa a solicitação é <b>reprogramada</b>, não reprovada — ela volta à fila da próxima janela com saldo. Seu perfil aprova até
+   ${PERMS[ROLE].limite?'R$ '+m0(PERMS[ROLE].limite):'—'}.</div>
+  <div class="card">
+    <div class="tw"><table><thead><tr>
+      <th style="width:34px"></th><th>Nº</th><th>Solicitante</th><th>Fornecedor</th><th>Classificação</th>
+      <th style="text-align:right">Valor</th><th>Prev.</th><th>Sem.</th><th style="text-align:right">Saldo proj.</th>
+      <th>Recomendação</th><th>Alçada</th><th style="text-align:right">Decisão</th></tr></thead><tbody>
+      ${PEND.map(s=>{const ok=podeAprovar(s.val);return `<tr>
+        <td onclick="event.stopPropagation()"><input type="checkbox" ${ok?'':'disabled'}></td>
+        <td class="id" onclick="openSol('${s.id}')">${s.id.slice(-5)}</td>
+        <td onclick="openSol('${s.id}')">${s.sol}</td>
+        <td onclick="openSol('${s.id}')">${s.forn}</td>
+        <td onclick="openSol('${s.id}')">${s.cls}</td>
+        <td class="n" onclick="openSol('${s.id}')">${money(s.val)}</td>
+        <td class="n" onclick="openSol('${s.id}')">${s.prev}</td>
+        <td class="n" onclick="openSol('${s.id}')">${s.sem}</td>
+        <td class="n ${s.saldo<150000?'neg':''}" onclick="openSol('${s.id}')">${m0(s.saldo)}</td>
+        <td onclick="openSol('${s.id}')"><span class="tag t-${RECMAP[s.rec]}">${s.rec}</span></td>
+        <td onclick="openSol('${s.id}')" style="font-size:11.5px;color:var(--ink-3)">${s.alc}</td>
+        <td style="text-align:right;white-space:nowrap" onclick="event.stopPropagation()">
+          ${ok?`<button class="btn sm ok" onclick="decide('${s.id}','Aprovada')">Aprovar</button>
+                <button class="btn sm cr" onclick="decide('${s.id}','Reprogramada')">Reprogramar</button>`
+              :`<span class="lock">${svg('M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z')} acima da sua alçada</span>`}
+        </td></tr>`}).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+function decide(id,acao){toast(`${id} ${acao.toLowerCase()}. Status gravado, log de atividade registrado e e-mail enviado ao solicitante.`)}
+
+function vFluxo(){
+  const th=`<tr><th>Linha</th>${WEEKS.map((w,i)=>`<th style="text-align:right">${w}<div style="font-weight:400;font-size:9px;opacity:.75">${WDATE[i]}</div></th>`).join('')}<th style="text-align:right">Total</th></tr>`;
+  const row=(nm,arr,cls='')=>`<tr class="${cls}"><td>${nm}</td>${arr.map((v,i)=>`<td class="${v?'cell':''}" ${v?`onclick="drillCell('${nm}','${WEEKS[i]}',${v})"`:''}>${v?m0(v):'–'}</td>`).join('')}<td><b>${m0(arr.reduce((a,b)=>a+b,0))}</b></td></tr>`;
+  const sumCol=arrs=>WEEKS.map((_,i)=>arrs.reduce((a,r)=>a+r[1][i],0));
+  const totEnt=sumCol(FLOW.entradas), totSai=sumCol(FLOW.saidas);
+  return head(`<button class="btn" onclick="toast('Exportando as 12 semanas para XLSX…')">${svg('M12 3v12M7 10l5 5 5-5M4 21h16')}Exportar</button>`)+
+  `<div class="note" style="margin-bottom:14px">Clique em qualquer valor para abrir a lista de lançamentos que o compõem — <b>drill-down de qualquer célula</b>.</div>
+   <div class="card"><div class="tw"><table class="mtx"><thead>${th}</thead><tbody>
+    <tr class="sec"><td colspan="14">Entradas</td></tr>
+    ${FLOW.entradas.map(r=>row(r[0],r[1])).join('')}
+    ${row('Total de entradas',totEnt,'tot')}
+    <tr class="sec"><td colspan="14">Saídas por classificação</td></tr>
+    ${FLOW.saidas.map(r=>row(r[0],r[1])).join('')}
+    ${row('Total de saídas',totSai,'tot')}
+    <tr class="sec"><td colspan="14">Os três números</td></tr>
+    ${FLOW.tres.map(r=>row(r[0],r[1])).join('')}
+    <tr class="sec"><td colspan="14">Posição de caixa</td></tr>
+    <tr><td>Saldo inicial</td>${FLOW.saldoIni.map(v=>`<td>${m0(v)}</td>`).join('')}<td></td></tr>
+    <tr class="tot"><td>Saldo acumulado projetado</td>${FLOW.saldoAcu.map(v=>`<td class="${v<0?'neg':''}">${m0(v)}</td>`).join('')}<td><b>${m0(FLOW.saldoAcu[11])}</b></td></tr>
+    <tr><td>Situação</td>${FLOW.sit.map(s=>`<td style="text-align:center"><span class="tag ${s==='OK'?'t-ok':s==='ATENÇÃO'?'t-wa':'t-cr'}">${s}</span></td>`).join('')}<td></td></tr>
+   </tbody></table></div></div>`;
+}
+function drillCell(linha,sem,val){
+  const list=SOL.filter(s=>s.sem===sem);
+  openDrawer(`${linha} · ${sem}`,`R$ ${m0(val)} · ${list.length} lançamento(s) na semana`,
+    tblSol(list,false)+`<div class="note" style="margin-top:14px">O drill-down mantém o contexto: fechar volta ao fluxo de caixa na mesma posição.</div>`);
+}
+
+function vPagar(){
+  const list=SOL.filter(s=>['Comprometido','Pago','Aprovado'].includes(s.st));
+  return head(btnImport('TITULO'))+`
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card kpi b"><div class="l">Comprometido</div><div class="v">39.900</div><div class="d">2 títulos</div></div>
+    <div class="card kpi c"><div class="l">Pago no mês</div><div class="v">717.020</div><div class="d">12 títulos</div></div>
+    <div class="card kpi d2"><div class="l">Divergência NF × aprovado</div><div class="v">670</div><div class="d">2 títulos precisam de reaprovação</div></div>
+    <div class="card kpi a"><div class="l">Vence nos próximos 7 dias</div><div class="v">23.580</div><div class="d">3 títulos</div></div>
+  </div>
+  <div class="card">${tblSol(list,false)}</div>`;
+}
+function vReceber(){
+  const R=[['REC-2026-0041','21/09','CT-e Previsto','Axo Distribuidora S/A','OSA',68000],
+           ['REC-2026-0042','23/09','CT-e Previsto','Beta Alimentos Ltda','CPQ',52000],
+           ['REC-2026-0043','25/09','CT-e Previsto','Xerox do Brasil','SPO',52000],
+           ['REC-2026-0038','18/09','Recebível Confirmado','Rede Supermercados União','RP',48000],
+           ['REC-2026-0031','31/08','Recebido','Axo Distribuidora S/A','RP',60000]];
+  const TM={'CT-e Previsto':'t-nv','Recebível Confirmado':'t-in','Recebido':'t-ok'};
+  return head(btnImport('TITULO'))+`<div class="card"><div class="tw"><table><thead><tr>
+    <th>Nº</th><th>Data prevista</th><th>Tipo</th><th>Cliente</th><th>Filial</th><th style="text-align:right">Valor</th></tr></thead><tbody>
+    ${R.map(r=>`<tr onclick="toast('Ficha do recebível ${r[0]}')"><td class="id">${r[0].slice(-4)}</td><td class="n">${r[1]}</td>
+      <td><span class="tag ${TM[r[2]]}">${r[2]}</span></td><td>${r[3]}</td><td>${r[4]}</td><td class="n">${money(r[5])}</td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function vRateio(){
+  const R=[['SOL-2026-00028','Combustível / Diesel','RP','RP',45,17505],['SOL-2026-00028','Combustível / Diesel','RP','CPQ',20,7780],
+           ['SOL-2026-00028','Combustível / Diesel','RP','OSA',20,7780],['SOL-2026-00028','Combustível / Diesel','RP','SPO',15,5835],
+           ['SOL-2026-00021','Energia Elétrica','RP','RP',55,8305],['SOL-2026-00021','Energia Elétrica','RP','CPQ',15,2265],
+           ['SOL-2026-00021','Energia Elétrica','RP','OSA',20,3020],['SOL-2026-00021','Energia Elétrica','RP','SPO',10,1510]];
+  return head()+`<div class="card"><div class="tw"><table><thead><tr>
+    <th>Nº solicitação</th><th>Classificação</th><th>Filial emissão</th><th>Filial destino</th>
+    <th style="text-align:right">% rateio</th><th style="text-align:right">Valor rateado</th><th>Consistência</th></tr></thead><tbody>
+    ${R.map(r=>`<tr onclick="openSol('${r[0]}')"><td class="id">${r[0].slice(-5)}</td><td>${r[1]}</td><td>${r[2]}</td>
+      <td><b>${r[3]}</b></td><td class="n">${r[4]},0%</td><td class="n">${money(r[5])}</td>
+      <td><span class="tag t-ok"><i class="dot"></i>Soma 100%</span></td></tr>`).join('')}
+  </tbody></table></div></div>
+  <div class="note" style="margin-top:14px"><b>Regra:</b> o sistema não deixa gravar um rateio cuja soma seja diferente de 100%. O percentual padrão vem da classificação e pode ser ajustado por lançamento.</div>`;
+}
+function vGerencial(){
+  const G=[['3.01.001','Combustível / Diesel',85000,0,0,77100],['3.01.002','Peças e Manutenção',38000,9400,26020,0],
+   ['3.01.003','Pneus e Recapagem',35000,31800,0,0],['3.02.001','Freteiro / Agregado',59000,0,26400,27950],
+   ['3.03.002','Energia Elétrica',16500,0,0,15100],['3.04.001','Folha de Pagamento',453000,0,0,412000],
+   ['3.05.001','Equipamentos de TI',15000,0,13500,0],['3.05.003','Benfeitorias e Obras',94500,0,0,0]];
+  return head(`<select class="btn" style="padding:7px 11px"><option>Setembro / 2026</option><option>Outubro / 2026</option></select>`)+`
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card kpi a"><div class="l">Orçado do mês</div><div class="v">1.024.500</div></div>
+    <div class="card kpi b"><div class="l">Previsto</div><div class="v">73.830</div></div>
+    <div class="card kpi b"><div class="l">Comprometido</div><div class="v">39.900</div></div>
+    <div class="card kpi c"><div class="l">Realizado</div><div class="v">717.020</div></div>
+  </div>
+  <div class="card"><div class="card-h"><h3>DRE gerencial por classificação</h3></div><div class="tw"><table><thead><tr>
+    <th>Código</th><th>Classificação</th><th style="text-align:right">Orçado</th><th style="text-align:right">Previsto</th>
+    <th style="text-align:right">Comprometido</th><th style="text-align:right">Realizado</th><th style="text-align:right">Total</th>
+    <th style="text-align:right">% do orçado</th></tr></thead><tbody>
+    ${G.map(g=>{const t=g[3]+g[4]+g[5];const p=g[2]?t/g[2]:0;return `<tr onclick="toast('Drill-down: lançamentos de ${g[1]} em setembro')">
+      <td class="id">${g[0]}</td><td>${g[1]}</td><td class="n">${m0(g[2])}</td><td class="n">${g[3]?m0(g[3]):'–'}</td>
+      <td class="n">${g[4]?m0(g[4]):'–'}</td><td class="n">${g[5]?m0(g[5]):'–'}</td><td class="n"><b>${m0(t)}</b></td>
+      <td class="n" style="color:${p>1?'var(--crit)':'var(--ink-2)'}">${(p*100).toFixed(1)}%</td></tr>`}).join('')}
+  </tbody></table></div></div>`;
+}
+function vOrcamento(){
+  return head(btnImport('ORCAMENTO'))+`<div class="card"><div class="tw"><table><thead><tr>
+    <th>Código</th><th>Classificação</th><th style="text-align:right">Ago/26</th><th style="text-align:right">Set/26</th>
+    <th style="text-align:right">Out/26</th><th style="text-align:right">Nov/26</th><th style="text-align:right">Dez/26</th></tr></thead><tbody>
+    ${[['3.01.001','Combustível / Diesel',85000,85000,85000,88000,88000],['3.01.002','Peças e Manutenção',38000,38000,38000,38000,38000],
+       ['3.01.003','Pneus e Recapagem',35000,35000,35000,35000,35000],['3.04.001','Folha de Pagamento',453000,453000,457000,457000,690000]]
+      .map(r=>`<tr onclick="toast('Editar orçamento — permitido só para Diretoria')"><td class="id">${r[0]}</td><td>${r[1]}</td>
+      ${r.slice(2).map(v=>`<td class="n">${m0(v)}</td>`).join('')}</tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function vPlano(){
+  return head(btnImport('PLANO_CONTAS'))+`
+  <div class="imp" style="margin-bottom:14px">
+    ${svg(I.up)}<div><b>Todo cadastro tem o mesmo ciclo:</b> baixar modelo → preencher → importar → validar → confirmar. A importação nunca grava direto: ela mostra a prévia com os erros linha a linha.</div>
+  </div>
+  <div class="card"><div class="tw"><table><thead><tr>
+    <th>Código</th><th>Grupo DRE</th><th>Classificação</th><th>Natureza</th><th>Tipo</th>
+    <th style="text-align:right">Antec. mín.</th><th>Condição padrão</th><th>Rateio</th><th>Anexo</th><th>Status</th><th></th></tr></thead><tbody>
+    ${PLANO.map(p=>`<tr onclick="openPC('${p[0]}')"><td class="id">${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td>${p[3]}</td><td>${p[4]}</td>
+      <td class="n">${p[5]} d</td><td>${p[6]}</td><td>${p[7]}</td><td>${p[8]}</td>
+      <td><span class="tag ${p[9]==='ATIVO'?'t-ok':'t-mu'}"><i class="dot"></i>${p[9]}</span></td>
+      <td style="text-align:right" onclick="event.stopPropagation()">
+        ${can('inativar','PLANO_CONTAS')||can('inativar','*')
+          ?`<button class="btn sm" onclick="toast('${p[0]}: status alterado para ${p[9]==='ATIVO'?'INATIVO':'ATIVO'}. O registro nunca é excluído.')">${p[9]==='ATIVO'?'Inativar':'Reativar'}</button>`
+          :`<span class="lock">sem permissão</span>`}
+      </td></tr>`).join('')}
+  </tbody></table></div></div>
+  <div class="note" style="margin-top:14px"><b>Nunca excluir.</b> Todo registro é inativado com data, usuário e motivo. O histórico continua íntegro e os lançamentos antigos seguem apontando para a classificação correta.</div>`;
+}
+function vFornecedores(){
+  const F=[['F001','Posto Rodoviário Rio Preto Ltda','12.345.678/0001-90','Produto','Combustível / Diesel','ATIVO'],
+   ['F002','Truck Center Peças e Serviços ME','23.456.789/0001-01','Produto','Peças e Manutenção','ATIVO'],
+   ['F003','Recapadora Paulista S/A','34.567.890/0001-12','Produto','Pneus e Recapagem','ATIVO'],
+   ['F014','Guincho 24h Rio Preto','11.222.333/0001-44','Serviço','Peças e Manutenção','ATIVO'],
+   ['F016','Auto Peças Antiga Ltda','55.666.777/0001-88','Produto','Peças e Manutenção','INATIVO']];
+  return head(btnImport('FORNECEDOR'))+`<div class="card"><div class="tw"><table><thead><tr>
+    <th>Código</th><th>Razão social</th><th>CNPJ</th><th>Tipo</th><th>Classificação padrão</th><th>Status</th></tr></thead><tbody>
+    ${F.map(f=>`<tr onclick="toast('Ficha do fornecedor ${f[0]}')"><td class="id">${f[0]}</td><td>${f[1]}</td>
+      <td class="mono" style="font-size:12px">${f[2]}</td><td>${f[3]}</td><td>${f[4]}</td>
+      <td><span class="tag ${f[5]==='ATIVO'?'t-ok':'t-mu'}"><i class="dot"></i>${f[5]}</span></td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function vFiliais(){
+  const F=[['RP','Rio Preto (Matriz)','SP','Matriz','OP-RP','ATIVO'],['CPQ','Campinas','SP','Filial','OP-CPQ','ATIVO'],
+   ['OSA','Osasco','SP','Filial','OP-OSA','ATIVO'],['SPO','São Paulo','SP','Filial','OP-SPO','ATIVO']];
+  return head(btnImport('FILIAL'))+`<div class="card"><div class="tw"><table><thead><tr>
+    <th>Código</th><th>Filial</th><th>UF</th><th>Tipo</th><th>Centro de custo padrão</th><th>Status</th></tr></thead><tbody>
+    ${F.map(f=>`<tr onclick="toast('Ficha da filial ${f[0]}')"><td class="id">${f[0]}</td><td>${f[1]}</td><td>${f[2]}</td><td>${f[3]}</td>
+      <td class="mono" style="font-size:12px">${f[4]}</td><td><span class="tag t-ok"><i class="dot"></i>${f[5]}</span></td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function vUsuarios(){
+  return head(btnImport('USUARIO'))+`<div class="card"><div class="tw"><table><thead><tr>
+    <th>ID</th><th>Nome</th><th>E-mail (login)</th><th>Perfil</th><th>Escopo de filial</th>
+    <th style="text-align:right">Limite de alçada</th><th>Status</th><th>Último acesso</th><th></th></tr></thead><tbody>
+    ${USUARIOS.map(u=>`<tr onclick="openUser('${u[0]}')"><td class="id">${u[0]}</td><td>${u[1]}</td>
+      <td class="mono" style="font-size:12px">${u[2]}</td><td><span class="tag t-nv">${u[3]}</span></td><td>${u[4]}</td>
+      <td class="n">${u[5]}</td><td><span class="tag ${u[6]==='ATIVO'?'t-ok':'t-mu'}"><i class="dot"></i>${u[6]}</span></td>
+      <td class="mono" style="font-size:11.5px;color:var(--ink-3)">${u[7]}</td>
+      <td style="text-align:right;white-space:nowrap" onclick="event.stopPropagation()">
+        ${can('alterar','USUARIO')||can('alterar','*')
+          ?`<button class="btn sm" onclick="toast('Senha temporária gerada e enviada por e-mail. Troca obrigatória no 1º acesso.')">Resetar senha</button>
+            <button class="btn sm" onclick="toast('${u[0]} ${u[6]==='ATIVO'?'inativado':'reativado'}. Sessões ativas encerradas.')">${u[6]==='ATIVO'?'Inativar':'Reativar'}</button>`
+          :`<span class="lock">${svg('M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z')} somente Administrador</span>`}
+      </td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function vPerfis(){
+  const P=['Solicitante','Financeiro','Diretoria','Administrador'];
+  const chk=(r,p,a)=>{
+    const map={'Solicitante':{Solicitação:['V','I','A'],Aprovação:['V']},
+      'Financeiro':{Solicitação:['V','I','A'],Aprovação:['V','A'],'Título a pagar':['V','I','A'],'Título a receber':['V','I','A'],
+        Rateio:['V','I','A'],Orçamento:['V'],'Plano de contas':['V'],Fornecedor:['V','I','A','X'],Filial:['V'],Log:['V']},
+      'Diretoria':{Solicitação:['V','A'],Aprovação:['V','A'],'Título a pagar':['V'],'Título a receber':['V'],Rateio:['V'],
+        Orçamento:['V','I','A'],'Plano de contas':['V'],Fornecedor:['V'],Filial:['V'],Log:['V']},
+      'Administrador':{Solicitação:['V'],Aprovação:['V'],'Título a pagar':['V'],'Título a receber':['V'],Rateio:['V'],
+        Orçamento:['V'],'Plano de contas':['V','I','A','X'],Fornecedor:['V','I','A','X'],Filial:['V','I','A','X'],
+        Usuário:['V','I','A','X'],Perfil:['V','I','A','X'],Log:['V','X']}};
+    return (map[p]?.[r]||[]).includes(a);
+  };
+  return head(`<button class="btn pri" onclick="toast('Alterações gravadas na aba PERMISSOES e registradas no log.')">Salvar permissões</button>`)+`
+  <div class="note" style="margin-bottom:14px"><b>V</b> ver · <b>I</b> incluir · <b>A</b> alterar · <b>X</b> inativar (nunca excluir) · <b>P</b> aprovar · <b>E</b> exportar. Além disso cada perfil tem <b>escopo de filial</b> e <b>limite de alçada</b>, e a aba <b>PERMISSOES_CAMPO</b> controla quais campos ficam editáveis em cada status do registro.</div>
+  <div class="card"><div class="tw"><table class="perm"><thead><tr><th rowspan="2">Recurso</th>
+    ${P.map(p=>`<th colspan="4" style="text-align:center;border-left:1px solid var(--line-2)">${p}</th>`).join('')}</tr>
+    <tr>${P.map(()=>`<th style="text-align:center;border-left:1px solid var(--line-2)">V</th><th style="text-align:center">I</th><th style="text-align:center">A</th><th style="text-align:center">X</th>`).join('')}</tr></thead><tbody>
+    ${RECURSOS.map(r=>`<tr>${'<td>'+r+'</td>'}${P.map(p=>['V','I','A','X'].map((a,i)=>
+      `<td ${i===0?'style="border-left:1px solid var(--line)"':''}><input type="checkbox" ${chk(r,p,a)?'checked':''} ${ROLE==='ADMIN'?'':'disabled'}></td>`).join('')).join('')}</tr>`).join('')}
+  </tbody></table></div></div>
+  ${ROLE!=='ADMIN'?`<div class="note" style="margin-top:14px">Somente o perfil <b>Administrador</b> edita esta matriz. Troque o perfil no topo para testar.</div>`:''}`;
+}
+function vImport(){
+  const SM={'CONCLUIDA':'t-ok','CONCLUIDA COM ERROS':'t-wa','REJEITADA':'t-cr'};
+  return head()+`
+  <div class="grid g3" style="margin-bottom:16px">
+    ${['Plano de contas','Fornecedores','Filiais','Orçamento','Usuários','Saldos iniciais'].map(c=>`
+      <div class="card"><div class="card-b" style="display:flex;flex-direction:column;gap:9px">
+        <div style="font-weight:600">${c}</div>
+        <div style="font-size:12px;color:var(--ink-3)">Modelo com os cabeçalhos exatos, tipos e valores aceitos em cada coluna.</div>
+        <div style="display:flex;gap:7px;margin-top:2px">
+          <button class="btn sm" onclick="toast('Baixando modelo_${c.toLowerCase().replace(/ /g,'_')}.xlsx')">Baixar modelo</button>
+          <button class="btn sm pri" onclick="toast('Selecione o arquivo — a prévia mostra os erros antes de gravar.')">Importar</button>
+        </div></div></div>`).join('')}
+  </div>
+  <div class="card"><div class="card-h"><h3>Histórico de importações</h3></div><div class="tw"><table><thead><tr>
+    <th>Nº</th><th>Data</th><th>Cadastro</th><th>Arquivo</th><th style="text-align:right">Linhas</th>
+    <th style="text-align:right">OK</th><th style="text-align:right">Erros</th><th>Status</th><th>Usuário</th></tr></thead><tbody>
+    ${IMPORTS.map(i=>`<tr onclick="toast('Abrindo o relatório de validação de ${i[0]}')"><td class="id">${i[0].slice(-4)}</td>
+      <td class="mono" style="font-size:12px">${i[1]}</td><td>${i[2]}</td><td class="mono" style="font-size:12px">${i[3]}</td>
+      <td class="n">${i[4]}</td><td class="n" style="color:var(--ok)">${i[5]}</td>
+      <td class="n" style="color:${i[6]?'var(--crit)':'var(--ink-3)'}">${i[6]}</td>
+      <td><span class="tag ${SM[i[7]]}">${i[7]}</span></td>
+      <td class="mono" style="font-size:11.5px;color:var(--ink-3)">${i[8]}</td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function vLogs(){
+  const AM={'INCLUIR':'t-nv','ALTERAR':'t-wa','INATIVAR':'t-cr','APROVAR':'t-ok','LOGIN_OK':'t-ok','LOGIN_FALHA':'t-cr'};
+  return head(`<select class="btn" style="padding:7px 11px"><option>Semana 2026-S39 (21 a 27/09)</option><option>Semana 2026-S38</option><option>Semana 2026-S37</option></select>
+    <button class="btn" onclick="toast('Exportando a aba LOG_ATIV_2026-S39 para XLSX…')">Exportar</button>`)+`
+  <div class="note" style="margin-bottom:14px"><b>Uma aba por semana.</b> O sistema cria <span class="mono">LOG_ATIV_2026-S39</span> e <span class="mono">LOG_ACESSO_2026-S39</span> automaticamente na primeira gravação da semana, e arquiva abas com mais de 12 semanas numa planilha separada.</div>
+  <div class="card"><div class="card-h"><h3>Trilha de auditoria — LOG_ATIV_2026-S39</h3></div><div class="tw"><table><thead><tr>
+    <th>Timestamp</th><th>Usuário</th><th>Perfil</th><th>Recurso</th><th>Ação</th><th>Registro</th><th>Campo</th>
+    <th>Valor antes</th><th>Valor depois</th><th>Origem</th></tr></thead><tbody>
+    ${LOGATIV.map(l=>`<tr onclick="${l[5].startsWith('SOL')?`openSol('${l[5]}')`:`toast('Registro ${l[5]}')`}">
+      <td class="mono" style="font-size:11.5px">${l[0]}</td><td class="mono" style="font-size:11.5px">${l[1]}</td><td>${l[2]}</td>
+      <td class="mono" style="font-size:11.5px">${l[3]}</td><td><span class="tag ${AM[l[4]]||'t-mu'}">${l[4]}</span></td>
+      <td class="id">${l[5]}</td><td style="font-size:11.5px">${l[6]}</td>
+      <td style="font-size:11.5px;color:var(--ink-3)">${l[7]}</td><td style="font-size:11.5px">${l[8]}</td>
+      <td><span class="tag ${l[9]==='MOBILE'?'t-in':'t-mu'}">${l[9]}</span></td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function vParams(){
+  const rows=[['Saldo inicial de caixa','R$ 385.000,00','Financeiro'],['Saldo mínimo de segurança','R$ 150.000,00','Diretoria'],
+   ['Horizonte do fluxo','12 semanas','Financeiro'],['Dias de pagamento','Segunda, quarta e sexta','Financeiro'],
+   ['Reunião de aprovação','Terça-feira, 09h00','Diretoria'],['Semana travada','1ª do mês — folha e encargos','Diretoria'],
+   ['Duração da sessão','8 horas','Administrador'],['Tentativas de login antes do bloqueio','5','Administrador'],
+   ['Validade da senha','90 dias','Administrador'],['Pasta de anexos no Drive','/FC Salomé/Anexos/{ano}/{nº}','Administrador'],
+   ['E-mail remetente','fc@salome.com.br','Administrador'],['Backup automático','Diário, 23h00','Administrador']];
+  return head(`<button class="btn pri" onclick="toast('Parâmetros gravados e registrados no log.')">Salvar</button>`)+`
+  <div class="card"><div class="tw"><table><thead><tr><th>Parâmetro</th><th>Valor</th><th>Quem altera</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr onclick="toast('Editar: ${r[0]}')"><td>${r[0]}</td><td class="mono">${r[1]}</td>
+      <td><span class="tag t-mu">${r[2]}</span></td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+
+const VIEWS={inicio:vInicio,minhas:vMinhas,nova:vNova,aprovacoes:vAprov,fluxo:vFluxo,pagar:vPagar,receber:vReceber,
+ rateio:vRateio,gerencial:vGerencial,orcamento:vOrcamento,plano:vPlano,fornecedores:vFornecedores,filiais:vFiliais,
+ usuarios:vUsuarios,perfis:vPerfis,import:vImport,logs:vLogs,params:vParams};
+function render(){
+  document.getElementById('view').innerHTML=(VIEWS[VIEW]||vInicio)();
+  if(VIEW==='nova')calc();
+}
+
+/* ============================================================
+   DRAWER / DRILL-DOWN
+   ============================================================ */
+function openDrawer(t,m,html){
+  document.getElementById('drTitle').textContent=t;
+  document.getElementById('drMeta').innerHTML=m;
+  document.getElementById('drBody').innerHTML=html;
+  document.getElementById('drawer').classList.add('on');
+  document.getElementById('drawer').setAttribute('aria-hidden','false');
+  document.getElementById('scrim').classList.add('on');
+}
+function closeDrawer(){document.getElementById('drawer').classList.remove('on');
+  document.getElementById('drawer').setAttribute('aria-hidden','true');
+  document.getElementById('scrim').classList.remove('on')}
+
+const STEPS=['Solicitar','Validar regra','Consultar caixa','Aprovar','Autorizar','Receber NF','Pagar'];
+function stepIdx(st){return {'Aguardando Aprovação':3,'Reprogramado':3,'Aprovado':4,'Comprometido':5,'Pago':7}[st]??3}
+function openSol(id){
+  const s=SOL.find(x=>x.id===id); if(!s)return;
+  const cur=stepIdx(s.st), blk=s.st==='Reprogramado';
+  const steps=STEPS.map((t,i)=>{
+    const cls=i<cur?'done':(i===cur?(blk?'blk':'now'):'');
+    const ic=i<cur?'✓':(i===cur&&blk?'!':i+1);
+    return `<div class="step ${cls}" role="button" onclick="toast('Etapa: ${t}')"><span class="ic">${ic}</span>${t}</div>`;
+  }).join('');
+  const ok=podeAprovar(s.val);
+  const acoes=['Aguardando Aprovação','Reprogramado'].includes(s.st)
+    ? (ok?`<div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn ok" onclick="decide('${s.id}','Aprovada')">${svg(I.check)}Aprovar</button>
+        <button class="btn wa" onclick="decide('${s.id}','Reprogramada')">Reprogramar</button>
+        <button class="btn cr" onclick="decide('${s.id}','Reprovada')">Reprovar</button></div>`
+      :`<div class="note" style="margin-top:14px">Valor de R$ ${money(s.val)} exige <b>${s.alc}</b>. Seu perfil não tem essa alçada.</div>`)
+    : '';
+  const body=`
+  <div class="steps">${steps}</div>
+  <div class="verdict ${RECMAP[s.rec]==='mu'?'ok':RECMAP[s.rec]}" style="margin-bottom:16px">
+    <div style="flex:none">${svg(s.rec==='LIBERAR'?I.check:'M12 8v5M12 16.5h.01M10.3 3.9 2.4 17.4A1.9 1.9 0 0 0 4 20.3h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z')}</div>
+    <div><b>${s.rec==='—'?'Sem pendência de decisão':s.rec}</b>
+    <p>Semana ${s.sem} · saldo projetado R$ ${m0(s.saldo)}${s.obs?' · '+s.obs:''}</p></div></div>
+  <div class="tabs">
+    <button class="tab on" onclick="drTab(this,0)">Dados</button>
+    <button class="tab" onclick="drTab(this,1)">Rateio</button>
+    <button class="tab" onclick="drTab(this,2)">Anexos</button>
+    <button class="tab" onclick="drTab(this,3)">Histórico</button></div>
+  <div id="drt0">
+    <dl class="dl">
+      <dt>Solicitante</dt><dd>${s.sol} · ${s.area}</dd>
+      <dt>Fornecedor</dt><dd>${s.forn}</dd>
+      <dt>Descrição</dt><dd>${s.desc}</dd>
+      <dt>Classificação</dt><dd><span class="mono">${s.cod}</span> · ${s.cls}</dd>
+      <dt>Filial de emissão</dt><dd>${s.fil}</dd>
+      <dt>Valor bruto</dt><dd class="mono">R$ ${money(s.val)}</dd>
+      <dt>Condição / forma</dt><dd>${s.cond} · ${s.forma}</dd>
+      <dt>Data prevista</dt><dd>${s.prev}/2026</dd>
+      <dt>Antecedência</dt><dd>${s.ant==='OK'?'<span class="tag t-ok">Dentro do prazo</span>':'<span class="tag t-cr">Fora do prazo mínimo</span>'}</dd>
+      <dt>Alçada requerida</dt><dd>${s.alc}</dd>
+      <dt>Status</dt><dd><span class="tag ${STMAP[s.st]}">${s.st}</span></dd>
+    </dl>${acoes}</div>
+  <div id="drt1" hidden>
+    <table><thead><tr><th>Filial destino</th><th style="text-align:right">%</th><th style="text-align:right">Valor</th></tr></thead><tbody>
+      ${[['RP',45],['CPQ',20],['OSA',20],['SPO',15]].map(r=>`<tr><td>${r[0]}</td><td class="n">${r[1]},0%</td>
+      <td class="n">${money(s.val*r[1]/100)}</td></tr>`).join('')}
+      <tr class="tot"><td><b>Total</b></td><td class="n"><b>100,0%</b></td><td class="n"><b>${money(s.val)}</b></td></tr>
+    </tbody></table>
+    <div class="note" style="margin-top:14px">A soma precisa fechar em 100% — o sistema bloqueia a gravação caso contrário.</div></div>
+  <div id="drt2" hidden>
+    <div class="imp">${svg('M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3')}
+      <div><b>3 arquivos</b> — orcamento_recapadora.pdf · orcamento_pneubras.pdf · email_negociacao.pdf<br>
+      <span style="color:var(--ink-3)">Armazenados no Drive em /FC Salomé/Anexos/2026/${s.id}</span></div>
+      <div class="r"><button class="btn sm">Abrir pasta</button></div></div></div>
+  <div id="drt3" hidden>
+    <ul class="tl">
+      <li><time>21/09 08:47</time><div><b>Consulta de caixa</b> <span>— saldo da semana ${s.sem} recalculado: R$ ${m0(s.saldo)}</span></div></li>
+      <li><time>${s.dt} 16:41</time><div><b>Solicitação criada</b> <span>por ${s.sol} · origem WEB</span></div></li>
+      <li><time>${s.dt} 16:41</time><div><b>Regra aplicada</b> <span>— antecedência mínima da classificação ${s.cod}</span></div></li>
+      ${s.st==='Reprogramado'?`<li><time>09/09 09:12</time><div><b>Reprogramada</b> <span>por Carlos Salomé — sem caixa na data pedida</span></div></li>`:''}
+      ${s.st==='Comprometido'?`<li><time>16/09 08:12</time><div><b>NF recebida</b> <span>— valor alterado de R$ ${money(s.val)} para R$ ${money(s.val+400)}</span></div></li>`:''}
+    </ul>
+    <div class="note" style="margin-top:14px">Este histórico é a leitura da aba <span class="mono">LOG_ATIV</span> filtrada por este registro.</div></div>`;
+  openDrawer(s.id,`${s.forn} · R$ ${money(s.val)} · previsto para ${s.prev}`,body);
+}
+function drTab(btn,i){
+  [...btn.parentElement.children].forEach((b,j)=>b.classList.toggle('on',j===i));
+  for(let j=0;j<4;j++){const e=document.getElementById('drt'+j);if(e)e.hidden=(j!==i)}
+}
+function openPC(cod){
+  const p=PLANO.find(x=>x[0]===cod);
+  openDrawer(p[2],`<span class="mono">${p[0]}</span> · ${p[1]}`,`
+   <dl class="dl">
+     <dt>Natureza</dt><dd>${p[3]}</dd><dt>Tipo de lançamento</dt><dd>${p[4]}</dd>
+     <dt>Antecedência mínima</dt><dd>${p[5]} dias</dd><dt>Condição padrão</dt><dd>${p[6]}</dd>
+     <dt>Exige rateio</dt><dd>${p[7]}</dd><dt>Exige orçamento anexo</dt><dd>${p[8]}</dd>
+     <dt>Status</dt><dd><span class="tag ${p[9]==='ATIVO'?'t-ok':'t-mu'}">${p[9]}</span></dd>
+   </dl>
+   <h3 style="font-size:14px;margin:20px 0 10px">Lançamentos que usam esta classificação</h3>
+   ${tblSol(SOL.filter(s=>s.cod===cod),false)}`);
+}
+function openUser(id){
+  const u=USUARIOS.find(x=>x[0]===id);
+  openDrawer(u[1],`${u[2]} · ${u[3]}`,`
+   <dl class="dl">
+     <dt>ID</dt><dd class="mono">${u[0]}</dd><dt>Perfil</dt><dd>${u[3]}</dd>
+     <dt>Escopo de filial</dt><dd>${u[4]}</dd><dt>Limite de alçada</dt><dd>${u[5]}</dd>
+     <dt>Status</dt><dd><span class="tag ${u[6]==='ATIVO'?'t-ok':'t-mu'}">${u[6]}</span></dd>
+     <dt>Último acesso</dt><dd class="mono">${u[7]}</dd>
+     <dt>Senha</dt><dd>Hash SHA-256 + salt por usuário. Nunca visível, nem para o Administrador.</dd>
+   </dl>
+   <h3 style="font-size:14px;margin:20px 0 10px">Últimos acessos — LOG_ACESSO</h3>
+   <ul class="tl">
+     <li><time>21/09 08:12</time><div><b>LOGIN_OK</b> <span>— Chrome/Windows · sessão 8h</span></div></li>
+     <li><time>20/09 16:39</time><div><b>LOGIN_FALHA</b> <span>— senha incorreta (1/5)</span></div></li>
+     <li><time>20/09 07:55</time><div><b>LOGIN_OK</b> <span>— Safari/iPhone · origem MOBILE</span></div></li>
+     <li><time>19/09 18:02</time><div><b>LOGOUT</b> <span>— encerrado pelo usuário</span></div></li>
+   </ul>`);
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+let mSel=new Set();
+function openPhone(){
+  document.getElementById('mPend').textContent=PEND.length;
+  document.getElementById('mVal').textContent='R$ '+m0(PEND.reduce((a,s)=>a+s.val,0));
+  document.getElementById('mCx').textContent='R$ 108k';
+  document.getElementById('phBody').innerHTML=PEND.map(s=>{
+    const k=RECMAP[s.rec], ok=podeAprovar(s.val);
+    return `<div class="mc">
+      <div class="r"><span class="who2">${s.forn}</span><span class="vl">${m0(s.val)}</span></div>
+      <div class="ln">${s.cls} · ${s.sol}</div>
+      <div class="ln">Prev. ${s.prev} · semana ${s.sem} · saldo R$ ${m0(s.saldo)}</div>
+      <div class="why v-${k}">
+        ${svg(s.rec==='LIBERAR'?I.check:'M12 8v5M12 16.5h.01M10.3 3.9 2.4 17.4A1.9 1.9 0 0 0 4 20.3h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z')}
+${s.rec}${s.ant!=='OK'?' · fora do prazo':''}</div>
+      ${ok?`<div class="bt">
+        <button style="border-color:var(--crit);color:var(--crit);background:var(--crit-soft)" onclick="mAct('${s.id}','Reprogramada')">Reprogramar</button>
+        <button style="border-color:var(--ok);color:var(--ok);background:var(--ok-soft)" onclick="mAct('${s.id}','Aprovada')">Aprovar</button>
+      </div>`:`<div class="ln" style="margin-top:9px;color:var(--crit)">Acima da sua alçada — ${s.alc}</div>`}
+    </div>`}).join('');
+  document.getElementById('phoneWrap').classList.add('on');
+}
+function mAct(id,a){toast(`${id} ${a.toLowerCase()} pelo celular. Log com origem MOBILE.`)}
+function mBulk(a){toast(`${a} em lote — selecione os cards primeiro.`)}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function openLogin(){document.getElementById('loginWrap').classList.add('on')}
+function closeLogin(){document.getElementById('loginWrap').classList.remove('on')}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');
+  clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('on'),3400)}
+document.getElementById('colBtn').onclick=()=>{
+  const r=document.getElementById('rail'); r.classList.toggle('min');
+  document.getElementById('colIcon').innerHTML=`<path d="${r.classList.contains('min')?'M9 6l6 6-6 6':'M15 6l-6 6 6 6'}"/>`;
+};
+document.getElementById('mobBtn').onclick=()=>document.getElementById('rail').classList.toggle('mob');
+document.getElementById('drClose').onclick=closeDrawer;
+document.getElementById('scrim').onclick=closeDrawer;
+document.getElementById('phoneX').onclick=()=>document.getElementById('phoneWrap').classList.remove('on');
+document.getElementById('roleSel').onchange=e=>{
+  ROLE=e.target.value;
+  document.getElementById('uname').textContent=USERS[ROLE][0];
+  document.getElementById('avatar').textContent=USERS[ROLE][1];
+  if(!sees(VIEW))VIEW='inicio';
+  renderMenu();render();
+  toast('Perfil: '+e.target.selectedOptions[0].text+' — menu, botões e alçadas recalculados.');
+};
+document.getElementById('themeBtn').onclick=()=>{
+  const r=document.documentElement;
+  const cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+  r.setAttribute('data-theme',cur==='dark'?'light':'dark');
+};
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeDrawer();closeLogin();document.getElementById('phoneWrap').classList.remove('on')}
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('gsearch').focus()}
+});
+document.getElementById('gsearch').oninput=e=>{
+  const q=e.target.value.trim().toLowerCase(); if(q.length<2)return;
+  const hit=SOL.find(s=>s.id.toLowerCase().includes(q)||s.forn.toLowerCase().includes(q)||String(s.val).includes(q));
+  if(hit&&q.length>3){toast('Encontrado: '+hit.id+' — Enter para abrir');
+    document.getElementById('gsearch').onkeydown=k=>{if(k.key==='Enter')openSol(hit.id)}}
+};
+function fitMob(){document.getElementById('mobBtn').style.display=innerWidth<=860?'grid':'none'}
+addEventListener('resize',fitMob);fitMob();
+renderMenu();render();
+</script>
