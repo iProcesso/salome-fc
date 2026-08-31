@@ -804,7 +804,7 @@ const ALC=[[2000,'Alçada 1 · Supervisão','Supervisor Administrativo'],
 const REQ={1:['fArea','fFil','fForn'],2:['fCod'],3:['fVal','fDt']};
 const ROTULO={fArea:'Área solicitante',fFil:'Filial de emissão',fForn:'Fornecedor',
               fCod:'Classificação',fVal:'Valor bruto',fDt:'Data prevista de pagamento'};
-let FORM={aberto:{1:true,2:true,3:true,4:true},tocado:{},tentou:false};
+let FORM={aberto:{1:false,2:false,3:false,4:false},tocado:{},tentou:false};
 
 const val = id => (document.getElementById(id)||{}).value || '';
 const opt = (v,t)=>`<option value="${v}">${t||v}</option>`;
@@ -835,11 +835,24 @@ function toggleSec(n){
   const a=document.getElementById('acc'+n);
   a.classList.toggle('closed',!FORM.aberto[n]);
   a.querySelector('.acc-h').setAttribute('aria-expanded',FORM.aberto[n]);
+  rotuloTudo();
 }
 function marcar(id){ FORM.tocado[id]=true; }
 
+/** Expande ou recolhe as quatro de uma vez. */
+function alternarTudo(){
+  const abrir = [1,2,3,4].some(n=>!FORM.aberto[n]);
+  [1,2,3,4].forEach(n=>{ if(FORM.aberto[n]!==abrir) toggleSec(n); });
+  rotuloTudo();
+}
+function rotuloTudo(){
+  const b=document.getElementById('btnTudo'); if(!b)return;
+  b.textContent = [1,2,3,4].some(n=>!FORM.aberto[n]) ? 'Expandir tudo' : 'Recolher tudo';
+}
+
 function vNova(){
-  return head(`<button class="btn" onclick="preencherExemplo()">Preencher exemplo</button>`)+
+  return head(`<button class="btn" id="btnTudo" onclick="alternarTudo()">Expandir tudo</button>
+    <button class="btn" onclick="preencherExemplo()">Preencher exemplo</button>`)+
   secao(1,'Identificação',`<div class="form">
     ${campo('fNum','Nº da solicitação',false,'<input class="calc" value="SOL-2026-00033" readonly>')}
     ${campo('fData','Data da solicitação',false,'<input class="calc" value="21/09/2026" readonly>')}
@@ -980,6 +993,7 @@ function preencherExemplo(){
            fForma:'Boleto bancário',fDt:'2026-10-16'};
   Object.keys(p).forEach(id=>{const e=document.getElementById(id);if(e)e.value=p[id];FORM.tocado[id]=true;});
   checar();
+  if(!FORM.aberto[4]) toggleSec(4);
   toast('Exemplo preenchido — veja as quatro seções mudarem de estado.');
 }
 
