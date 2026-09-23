@@ -1,0 +1,8 @@
+# Lista de permissão: tudo é ignorado, menos o que o Apps Script precisa.
+# build_app.py, ponte.js e os .md ficam de fora de propósito — são do repositório,
+# não do projeto publicado.
+**/**
+!appsscript.json
+!*.gs
+!index.html
+!app.html
