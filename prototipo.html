@@ -62,7 +62,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 ::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:6px;border:3px solid var(--paper)}
 
 /* ============ NOTE BAR ============ */
-.protobar{display:none;background:var(--navy);color:var(--surface);padding:7px 18px;font-size:12px;
+.protobar{background:var(--navy);color:var(--surface);padding:7px 18px;font-size:12px;display:flex;
   gap:14px;align-items:center;flex-wrap:wrap}
 .protobar b{font-weight:600}
 .protobar span{opacity:.82}
@@ -373,16 +373,7 @@ legend{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:upperc
 .chip{border:1px solid var(--line-2);background:var(--surface);border-radius:16px;padding:4px 12px;font-size:12px;color:var(--ink-2)}
 .chip.on{background:var(--navy);border-color:var(--navy);color:var(--surface);font-weight:600}
 
-/* O app inteiro fica atrás da tela de login até a sessão existir. */
-.login-wrap{position:fixed;inset:0;background:var(--paper);display:none;place-items:center;z-index:120;padding:20px}
-.login-wrap.on{display:grid}
-.troca-wrap{position:fixed;inset:0;background:var(--paper);display:none;place-items:center;z-index:121;padding:20px}
-.troca-wrap.on{display:grid}
-.lgcarregando{position:fixed;inset:0;background:var(--paper);display:grid;place-items:center;z-index:130}
-.lgcarregando.off{display:none}
-.lgcarregando .sp{width:26px;height:26px;border:2.5px solid var(--line-2);border-top-color:var(--navy);
-  border-radius:50%;animation:gira .7s linear infinite}
-@keyframes gira{to{transform:rotate(360deg)}}
+.login-wrap{position:fixed;inset:0;background:rgba(10,16,24,.66);display:none;place-items:center;z-index:80;padding:20px}
 .login-wrap.on{display:grid}
 .login-card{width:100%;max-width:390px;background:var(--surface);border:1px solid var(--line);
   border-radius:12px;box-shadow:var(--sh-3);padding:26px;display:flex;flex-direction:column;gap:15px}
@@ -544,52 +535,36 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
 
 </head>
 <body>
-<div class="login-wrap on" id="loginWrap">
+<div class="protobar">
+  <b>PROTÓTIPO NAVEGÁVEL</b>
+  <span>Dados fictícios · nada é gravado.</span>
+  <span>Troque o perfil no canto superior direito para ver as permissões mudarem.</span>
+  <span>Abra <b>Aprovações → Ver no celular</b>.</span>
+  <button onclick="openLogin()" style="background:rgba(255,255,255,.16);border:0;border-radius:4px;
+    padding:2px 9px;font-size:11.5px;color:inherit;font-weight:600">Ver tela de login</button>
+</div>
+
+<div class="login-wrap" id="loginWrap">
   <div class="login-card">
     <div class="lg-brand">
       <div class="logo-plate" style="padding:6px 12px"><img src="data:image/png;base64,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" alt="Expresso Salomé" style="height:30px"></div>
-      <div><div style="font-size:11.5px;color:var(--ink-3)">FC · Apontamento Financeiro de Compras</div></div>
+      <div><div style="font-weight:700;font-size:17px;letter-spacing:.02em;display:none">SALOMÉ</div>
+      <div style="font-size:11.5px;color:var(--ink-3)">FC · Apontamento Financeiro de Compras</div></div>
     </div>
-    <form id="lgForm" onsubmit="event.preventDefault();entrar()">
-      <div class="f"><label for="lgMail">E-mail</label>
-        <input id="lgMail" type="email" autocomplete="username" required autofocus></div>
-      <div class="f" style="margin-top:12px"><label for="lgSenha">Senha</label>
-        <input id="lgSenha" type="password" autocomplete="current-password" required></div>
-      <div id="lgErro" class="verdict cr" style="display:none;margin-top:14px"></div>
-      <button class="btn pri" id="lgBtn" type="submit"
-        style="justify-content:center;padding:10px;width:100%;margin-top:16px">Entrar</button>
-    </form>
-    <div style="font-size:11.5px;color:var(--ink-3);line-height:1.5;border-top:1px solid var(--line);padding-top:12px;margin-top:16px">
-      Senha guardada como <b>hash SHA-256 com salt por usuário</b> — nunca em texto.
-      Bloqueio após tentativas seguidas e toda tentativa registrada no log de acesso.
+    <div class="f"><label>E-mail</label><input value="carlos@salome.com.br"></div>
+    <div class="f"><label>Senha</label><input type="password" value="............"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--ink-3)">
+      <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" style="accent-color:var(--navy)">Manter conectado por 8h</label>
+      <a href="#" style="color:var(--navy)" onclick="event.preventDefault();toast('E-mail com senha temporária enviado. Troca obrigatória no 1º acesso.')">Esqueci a senha</a>
     </div>
+    <button class="btn pri" style="justify-content:center;padding:10px" onclick="closeLogin();toast('LOGIN_OK gravado em LOG_ACESSO_2026-S39 · sessão de 8h aberta')">Entrar</button>
+    <div style="font-size:11.5px;color:var(--ink-3);line-height:1.5;border-top:1px solid var(--line);padding-top:12px">
+      Senha guardada como <b>hash SHA-256 com salt por usuário</b> — nunca em texto. Bloqueio após 5 tentativas,
+      expiração em 90 dias e toda tentativa registrada no log de acesso.
+    </div>
+    <button class="btn" style="justify-content:center" onclick="closeLogin()">Fechar prévia</button>
   </div>
 </div>
-
-<div class="troca-wrap" id="trocaWrap">
-  <div class="login-card">
-    <h2 style="font-size:16px;margin:0 0 4px">Troque a senha para continuar</h2>
-    <p style="font-size:12px;color:var(--ink-3);margin:0 0 16px">
-      A senha atual é provisória ou expirou. Escolha uma nova antes de entrar.</p>
-    <form onsubmit="event.preventDefault();salvarSenha()">
-      <div class="f"><label for="tcAtual">Senha atual</label>
-        <input id="tcAtual" type="password" autocomplete="current-password" required></div>
-      <div class="f" style="margin-top:12px"><label for="tcNova">Nova senha</label>
-        <input id="tcNova" type="password" autocomplete="new-password" minlength="8" required>
-        <span class="hint">Mínimo de 8 caracteres.</span></div>
-      <div class="f" style="margin-top:12px"><label for="tcConf">Repita a nova senha</label>
-        <input id="tcConf" type="password" autocomplete="new-password" minlength="8" required></div>
-      <div id="tcErro" class="verdict cr" style="display:none;margin-top:14px"></div>
-      <button class="btn pri" type="submit" style="justify-content:center;padding:10px;width:100%;margin-top:16px">
-        Salvar e entrar</button>
-    </form>
-  </div>
-</div>
-
-<div class="lgcarregando" id="lgLoad"><div style="text-align:center">
-  <div class="sp" style="margin:0 auto 14px"></div>
-  <div style="font-size:12.5px;color:var(--ink-3)" id="lgLoadTxt">Abrindo…</div>
-</div></div>
 
 <header class="topbar">
   <button class="tb-btn" id="mobBtn" aria-label="Menu" style="display:none">
@@ -614,15 +589,16 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
   <button class="tb-btn" id="themeBtn" aria-label="Tema">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
   </button>
-  <button class="tb-btn" id="sairBtn" aria-label="Sair" data-tip="Encerrar a sessão">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"
-      stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-  </button>
   <div class="who">
-    <div class="av" id="avatar">–</div>
+    <div class="av" id="avatar">CS</div>
     <div>
-      <div class="nm" id="uname">—</div>
-      <div class="rl" id="uperfil">—</div>
+      <div class="nm" id="uname">Celso Martins</div>
+      <select id="roleSel" aria-label="Perfil">
+        <option value="SOLICITANTE">Solicitante</option>
+        <option value="FINANCEIRO">Financeiro</option>
+        <option value="DIRETORIA" selected>Diretoria</option>
+        <option value="ADMIN">Administrador</option>
+      </select>
     </div>
   </div>
 </header>
@@ -717,14 +693,14 @@ const PERMS = {
                acao:{incluir:['SOLICITACAO'],alterar:['SOLICITACAO','ORCAMENTO'],inativar:[],aprovar:['SOLICITACAO']},limite:9999999,escopo:'TODAS'},
   ADMIN      :{ver:'*',acao:{incluir:['*'],alterar:['*'],inativar:['*'],aprovar:[]},limite:0,escopo:'TODAS'}
 };
-let ROLE='SOLICITANTE';
-let EU={nome:'',iniciais:'–',perfil:''};
+let ROLE='DIRETORIA';
 const can = (a,r)=>{const p=PERMS[ROLE].acao[a]||[];return p.includes('*')||p.includes(r)};
 const sees = v => PERMS[ROLE].ver==='*'||PERMS[ROLE].ver.includes(v);
 const podeAprovar = valor => PERMS[ROLE].acao.aprovar.includes('SOLICITACAO') && valor<=PERMS[ROLE].limite;
 
 const PERFIL_NOME={SOLICITANTE:'Solicitante',FINANCEIRO:'Financeiro',DIRETORIA:'Diretoria',ADMIN:'Administrador'};
-const USERS=new Proxy({},{get:()=>[EU.nome, EU.iniciais]});
+const USERS={SOLICITANTE:['Celso Martins','CS'],FINANCEIRO:['Ana Paula Cruz','AC'],
+             DIRETORIA:['Carlos Salomé','CS'],ADMIN:['Kleber Zumiotti','KZ']};
 
 /* ============================================================
    DADOS FICTÍCIOS
@@ -781,29 +757,427 @@ function dataBR(iso){
   const m = String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
   return m ? m[3]+'/'+m[2]+'/'+m[1] : (iso||'');
 }
-let SOL = [];
+const SOL = [
+ {id:'SOL-2026-00033',dt:'21/09',sol:'Celso Martins',area:'Manutenção / Frota',fil:'RP',forn:'Scaglioni Truck Center',cod:'2.08.009',cls:'Oficina de terceiros',desc:'Revisão de freios — cavalo FGH7E41',val:4250,cond:'28 dias',forma:'Boleto',prev:'19/10',ant:'OK',alc:'Gerência',st:'Rascunho',sem:'S8',saldo:341470,rec:'LIBERAR',obs:'',etapa:'SOLICITAR',centro:'OPE',bloco:'FROTA',pre:{anexo:false,rateio:true,placa:true,caixa:true,alcada:true,pedido:false},orc:false},
+ {id:'SOL-2026-00034',dt:'20/09',sol:'Maitê Ribeiro',area:'Operação Armazém',fil:'CPQ',forn:'Gilnei Cargas e Descargas',cod:'2.09.004',cls:'Manuseio de carga',desc:'Descarga extra — pico de volume',val:3900,cond:'À vista',forma:'PIX',prev:'25/09',ant:'FORA DO PRAZO',alc:'Supervisão',st:'Em validação',sem:'S4',saldo:225500,rec:'AVALIAR',obs:'Prestador pessoa física — falta o rateio entre as duas filiais atendidas',etapa:'VALIDAR',centro:'OPE',bloco:'CARGA',pre:{anexo:true,rateio:false,placa:true,caixa:true,alcada:true,pedido:false},orc:false},
+ {id:'SOL-2026-00035',dt:'19/09',sol:'Erick Souza',area:'Manutenção / Frota',fil:'CPQ',forn:'P. P. Carvalho Comércio de Pneus',cod:'2.08.006',cls:'Pneus, câmaras e recapagem',desc:'8 pneus 275/80 R22.5',val:18400,cond:'30/60 dias',forma:'Boleto',prev:'22/09',ant:'FORA DO PRAZO',alc:'Diretoria Financeira',st:'Em validação',sem:'S4',saldo:225500,rec:'AVALIAR',obs:'Categoria exige orçamento anexado e o veículo não foi informado',etapa:'VALIDAR',centro:'OPE',bloco:'FROTA',pre:{anexo:false,rateio:true,placa:false,caixa:true,alcada:true,pedido:false},orc:true},
+ {id:'SOL-2026-00036',dt:'12/09',sol:'Josimar Naldo',area:'Operação Armazém',fil:'OSA',forn:'Loger Intralogística e Armazenagem',cod:'2.09.004',cls:'Manuseio de carga',desc:'Equipe de apoio — setembro',val:9600,cond:'Fora semana / próx. quarta',forma:'PIX',prev:'18/09',ant:'OK',alc:'Gerência',st:'Aguardando caixa',sem:'S3',saldo:29950,rec:'REPROGRAMAR',obs:'Semana fecha negativa — travado até a reunião de terça',etapa:'CAIXA',centro:'OPE',bloco:'CARGA',pre:{anexo:true,rateio:true,placa:true,caixa:false,alcada:true,pedido:false},orc:false},
+ {id:'SOL-2026-00037',dt:'11/09',sol:'Fausto Lima',area:'Administrativo',fil:'RP',forn:'MKC - Logística Rio Preto Ltda',cod:'2.02.002',cls:'Frete contratado',desc:'Redespacho — carga Axo',val:7450,cond:'15 dias',forma:'Boleto',prev:'26/09',ant:'OK',alc:'Gerência',st:'Aprovado',sem:'S5',saldo:372050,rec:'LIBERAR',obs:'Aprovado na reunião de 16/09 — falta emitir o pedido',etapa:'AUTORIZAR',centro:'OPE',bloco:'CARGA',pre:{anexo:true,rateio:true,placa:true,caixa:true,alcada:true,pedido:false},orc:false},
+ {id:'SOL-2026-00038',dt:'08/09',sol:'Celso Martins',area:'Manutenção / Frota',fil:'RP',forn:'Ressolagem Rio Preto',cod:'2.08.007',cls:'Recapagem de pneus',desc:'Recapagem 10 pneus — lote 2',val:6800,cond:'28 dias',forma:'Boleto',prev:'14/09',ant:'OK',alc:'Gerência',st:'Reprovado',sem:'S2',saldo:41980,rec:'—',obs:'Reprovado: mesmo lote já contratado em agosto',etapa:'REPROVADO',centro:'OPE',bloco:'FROTA',pre:{anexo:true,rateio:true,placa:true,caixa:true,alcada:true,pedido:false},orc:false},
+ {id:'SOL-2026-00013',dt:'26/08',sol:'Celso Martins',area:'Manutenção / Frota',fil:'RP',forn:'Recapadora Paulista S/A',cod:'3.01.003',cls:'Pneus e Recapagem',desc:'12 pneus 295/80 R22.5 — reposição frota',val:31800,cond:'30/60 dias',forma:'Boleto',prev:'30/09',ant:'OK',alc:'Diretoria Financeira',st:'Reprogramado',sem:'S5',saldo:372050,rec:'AVALIAR',obs:'Sem caixa em 09/09 — reprogramado na reunião'},
+ {id:'SOL-2026-00024',dt:'18/09',sol:'Maitê Ribeiro',area:'Administrativo',fil:'RP',forn:'Papelaria Central Distribuidora',cod:'3.03.004',cls:'Material de Escritório',desc:'Material de escritório — reposição',val:1180,cond:'Fora semana / próx. quarta',forma:'Cartão',prev:'23/09',ant:'FORA DO PRAZO',alc:'Supervisão',st:'Aguardando Aprovação',sem:'S4',saldo:225500,rec:'AVALIAR',obs:'Pediu 5 dias; a classificação exige 7',etapa:'VALIDAR'},
+ {id:'SOL-2026-00025',dt:'07/09',sol:'Erick Souza',area:'Manutenção / Frota',fil:'CPQ',forn:'Truck Center Peças e Serviços ME',cod:'3.01.002',cls:'Peças e Manutenção de Frota',desc:'Peças diversas — manutenção preventiva',val:7300,cond:'28 dias',forma:'Boleto',prev:'05/10',ant:'OK',alc:'Gerência',st:'Aguardando Aprovação',sem:'S6',saldo:29950,rec:'REPROGRAMAR',obs:''},
+ {id:'SOL-2026-00027',dt:'09/09',sol:'Diretoria',area:'Diretoria',fil:'RP',forn:'Construtora Predial Rio Preto',cod:'3.05.003',cls:'Benfeitorias e Obras',desc:'Ampliação de docas — barracão RP (etapa 1)',val:86000,cond:'30/60 dias',forma:'Boleto',prev:'09/10',ant:'OK',alc:'Diretoria (2 assinaturas)',st:'Aguardando Aprovação',sem:'S6',saldo:29950,rec:'REPROGRAMAR',obs:'CAPEX — exige dupla aprovação'},
+ {id:'SOL-2026-00030',dt:'15/09',sol:'Fausto Lima',area:'Administrativo',fil:'RP',forn:'Sascar Tecnologia e Segurança',cod:'3.01.005',cls:'Rastreamento e Telemetria',desc:'Rastreamento 38 veículos — out/26',val:6080,cond:'10 dias',forma:'Boleto',prev:'12/10',ant:'OK',alc:'Gerência',st:'Aguardando Aprovação',sem:'S7',saldo:169270,rec:'LIBERAR',obs:'',etapa:'AUTORIZAR'},
+ {id:'SOL-2026-00031',dt:'16/09',sol:'Josimar Naldo',area:'Operação Armazém',fil:'SPO',forn:'Transportes Agregados JM Ltda',cod:'3.02.003',cls:'Armazenagem e Movimentação',desc:'Movimentação extra — pico de volume cliente Axo',val:11800,cond:'21 dias',forma:'Boleto',prev:'07/10',ant:'OK',alc:'Diretoria Financeira',st:'Aguardando Aprovação',sem:'S6',saldo:29950,rec:'REPROGRAMAR',obs:''},
+ {id:'SOL-2026-00032',dt:'17/09',sol:'Celso Martins',area:'Manutenção / Frota',fil:'RP',forn:'Recapadora Paulista S/A',cod:'3.01.003',cls:'Pneus e Recapagem',desc:'Recapagem 16 pneus',val:12600,cond:'30/60 dias',forma:'Boleto',prev:'16/10',ant:'OK',alc:'Diretoria Financeira',st:'Aguardando Aprovação',sem:'S7',saldo:169270,rec:'LIBERAR',obs:''},
+ {id:'SOL-2026-00016',dt:'28/08',sol:'Lucas Andrade',area:'TI',fil:'RP',forn:'InfoTech Soluções em TI Ltda',cod:'3.05.001',cls:'Equipamentos de TI',desc:'3 notebooks — novos colaboradores',val:13500,cond:'30/60 dias',forma:'Boleto',prev:'16/09',ant:'OK',alc:'Diretoria Financeira',st:'Comprometido',sem:'S3',saldo:108080,rec:'—',obs:'NF 4471 recebida'},
+ {id:'SOL-2026-00020',dt:'01/09',sol:'Josimar Naldo',area:'Operação Armazém',fil:'OSA',forn:'Transportes Agregados JM Ltda',cod:'3.02.001',cls:'Freteiro / Agregado',desc:'Frete agregado — 1ª quinzena set',val:26000,cond:'Fora semana / próx. quarta',forma:'PIX',prev:'16/09',ant:'OK',alc:'Diretoria Financeira',st:'Comprometido',sem:'S3',saldo:108080,rec:'—',obs:'NF R$ 26.400 — divergência de R$ 400'},
+ {id:'SOL-2026-00028',dt:'10/09',sol:'Celso Martins',area:'Manutenção / Frota',fil:'RP',forn:'Posto Rodoviário Rio Preto Ltda',cod:'3.01.001',cls:'Combustível / Diesel',desc:'Diesel S10 — 8.000 L',val:38900,cond:'À vista',forma:'PIX',prev:'14/09',ant:'OK',alc:'Diretoria Financeira',st:'Pago',sem:'S3',saldo:108080,rec:'—',obs:''},
+ {id:'SOL-2026-00011',dt:'25/08',sol:'Ana Paula Cruz',area:'RH',fil:'RP',forn:'Folha — interno',cod:'3.04.001',cls:'Folha de Pagamento',desc:'Folha de pagamento — ago/26',val:412000,cond:'À vista',forma:'TED',prev:'04/09',ant:'OK',alc:'Diretoria (2 assinaturas)',st:'Pago',sem:'S1',saldo:48310,rec:'—',obs:'Estrutural'},
+ {id:'SOL-2026-00021',dt:'01/09',sol:'Fausto Lima',area:'Administrativo',fil:'RP',forn:'CPFL Paulista',cod:'3.03.002',cls:'Energia Elétrica',desc:'Energia elétrica — ago/26',val:15100,cond:'À vista',forma:'Déb. automático',prev:'18/09',ant:'OK',alc:'Diretoria Financeira',st:'Pago',sem:'S3',saldo:108080,rec:'—',obs:''}
+];
 const STMAP={'Aguardando Aprovação':'t-wa','Aprovado':'t-nv','Reprogramado':'t-cr','Comprometido':'t-in','Pago':'t-ok','Reprovado':'t-mu'};
 const RECMAP={'LIBERAR':'ok','AVALIAR':'wa','REPROGRAMAR':'cr','—':'mu'};
-let PEND = [];
+const PEND = SOL.filter(s=>['Aguardando Aprovação','Reprogramado'].includes(s.st));
 /* Aprovado e ainda não foi ao fornecedor. No app oficial esta lista vem do servidor. */
-let AUTORIZ = [];   /* vem do servidor em vista.abrir e vista.atualizar */
+let AUTORIZ = SOL.filter(s=>s.st==='Aprovado').map(s=>({
+  id:s.id, fornecedor:s.forn, descricao:s.desc, valor:s.val, previsto:s.prev,
+  condicao:s.cond, filial:s.fil, email:'', chave:s.chave||'', pedido:s.pedido||''
+}));
 
-let WEEKS=[];
-let WDATE=[];
-let FLOW={saldoAcu:[],sit:[],previsto:[],comprometido:[],realizado:[],entradas:[],saidas:[]};
-
-let PLANO = [];
-let FORN = [];
-let CAT = [];
-let CENTROS = [];
+const WEEKS=['S1','S2','S3','S4','S5','S6','S7','S8','S9','S10','S11','S12'];
+const WDATE=['31/08','07/09','14/09','21/09','28/09','05/10','12/10','19/10','26/10','02/11','09/11','16/11'];
+const FLOW={
+ entradas:[['Recebido (liquidado)',[60000,0,0,0,0,0,0,0,0,0,0,0]],
+           ['Recebível confirmado',[90000,113900,107200,0,0,0,0,0,0,0,0,0]],
+           ['CT-e previsto',[0,56100,52800,172000,165000,178000,158000,175000,168000,160000,172000,166000]]],
+ saidas:[['Combustível / Diesel',[38200,0,38900,0,0,0,0,0,0,0,0,0]],
+         ['Peças e Manutenção de Frota',[7120,18900,0,0,9400,7300,0,0,0,0,0,0]],
+         ['Pneus e Recapagem',[0,0,0,0,31800,0,12600,0,0,0,0,0]],
+         ['Rastreamento e Telemetria',[0,6080,0,0,0,6080,0,0,0,0,0,0]],
+         ['Freteiro / Agregado',[27950,0,26400,0,0,0,0,0,0,0,0,0]],
+         ['Armazenagem e Movimentação',[0,0,0,0,0,11800,0,0,0,0,0,0]],
+         ['Energia Elétrica',[0,0,15100,0,0,0,0,0,0,0,0,0]],
+         ['Material de Escritório',[1420,0,0,1180,0,0,0,0,0,0,0,0]],
+         ['Material de Limpeza e Copa',[0,3050,0,0,0,0,0,0,0,0,0,0]],
+         ['Licenças de Software / SaaS',[0,0,0,0,9050,0,0,0,0,0,0,0]],
+         ['Seguros',[0,0,0,22400,0,0,0,0,0,0,0,0]],
+         ['Folha de Pagamento',[412000,0,0,0,0,415000,0,0,0,0,0,0]],
+         ['Encargos e Impostos s/ Folha',[0,148300,0,0,0,0,0,0,0,0,0,0]],
+         ['Equipamentos de TI',[0,0,13500,0,0,0,0,0,0,0,0,0]],
+         ['Benfeitorias e Obras',[0,0,0,0,0,86000,0,0,0,0,0,0]]],
+ tres:[['Previstas',[0,0,0,23580,50250,520100,18680,0,0,0,0,0]],
+       ['Comprometidas',[0,0,39900,0,0,0,0,0,0,0,0,0]],
+       ['Realizadas',[486690,176330,54000,0,0,0,0,0,0,0,0,0]]],
+ saldoIni:[385000,48310,41980,108080,256500,371250,29150,168470,343470,511470,671470,843470],
+ saldoAcu:[48310,41980,108080,256500,371250,29150,168470,343470,511470,671470,843470,1009470],
+ sit:['ATENÇÃO','ATENÇÃO','ATENÇÃO','OK','OK','ATENÇÃO','OK','OK','OK','OK','OK','OK']
+};
+const PLANO=[
+ ["1","RECEITAS","ANALITICA","RECEITAS","RECEITA",""],
+ ["1.01","RECEITAS","ANALITICA","RECEITAS","RECEITA",""],
+ ["1.01.001","RECEITA BRUTA","ANALITICA","RECEITAS","RECEITA",""],
+ ["1.01.002","PEDAGIOS","SINTETICA","RECEITAS","RECEITA",""],
+ ["1.02","DEPOSITOS JUDICIAIS","ANALITICA","RECEITAS","RECEITA","DEPOSITOS JUDICIAIS"],
+ ["1.02.001","DEPOSITOS JUDICIAIS","ANALITICA","RECEITAS","RECEITA",""],
+ ["1.03","ATIVO IMOBILIZADO","SINTETICA","RECEITAS","RECEITA","ATIVO IMOBILIZADO"],
+ ["1.03.001","MAQUINAS E EQUIPAMENTOS","SINTETICA","RECEITAS","RECEITA","MAQUINAS E EQUIPAMENTOS"],
+ ["1.03.001.01","PALETEIRAS E EMPILHADEIRAS","ANALITICA","RECEITAS","RECEITA","PALETEIRAS E EMPILHADEIRAS"],
+ ["2","DESPESAS","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.01","PESSOAL","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.01.001","SALARIOS","ANALITICA","DESPESAS","DESPESA","SALARIOS PAGOS REF MÊS"],
+ ["2.01.002","ADIANTAMENTOS","ANALITICA","DESPESAS","DESPESA","ADIANTAMENTO A FUNCIONÁRIOS ADIANTAMENTO PAGO A"],
+ ["2.01.003","13 SALARIOS","ANALITICA","DESPESAS","DESPESA","ADIANTAMENTO DE 13º SALARIO ADIANTAMENTO PAGO NO MÊS 13º SALARIO"],
+ ["2.01.004","FÉRIAS","ANALITICA","DESPESAS","DESPESA","FÉRIAS PAGAS A"],
+ ["2.01.005","INSS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.006","FGTS","ANALITICA","DESPESAS","DESPESA","FGTS"],
+ ["2.01.007","ASSISTÊNCIA MÉDICA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.008","TRANSPORTES","ANALITICA","DESPESAS","DESPESA","VALE TRANSPORTE"],
+ ["2.01.009","SEGURO DE VIDA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.010","COMISSOES","ANALITICA","DESPESAS","DESPESA","SAQUE CAIXA"],
+ ["2.01.011","SINDICATO E ASSOCIACAO","ANALITICA","DESPESAS","DESPESA","CONTRIBUICAO SINDICAL"],
+ ["2.01.012","CURSOS E TREINAMENTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.013","UNIFORMES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.014","EPI","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.015","ALIMENTACAO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.016","HORAS EXTRAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.017","INDENIZACÕES","ANALITICA","DESPESAS","DESPESA","RESCISÃO PAGA A"],
+ ["2.01.018","INCENTIVOS E PREMIACÕES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.019","PRO-LABORE","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.020","INSS RETIRADA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.021","ADICIONAL DE INSALUBRIDADE","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.022","ADICIONAL NOTURNO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.023","CESTA BASICA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.024","IRRF SOBRE PESSOAL","ANALITICA","DESPESAS","DESPESA","IRRF COD. 0561 - FUNCIONARIO"],
+ ["2.01.025","EXAMES MEDICOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.026","OUTROS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.027","PLANO DE SAUDE","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.01.028","INSS DESONERACAO","ANALITICA","DESPESAS","DESPESA","INSS DESONERACAO"],
+ ["2.02","SERVICOS CONTRATADOS","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.02.001","FRETES TOMADOS P FISICA","ANALITICA","DESPESAS","DESPESA","TERCEIROS"],
+ ["2.02.002","FRETES TOMADOS P JURIDICA","ANALITICA","DESPESAS","DESPESA","TERCEIROS"],
+ ["2.02.003","INSS AUTONOMOS","ANALITICA","DESPESAS","DESPESA","INSS AUTONOMOS"],
+ ["2.02.004","DESPACHANTES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.005","ASSESSORIA ADMINISTRATIVA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.006","ASSESSORIA FISCAL E TRIBUTARIA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.007","ASSESSORIA JURIDICA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.008","ASSESSORIA PROFISSIONAIS DIVERSAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.009","SERVICOS DE TERCEIROS P JURIDICA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.010","BOLSA AUXILIO ESTAGIO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.011","SERVICO DE SEGURANCA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.012","SERVICOS DE MANUTENCAO EM SISTEMAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.013","SERVICOS DE MANUTENCÃO EM EQUIPAMENTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.015","HONORÁRIOS E SUCUMBÊNCIAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.016","SERVIÇOS TERCEIROS P FÍSICA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.017","SERVIÇOS MÉDICOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.019","MAO-DE-OBRA TEMPORARIA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.020","LOCACAO DE VEICULOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.021","LOCACAO DE EQUIPAMENTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.022","OUTROS SERVICOS CONTRATADOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.023","AUDITORIA DA ISO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.02.024","AUDITORIA SSASMAQ","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03","DESPESAS DE FUNCIONAMENTO","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.03.001","TAXA DE AGUA E ESGOTO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.002","TELEFONE FIXO","ANALITICA","DESPESAS","DESPESA","TELEFONE"],
+ ["2.03.003","ENERGIA ELETRICA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.004","ALUGUEL","ANALITICA","DESPESAS","DESPESA","ALUGUEL"],
+ ["2.03.005","MALOTE E CORREIO","ANALITICA","DESPESAS","DESPESA","CORREIO / XEROX / CARTORIO"],
+ ["2.03.006","INTERNET E COMUNICACOES","ANALITICA","DESPESAS","DESPESA","INTERNET"],
+ ["2.03.007","INFORMATICA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.008","MATERIAIS DE EXPEDIENTE","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.009","DESPESAS LEGAIS E CARTORIOS","ANALITICA","DESPESAS","DESPESA","CORREIO / XEROX / CARTORIO"],
+ ["2.03.010","VIAGENS E ESTADIAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.011","ASSOCIACOES","ANALITICA","DESPESAS","DESPESA","ASSOCIACOES"],
+ ["2.03.012","MANUTENCAO DE EQUIPAMENTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.013","IPTU","ANALITICA","DESPESAS","DESPESA","IPTU"],
+ ["2.03.014","FERRAMENTAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.015","MANUTENCAO DE EDIFICACOES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.016","MATERIAL DE INCENDIO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.017","MATERIAL DE LIMPEZA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.018","SEGUROS PATRIMONIAIS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.019","CONTRIBUICOES E DOACOES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.020","CONDOMINIO","ANALITICA","DESPESAS","DESPESA","CONDOMINIO"],
+ ["2.03.021","COMBUSTIVEIS E LUBRIFICANTES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.022","DESPESAS COM COPA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.023","MANUTENCAO DE VEICULOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.024","MANUTENCAO DE MOVEIS E UTENSILIOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.025","SEGURO DE VEICULOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.026","IPVA E LICENCIAMENTO DE VEICULOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.027","TAXA DE FUNCIONAMENTO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.028","PERIODICOS JORNAIS E REVISTAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.030","ALUGUEL DE EQUIPAMENTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.031","IMPRESSOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.032","TELEFONE CELULAR MOTORISTAS","ANALITICA","DESPESAS","DESPESA","TELEFONE"],
+ ["2.03.033","TELEFONE CELULAR EMPRESA","ANALITICA","DESPESAS","DESPESA","TELEFONE"],
+ ["2.03.034","OUTRAS DESPESAS DE FUNCIONAMENTO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.035","MATERIAL DE ESCRITORIO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.036","MULTA DE TRANSITO DE VEICULOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.03.037","LAVAGENS VEICULOS DE PASSEIO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.04","DESPESAS COM PROPAGANDAS","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.04.001","BRINDES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.04.002","PUBLICIDADES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.04.003","FEIRAS EXPOSIÇÕES E EVENTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.04.004","TARIFAS E TAXAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.04.005","OUTRAS DESPESAS COM PROPAGANDAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.05","DESPESAS FINANCEIRAS","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.05.001","JUROS SOBRE TITULOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.05.003","JUROS DO LIMITE","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.05.004","DESPESAS COM PROTESTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.05.005","DESPESAS COM COBRANÇA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.05.006","DESPESAS BANCARIAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.05.007","DESPESAS COM FINANCIAMENTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.05.008","JUROS SOBRE PARCELAMENTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.05.009","OPERAÇÕES FINANCEIRAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.05.010","JUROS DE EMPRESTIMOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.05.011","AMORTIZACAO DE EMPRESTIMOS (PRINCIPAL)","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.05.015","OUTROS DESPESAS FINANCEIRAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.06","INVESTIMENTOS E IMOBILIZADOS","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.06.001","AQUISICAO DE MOVEIS E UTENCILIOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.06.002","AQUISICAO DE MAQUINAS E EQUIPAMENTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.06.003","AQUISICAO DE VEICULOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.06.004","AQUISICAO DE IMOVEIS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.06.005","LEASING","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.06.006","FINAME","ANALITICA","DESPESAS","DESPESA","FINAMES"],
+ ["2.06.007","CONSORCIOS","ANALITICA","DESPESAS","DESPESA","CONSORCIOS"],
+ ["2.06.008","AQUISICAO DE FERRAMENTAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.06.009","AQUISICAO ACOES E TITULOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.06.010","MATERIAIS PARA CONSTRUCAO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.06.011","TECNOLOGIA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.06.012","OUTROS INVESTIMENTOS E IMOBILIZADOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.06.013","EQUIPAMENTO DE INFORMATICA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.07","IMPOSTOS","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.07.001","IRPJ","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.07.002","CSLL","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.07.003","MULTAS DE AUTO DE INFRACAO","ANALITICA","DESPESAS","DESPESA","MULTAS INDEDUTIVEIS"],
+ ["2.07.004","MULTAS SOBRE IMPOSTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.07.005","JUROS SOBRE IMPOSTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.07.006","OUTROS IMPOSTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08","CUSTOS OPERACIONAIS COM FROTA","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.08.001","COMBUSTIVEIS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.002","LUBRIFICANTES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.003","PECAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.004","ACESSORIOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.005","EQUIPAMENTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.006","PNEUS CAMARAS E PROTETORES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.007","RECAPAGENS DE PNEUS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.008","PEDÁGIOS EMPRESA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.009","OFICINAS DE TERCEIROS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.010","RASTREADOR E GERENCIAMENTO RISCOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.011","INSPECAO VEICULAR","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.012","IPVA","ANALITICA","DESPESAS","DESPESA","IPVA"],
+ ["2.08.013","LICENCIAMENTO","ANALITICA","DESPESAS","DESPESA","LICENCIAMENTO DE VEICULOS"],
+ ["2.08.014","SEGURO OBRIGATÓRIO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.015","SEGURO COBERTURA DE CASCO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.016","SEGURO COBERTURA CONTRA TERCEIROS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.017","MULTAS DE TRANSITO","ANALITICA","DESPESAS","DESPESA","MULTAS INDEDUTIVEIS"],
+ ["2.08.018","LAVAGENS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.019","MATERIAIS DE CONSUMO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.020","DESPESAS COM VIAGENS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.021","TAXA DE OPERAÇÃO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.022","DEPRECIAÇÕES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.023","GERENCIAMENTO DE RISCO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.024","PEDÁGIOS EMBARCADOR","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.025","SERVIÇOS DE BORRACHARIA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.026","CONTRATO DE MANUTENÇÃO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.027","FERRAMENTAS APLICADAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.028","OUTROS CUSTOS COM FROTA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.08.029","CONTRATO DE MANUTENCAO (NAO ENTRA DMR)","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.09","CUSTOS OPERACIONAIS COM CARGA","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.09.001","INDENIZACAO DE MERCADORIAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.09.002","MANUTENCAO DE EQUIPAMENTOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.09.003","EMBALAGENS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.09.004","MANUSEIO DE CARGAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.09.005","SEGURO DE CARGAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.09.006","LONAS E ENCERADOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.09.007","FALTA DE PRODUTO","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.09.008","OUTROS CUSTOS COM CARGA","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.09.009","ANULACAO DE FRETE","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.10","DEDUÇÕES DE VENDAS","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.10.001","ICMS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.10.002","PIS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.10.003","COFINS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.10.004","ISS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.10.005","EPP - SIMPLES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.10.006","OUTRAS DEDUÇÕES","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.11","OUTROS","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.11.001","CONTRIBUICOES ENTIDADES DE CLASSE","ANALITICA","DESPESAS","DESPESA","CONTRIBUICOES ENTIDADES DE CLASSE"],
+ ["2.11.002","CONTRIBUICAO SINDICAL PATRONAL","ANALITICA","DESPESAS","DESPESA","CONTRIBUICAO SINDICAL PATRONAL"],
+ ["2.11.003","CUSTOS DIVERSOS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.11.004","DESPESAS DIVERSAS","ANALITICA","DESPESAS","DESPESA",""],
+ ["2.12","PARCELAMENTOS","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.12.001","PARCELAMENTOS PIS","ANALITICA","DESPESAS","DESPESA","PARCELAMENTO COD. 8109 PIS"],
+ ["2.12.002","PARCELAMENTO COFINS","ANALITICA","DESPESAS","DESPESA","PARCELAMENTO COD. 2172 COFINS"],
+ ["2.12.003","PARCELAMENTOS IRPJ","ANALITICA","DESPESAS","DESPESA","PARCELAMENTO COD. 2089 IRPJ"],
+ ["2.12.004","PARCELAMENTOS CSLL","ANALITICA","DESPESAS","DESPESA","PARCELAMENTO COD. 2372 CSLL"],
+ ["2.12.005","PARCELAMENTOS ICMS","ANALITICA","DESPESAS","DESPESA","PARCELAMENTO ICMS ESTADUAL"],
+ ["2.12.006","PARCELAMENTOS INSS","ANALITICA","DESPESAS","DESPESA","PARCELAMENTO COD. 4308 INSS"],
+ ["2.12.007","PARCELAMENTO DIVERSOS TRIBUTOS FEDERAIS","ANALITICA","DESPESAS","DESPESA","PARCELAMENTO COD. 5190 FEDERAL"],
+ ["2.13","DESPESAS JURIDICAS E CONTIGENCIAS","SINTETICA","DESPESAS","DESPESA",""],
+ ["2.13.001","PROCESSOS CIVEIS","ANALITICA","DESPESAS","DESPESA","PROCESSO CIVEIS"],
+ ["2.13.002","PROCESSOS TRABALHISTAS","ANALITICA","DESPESAS","DESPESA","PROCESSOS TRABALHISTAS"],
+ ["2.13.003","PROCESSOS TRIBUTARIOS","ANALITICA","DESPESAS","DESPESA","PROCESSOS TRIBUTARIOS"],
+ ["2.13.004","HONORARIOS ADVOCATICIOS","ANALITICA","DESPESAS","DESPESA","HONORARIOS ADVOCATICIOS"],
+ ["2.13.005","CUSTAS JUDICIAIS","ANALITICA","DESPESAS","DESPESA","CUSTAS JUDICIAIS"],
+ ["2.13.006","PROVISAO PARA CONTIGENCIAS","ANALITICA","DESPESAS","DESPESA","PROVISAO PARA CONTIGENCIAS"],
+ ["3","TRANSFERENCIA","SINTETICA","RESULTADO","DESPESA",""],
+ ["3.01","TRANSFERENCIA ATIVO IMOBILIZADO","ANALITICA","RESULTADO","DESPESA",""],
+ ["4","OUTRAS OPERACOES","SINTETICA","MOVIMENTACAO","DESPESA",""],
+ ["4.01","COMODATO","ANALITICA","MOVIMENTACAO","DESPESA",""],
+ ["4.02","ENTRADA DE VASILHAMES E PALLETS","ANALITICA","MOVIMENTACAO","DESPESA",""],
+ ["4.03","DEPOSITO FECHADO","ANALITICA","MOVIMENTACAO","DESPESA",""],
+ ["4.04","DEVOLUCAO DE VASILHAME OU SACARIA","ANALITICA","MOVIMENTACAO","DESPESA",""]
+];
+const FORN=[
+ ["F001","ADAUTO DONISETE FERNANDES E CIA LTDA - EPP","PJ","SIM","FR-OFI"],
+ ["F002","ADRIELE PEIXOTO MENDONCA","PJ","SIM","FR-OFI"],
+ ["F003","AGROMOLAS IND E COM DE MOLAS E PECAS LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F004","AILTON APARECIDO CAMARGO - ME","PJ","SIM","CA-FRE"],
+ ["F005","ANDRE LUIS ARROYO LTDA","PJ","SIM","FR-OFI"],
+ ["F006","ANDRE LUIZ ROSA ALVES-ME","PJ","SIM","FR-OFI"],
+ ["F007","ANGELA AP CHAGAS DA SILVA FILIAL","PJ","SIM","FR-PEC"],
+ ["F008","APS EQUIPAMENTOS E MENUTANCAO LTDA","PJ","SIM","FR-OFI"],
+ ["F009","AR LOGISTICA LTDA","PJ","NAO","CA-FRE"],
+ ["F010","ASL TRANSPORTES CATANDUVA LTDA - ME","PJ","NAO","CA-FRE"],
+ ["F011","ASL TRUCK CENTER LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F012","ATIVA MAQUINAS COMERCIO DE PRODUTOS AGRICOLAS LTDA","PJ","SIM","FR-PEC"],
+ ["F013","AUTO AMERICANO SA DISTRIBUIDOR DE PECAS","PJ","NAO","FR-PEC"],
+ ["F014","AUTO ELETRICO KAZUYOSHI LTDA - EPP","PJ","SIM","FR-PEC"],
+ ["F015","AUTO ELETRICO RAPIDO LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F016","AUTO POSTO LUNA RIO PRETO LTDA","PJ","NAO","FR-PEC"],
+ ["F017","BENITEZ E RAMOS COM. PARAFUSOS E FERRAGENS LTDA","PJ","NAO","FR-PEC|FR-PNE"],
+ ["F018","BERNARDO DE SOUZA FILHO","PF","NAO","CA-MAN"],
+ ["F019","BRACELF COMERCIAL ATACADISTA LTDA","PJ","NAO","FR-PEC"],
+ ["F020","BROFIX TRUCK CENTER LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F021","COLUMBIA COMERCIO DE DESCARTAVEIS LTDA","PJ","NAO","FR-PEC"],
+ ["F022","D.F.DA SILVA CARREGAMENTO - ME","PJ","NAO","CA-MAN"],
+ ["F023","DENIS MACEDO RODRIGUES","PJ","SIM","FR-OFI"],
+ ["F024","DIJO COMERCIO DE AUTO PECAS LTDA","PJ","NAO","FR-PEC"],
+ ["F025","DINATEC - PECAS E SERVICOS LTDA","PJ","NAO","FR-PEC"],
+ ["F026","DISTAEL MERPAL BATERIAS LTDA","PJ","NAO","FR-PEC"],
+ ["F027","E.U. TRANSPORTES DE CARGAS LTDA - ME","PJ","SIM","CA-FRE"],
+ ["F028","EDGAR GUSTAVO CHILE - EIRELI - ME","PJ","SIM","FR-PEC"],
+ ["F029","EDICAR RIO PRETO PECAS E SERVICOS LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F030","EDNA A DOS SANTOS TRANSPORTADORA","PJ","NAO","CA-FRE"],
+ ["F031","ELTON DA SILVA ROCHA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F032","EUROVOL RIO PRETO SERV MECANICOS LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F033","EVICAR CARROCERIAS LTDA","PJ","SIM","FR-OFI"],
+ ["F034","FFTRUCK LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F035","FLORESTA LOGISTICA - EIRELI","PJ","NAO","CA-FRE"],
+ ["F036","FLUIMANG MANGUEIRAS E CONEX. HIDR. LTDA","PJ","NAO","FR-PEC"],
+ ["F037","FOGUINHO EXTINTORES ACESSORIOS PARA SEGURANCA LTDA","PJ","SIM","FR-PEC"],
+ ["F038","FREIOS SANTA IZABEL RIO PRETO LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F039","GENA AUTO ELETRICO LTDA","PJ","SIM","FR-PEC"],
+ ["F040","GENILDO JOAQUIM DA SILVA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F041","GERA-BENZ RIO PRETO COM.PEC.ACE.EIRELI-EPP","PJ","NAO","FR-OFI|FR-PEC"],
+ ["F042","GILNEI CARGAS E DESCARGAS DE MERCADORIAS LTDA","PJ","SIM","CA-MAN"],
+ ["F043","GUSTAVO DE SOUZA NUNES DA SILVA","PJ","NAO","FR-OFI"],
+ ["F044","HIDROVOLT DISTRIBUIDORA LTDA","PJ","NAO","FR-PEC"],
+ ["F045","IGOR CARVALHO DE JESUS","PJ","SIM","FR-OFI"],
+ ["F046","JOSE DONIZETE JAKUNSKI","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F047","KIT RETIFICA DE MOTORES LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F048","L.L.A LIOMAR OPERADOR LOG.TRANSP.LTDA EPP","PJ","SIM","CA-FRE"],
+ ["F049","LAPONIA SUDESTE LTDA.","PJ","NAO","FR-PEC"],
+ ["F050","LOGER INTRALOGISTICA E ARMAZENAGEM LTDA.","PJ","NAO","CA-MAN"],
+ ["F051","LUCENA TRUCK CENTER LTDA","PJ","NAO","FR-PEC"],
+ ["F052","LUCIANO DA COSTA CARDOSO RIO PRETO","PJ","SIM","FR-PEC"],
+ ["F053","MARINGADIESEL COM DE AUTO PECAS LTDA","PJ","NAO","FR-PEC"],
+ ["F054","MAVAMI OFICINA E COMERCIO DE PECAS LTDA - ME","PJ","SIM","FR-OFI"],
+ ["F055","MILENA CRISTINA TREVISAN","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F056","MKC - LOGISTICA RIO PRETO LTDA.","PJ","SIM","CA-FRE"],
+ ["F057","MTZ COM E MANUT DE DIRECAO HIDRAULICA-ME","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F058","N CARFAN TORNEARIA ME","PJ","SIM","FR-OFI"],
+ ["F059","NATALI ANDRESSA MARIANO","PJ","SIM","CA-MAN"],
+ ["F060","NENO AUTO PECAS EIRELI","PJ","SIM","FR-PEC"],
+ ["F061","OFICINA MECANICA PIMENTEL LTDA.","PJ","NAO","FR-OFI|FR-PEC"],
+ ["F062","P. P. CARVALHO COMERCIO DE PNEUS","PJ","NAO","FR-PNE"],
+ ["F063","PACAEMBU AUTOPECAS LTDA","PJ","NAO","FR-PEC"],
+ ["F064","PEDRAO TACOGRAFOS LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F065","PEREIRAS DIESEL COMERCIO E SERVICOS PARA VEICULOS LTDA ME","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F066","PIRASA VEICULOS LTDA","PJ","NAO","FR-OFI|FR-PEC"],
+ ["F067","PORCINO AUTO PECAS RIO PRETO ME LTDA","PJ","NAO","FR-OFI|FR-PEC"],
+ ["F068","R A TEIXEIRA & A TEIXEIRA JUNIOR LTDA ME","PJ","SIM","FR-OFI"],
+ ["F069","R.P.F. COMERCIO E RECUPERADORA DE FREIOS LTDA ME","PJ","NAO","FR-OFI|FR-PEC"],
+ ["F070","RAD STANDARD COMERCIO DE PECAS LTDA","PJ","SIM","FR-PEC"],
+ ["F071","REI DO ALINHAMENTO E BALANCEAMENTO RIO PRETO LTDA","PJ","NAO","FR-OFI|FR-PEC"],
+ ["F072","RENOVAR COMERCIO E RECUPERACOES LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F073","REPEL AUTOMOTIVA LTDA","PJ","NAO","FR-PEC"],
+ ["F074","RESSOLAGEM RIO PRETO","PJ","NAO","FR-PNE"],
+ ["F075","RETIFICA SAO PAULO LTDA.","PJ","NAO","FR-PEC"],
+ ["F076","RICHARD MARCELO DUPIM ME","PJ","SIM","CA-FRE"],
+ ["F077","RIOPRETURBOS COMERCIO E RECONDICIONAMENTO DE TURBOS","PJ","SIM","FR-PEC"],
+ ["F078","RLC COM. DE PNEUS E PECAS LTDA","PJ","NAO","FR-PEC"],
+ ["F079","ROBERTO LEITE GIMENES TRANSPORTES ME","PJ","SIM","CA-FRE"],
+ ["F080","RODOBENS VEICULOS COMERCIAIS CIRASA S.A.","PJ","NAO","FR-OFI|FR-PEC"],
+ ["F081","RODORIB RIO BRASIL LTDA","PJ","NAO","FR-OFI|FR-PEC"],
+ ["F082","RODOVIARIO BERGAMINI RIO PRETO LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F083","RODRIGO GOMES DE MELLO","PJ","SIM","FR-OFI"],
+ ["F084","ROGERIO FRIAS HEGUEDUSCH RIO PRETO-ME","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F085","RPT COMERCIO DE TURBOS LTDA","PJ","SIM","FR-PEC"],
+ ["F086","RR GIMENES TRANSPORTES LTDA","PJ","SIM","CA-FRE"],
+ ["F087","S. S. GRAAL PECAS E SERVICOS LTDA","PJ","SIM","FR-PEC"],
+ ["F088","SANDRA VALERIA CEZAR PASSONE","PJ","SIM","FR-OFI"],
+ ["F089","SCAGLIONI TRUCK CENTER BALANCEAMENTO E ALINHAMENTO LTDA","PJ","SIM","FR-OFI"],
+ ["F090","SG DA SILVA TRANSPORTE RODOVIARIO - ME","PJ","SIM","CA-FRE"],
+ ["F091","SIGAMAIS RD TRANSPORTES LTDA","PJ","NAO","CA-FRE"],
+ ["F092","SOUZINHA CARGA RAPIDA LTDA","PJ","SIM","CA-FRE|CA-MAN"],
+ ["F093","SP - COM. DE PECAS E MANUTENCAO DE VEIC. LTDA -ME","PJ","SIM","FR-OFI"],
+ ["F094","TAPATI ENCOMENDAS LTDA                         7","PJ","NAO","CA-FRE"],
+ ["F095","TAPECARIA E ACESSORIOS SALVIANO LTDA ME","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F096","TICO DIESEL SERVICE LTDA","PJ","SIM","FR-OFI"],
+ ["F097","TR GIMENES LIMITADA","PJ","SIM","CA-FRE"],
+ ["F098","TRANS-BERNARDES CARGAS E ENCOMENDAS LTDA","PJ","NAO","CA-FRE"],
+ ["F099","TRANSGRANO TRANSPORTES LTDA","PJ","NAO","CA-FRE"],
+ ["F100","TRANSJOI TRANSPORTES LTDA                        0","PJ","NAO","CA-FRE"],
+ ["F101","TRANSPORTADORA FLORESTA LTDA","PJ","NAO","CA-FRE"],
+ ["F102","TRANSPORTADORA SAO JUDAS TADEU RIO PRETO EIRELI - ME","PJ","NAO","CA-FRE"],
+ ["F103","TRANSPORTES RD LTDA","PJ","SIM","CA-FRE"],
+ ["F104","V10 DIESEL INJECAO ELETRONICA LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F105","VALTERCIDES LEONEL DE SOUZA TRANSPORTES - ME","PJ","SIM","CA-FRE"],
+ ["F106","VANIEL LACERDA & CIA LTDA - EPP","PJ","SIM","FR-OFI"],
+ ["F107","VOLFER MECANICA RIO PRETO LTDA","PJ","SIM","FR-OFI|FR-PEC"],
+ ["F108","WEBCONTINENTAL LTDA","PJ","NAO","FR-PEC"],
+ ["F109","WILLIAN GOMES MOREIRA","PJ","SIM","FR-OFI"]
+];
+const CAT=[
+ ['FR-PEC','FROTA','Peças e acessórios','Filtro, lona de freio, farol, retrovisor','2.08.003','2.08.003','OPE','SIM','NAO','NENHUMA',3],
+ ['FR-PNE','FROTA','Pneus, câmaras e recapagem','Pneu novo, recapagem, protetor','2.08.006','2.08.006','OPE','SIM','SIM','NENHUMA',5],
+ ['FR-OFI','FROTA','Oficina de terceiros','Mão de obra mecânica, funilaria, elétrica','2.08.009','2.08.009','OPE','SIM','SIM','SERVICO_PJ',3],
+ ['FR-BOR','FROTA','Borracharia','Conserto de pneu em trânsito, troca de válvula','2.08.025','2.08.025','OPE','SIM','NAO','SERVICO_PJ',0],
+ ['FR-COM','FROTA','Combustível e lubrificante','Diesel, arla, óleo de motor','2.08.001','2.08.001','OPE','SIM','NAO','NENHUMA',0],
+ ['FR-LAV','FROTA','Lavagem','Lavagem de cavalo, carreta e baú','2.08.018','2.08.018','OPE','SIM','NAO','SERVICO_PJ',0],
+ ['FR-DOC','FROTA','Documentação e seguro do veículo','IPVA, licenciamento, inspeção, seguro','2.08.012','','OPE','SIM','NAO','NENHUMA',10],
+ ['FR-RAS','FROTA','Rastreamento e gerenciamento de risco','Mensalidade de rastreador, GR de viagem','2.08.010','','OPE','NAO','NAO','SERVICO_PJ',5],
+ ['FR-MAN','FROTA','Contrato de manutenção','Contrato de revisão, plano de manutenção','2.08.026','','OPE','SIM','SIM','SERVICO_PJ',10],
+ ['FR-FER','FROTA','Ferramentas e material de oficina','Chave, macaco, estopa, graxa','2.08.027','2.08.027','OPE','NAO','NAO','NENHUMA',3],
+ ['CA-FRE','CARGA','Frete contratado','Agregado, terceiro, redespacho','2.02.002','2.02.001','OPE','NAO','NAO','FRETE_PF',0],
+ ['CA-MAN','CARGA','Manuseio de carga','Carga, descarga, ajudante','2.09.004','2.09.004','OPE','NAO','NAO','SERVICO_PF',0],
+ ['CA-EMB','CARGA','Embalagem, lona e amarração','Lona, cinta, catraca, filme, pallet','2.09.003','2.09.003','OPE','NAO','NAO','NENHUMA',3],
+ ['CA-PED','CARGA','Pedágio e vale-pedágio','Recarga de tag, vale-pedágio','2.08.008','','OPE','NAO','NAO','NENHUMA',0],
+ ['CA-VIA','CARGA','Viagem e estadia','Diária de motorista, hotel, refeição em rota','2.08.020','2.08.020','OPE','SIM','NAO','NENHUMA',0],
+ ['ES-ESC','ESTRUTURA','Material de escritório e expediente','Papel, toner, caneta, impresso','2.03.008','2.03.008','ADM','NAO','NAO','NENHUMA',5],
+ ['ES-LIM','ESTRUTURA','Material de limpeza e copa','Produto de limpeza, café, água, descartáveis','2.03.017','2.03.017','ADM','NAO','NAO','NENHUMA',5],
+ ['ES-TEC','ESTRUTURA','Informática, software e telefonia','Notebook, licença, link, celular','2.03.007','','ADM','NAO','SIM','SERVICO_PJ',10],
+ ['ES-OCU','ESTRUTURA','Energia, água, aluguel e condomínio','Conta de luz, água, aluguel, IPTU','2.03.004','2.03.004','ADM','NAO','NAO','NENHUMA',5],
+ ['ES-PRE','ESTRUTURA','Manutenção predial e de equipamentos','Pintura, elétrica, ar-condicionado, empilhadeira','2.03.015','2.03.015','ADM','NAO','SIM','SERVICO_PJ',5],
+ ['ES-EPI','ESTRUTURA','Uniformes e EPI','Uniforme, bota, luva, colete','2.01.014','2.01.014','ADM','NAO','NAO','NENHUMA',10],
+ ['SE-TER','SERVICOS','Serviço de terceiros','Serviço avulso não coberto pelas demais','2.02.009','2.02.016','ADM','NAO','SIM','SERVICO_PJ',5],
+ ['SE-ASS','SERVICOS','Assessoria e honorários','Contábil, jurídica, fiscal, consultoria','2.02.005','2.02.005','ADM','NAO','SIM','SERVICO_PJ',10],
+ ['SE-LOC','SERVICOS','Locação de veículo ou equipamento','Aluguel de carro, empilhadeira, gerador','2.02.021','','ADM','NAO','SIM','SERVICO_PJ',10],
+ ['SE-INV','SERVICOS','Investimento / bem do imobilizado','Veículo, máquina, móvel, obra','2.06.012','','ADM','NAO','SIM','NENHUMA',15],
+ ['SE-OUT','SERVICOS','Outros (exige justificativa)','O que não se encaixa acima','2.11.004','2.11.004','ADM','NAO','SIM','NENHUMA',5]
+];
+const CENTROS=[['ADM','Administrativo','Estrutura, escritório e apoio'],
+               ['OPE','Operacional','Frota, carga e viagem'],
+               ['TRF','Transferência','Rateio entre filiais / transferência interna']];
 const BLOCOS={FROTA:['Frota','Gasto que tem placa'],
               CARGA:['Carga e viagem','Gasto que acontece na estrada'],
               ESTRUTURA:['Estrutura','Gasto da filial ou do escritório'],
               SERVICOS:['Serviços e outros','Contratação e o que não se encaixa acima']};
-let PC_MAP={}; PLANO.forEach(p=>PC_MAP[p[0]]={desc:p[1],tipo:p[2],g:p[3],n:p[4],contabil:p[5]});
-let CAT_MAP={}; CAT.forEach(c=>CAT_MAP[c[0]]={bloco:c[1],nome:c[2],ex:c[3],pj:c[4],pf:c[5],
+const PC_MAP={}; PLANO.forEach(p=>PC_MAP[p[0]]={desc:p[1],tipo:p[2],g:p[3],n:p[4],contabil:p[5]});
+const CAT_MAP={}; CAT.forEach(c=>CAT_MAP[c[0]]={bloco:c[1],nome:c[2],ex:c[3],pj:c[4],pf:c[5],
    centro:c[6],placa:c[7]==='SIM',anexo:c[8]==='SIM',ret:c[9],ant:c[10]});
-let FORN_MAP={}; FORN.forEach(f=>FORN_MAP[f[0]]={nome:f[1],tipo:f[2],simples:f[3],cats:f[4]});
+const FORN_MAP={}; FORN.forEach(f=>FORN_MAP[f[0]]={nome:f[1],tipo:f[2],simples:f[3],cats:f[4]});
 const RET_TXT={NENHUMA:'sem retenção',
   SERVICO_PJ:'serviço de PJ — IRRF 1,5% + CSRF 4,65%, dispensados se optante do Simples, mais ISS do município',
   SERVICO_PF:'serviço de pessoa física — INSS 11%, IRRF na tabela e ISS do município',
@@ -833,8 +1207,33 @@ function fornDaCategoria(catId){
   return r.length?r:FORN;
 }
 
-let USUARIOS = [];
+const USUARIOS=[
+ ['USR-001','Carlos Salomé','carlos@salome.com.br','Diretoria','Todas','—','ATIVO','21/09/2026 08:12'],
+ ['USR-002','Ana Paula Cruz','anapaula@salome.com.br','Financeiro','Todas','R$ 10.000','ATIVO','21/09/2026 07:58'],
+ ['USR-003','Celso Martins','celso@salome.com.br','Solicitante','Rio Preto','—','ATIVO','20/09/2026 16:41'],
+ ['USR-004','Maitê Ribeiro','maite@salome.com.br','Solicitante','Rio Preto','—','ATIVO','19/09/2026 09:03'],
+ ['USR-005','Erick Souza','erick@salome.com.br','Solicitante','Campinas','—','ATIVO','18/09/2026 14:22'],
+ ['USR-006','Josimar Naldo','josimar@salome.com.br','Solicitante','Osasco','—','ATIVO','17/09/2026 11:35'],
+ ['USR-007','Fausto Lima','fausto@salome.com.br','Financeiro','Todas','R$ 10.000','ATIVO','21/09/2026 08:44'],
+ ['USR-008','Marcos Tolentino','marcos@salome.com.br','Solicitante','São Paulo','—','INATIVO','04/07/2026 10:11']
+];
 const RECURSOS=['Solicitação','Aprovação','Título a pagar','Título a receber','Rateio','Orçamento','Plano de contas','Fornecedor','Filial','Usuário','Perfil','Log'];
+const LOGATIV=[
+ ['21/09 08:47:12','carlos@salome.com.br','Diretoria','SOLICITACAO','APROVAR','SOL-2026-00030','STATUS','Aguardando Aprovação','Aprovado','MOBILE'],
+ ['21/09 08:46:55','carlos@salome.com.br','Diretoria','SESSAO','LOGIN_OK','—','—','—','—','MOBILE'],
+ ['21/09 08:12:04','anapaula@salome.com.br','Financeiro','SOLICITACAO','ALTERAR','SOL-2026-00020','VALOR_COMPROMETIDO','26.000,00','26.400,00','WEB'],
+ ['21/09 08:11:30','anapaula@salome.com.br','Financeiro','SOLICITACAO','ALTERAR','SOL-2026-00020','STATUS','Aprovado','Comprometido','WEB'],
+ ['20/09 17:22:41','kleber@iprocesso.com','Administrador','PLANO_CONTAS','INATIVAR','3.03.009','STATUS','ATIVO','INATIVO','WEB'],
+ ['20/09 16:41:09','celso@salome.com.br','Solicitante','SOLICITACAO','INCLUIR','SOL-2026-00032','—','—','—','WEB'],
+ ['20/09 16:39:58','celso@salome.com.br','Solicitante','SESSAO','LOGIN_FALHA','—','—','—','—','WEB'],
+ ['20/09 11:03:17','kleber@iprocesso.com','Administrador','USUARIO','ALTERAR','USR-008','STATUS','ATIVO','INATIVO','WEB']
+];
+const IMPORTS=[
+ ['IMP-2026-0014','20/09/2026 10:12','Plano de contas','plano_contas_v3.csv',22,22,0,'CONCLUIDA','kleber@iprocesso.com'],
+ ['IMP-2026-0013','18/09/2026 15:40','Fornecedores','fornecedores_set.csv',15,13,2,'CONCLUIDA COM ERROS','anapaula@salome.com.br'],
+ ['IMP-2026-0012','12/09/2026 09:05','Filiais','filiais.csv',4,4,0,'CONCLUIDA','kleber@iprocesso.com'],
+ ['IMP-2026-0011','11/09/2026 17:31','Orçamento 2026','orcamento_2026.csv',110,0,110,'REJEITADA','anapaula@salome.com.br']
+];
 
 /* ============================================================
    MENU
@@ -904,7 +1303,7 @@ function head(extra=''){
   <div class="acts">${extra}</div></div>`;
 }
 const SUBS={
- inicio:'Sua posição de hoje',
+ inicio:'Sua posição de hoje — 21 de setembro de 2026',
  minhas:'Tudo que você lançou, em qualquer estágio',
  nova:'A regra e o impacto no caixa aparecem enquanto você preenche',
  kanban:'Solicitar · Validar · Consultar caixa · Aprovar · Autorizar · Receber',
@@ -951,15 +1350,9 @@ function vInicio(){
   return head()+`
   <div class="grid g4" style="margin-bottom:16px">
     <div class="card kpi b"><div class="l">Pendentes de aprovação</div><div class="v">${PEND.length}</div><div class="d">R$ ${m0(pend)} parados</div></div>
-    <div class="card kpi a"><div class="l">Saldo projetado desta semana</div>
-      <div class="v">${WEEKS.length?m0(FLOW.saldoAcu[0]):'—'}</div>
-      <div class="d">${WEEKS.length?WEEKS[0]+' · a partir de '+WDATE[0]:'fluxo ainda não projetado'}</div></div>
-    <div class="card kpi d2"><div class="l">Semanas em atenção</div>
-      <div class="v">${(FLOW.sit||[]).filter(x=>x!=='OK').length}</div>
-      <div class="d">${(FLOW.sit||[]).map((x,i)=>x!=='OK'?WEEKS[i]:null).filter(Boolean).join(', ')||'nenhuma nas '+WEEKS.length+' semanas'}</div></div>
-    <div class="card kpi c"><div class="l">Comprometido nas 12 semanas</div>
-      <div class="v">${m0((FLOW.comprometido||[]).reduce((a,b)=>a+b,0))}</div>
-      <div class="d">${m0((FLOW.previsto||[]).reduce((a,b)=>a+b,0))} ainda como previsto</div></div>
+    <div class="card kpi a"><div class="l">Saldo projetado hoje</div><div class="v">108.080</div><div class="d">semana S3 · 14 a 20/09</div></div>
+    <div class="card kpi d2"><div class="l">Semanas em atenção</div><div class="v">4</div><div class="d">S1, S2, S3 e S6</div></div>
+    <div class="card kpi c"><div class="l">Realizado no mês</div><div class="v">717.020</div><div class="d">70% do orçado de setembro</div></div>
   </div>
   <div class="grid" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
     <div class="card">
@@ -979,54 +1372,22 @@ function vInicio(){
     <div class="card">
       <div class="card-h"><h3>Consistência do processo</h3></div>
       <div class="card-b" style="display:flex;flex-direction:column;gap:11px">
-        ${consistencia()}
+        ${cons('2 notas com valor divergente do aprovado','Precisam de reaprovação do saldo antes do pagamento','cr','pagar')}
+        ${cons('1 solicitação fora do prazo mínimo','Material de escritório pedido com 5 dias; a regra exige 7','wa','aprovacoes')}
+        ${cons('3 solicitações sem orçamento anexo','A classificação exige anexo de cotação','wa','minhas')}
+        ${cons('Rateio conferido','Todas as notas somam 100% entre as filiais','ok','rateio')}
+        ${cons('Plano de contas sincronizado','22 classificações ativas, última importação em 20/09','ok','plano')}
       </div>
     </div>
   </div>`;
 }
-/** Cada linha aqui é uma contagem sobre os dados reais. Quando dá zero, vira um OK. */
-function consistencia(){
-  const hoje=new Date(); hoje.setHours(0,0,0,0);
-  const atrasadas = SOL.filter(s=>s.prevIso && new Date(s.prevIso+'T00:00:00')<hoje
-                                 && ['PAGO','REPROVADO','CANCELADO'].indexOf(s.status)<0);
-  const semAnexo  = SOL.filter(s=>s.pre && s.pre.anexo===false);
-  const semPlaca  = SOL.filter(s=>s.pre && s.pre.placa===false);
-  const semRateio = SOL.filter(s=>s.pre && s.pre.rateio===false);
-  const foraPrazo = SOL.filter(s=>s.ant==='FORA DO PRAZO'
-                                 && ['PAGO','REPROVADO','CANCELADO'].indexOf(s.status)<0);
-  const semCaixa  = SOL.filter(s=>s.rec==='REPROGRAMAR');
-  const plural=(n,a,b)=>n+' '+(n===1?a:b);
-
-  const linhas=[];
-  if(atrasadas.length) linhas.push(cons(plural(atrasadas.length,'solicitação em atraso','solicitações em atraso'),
-    'A data prevista de pagamento já passou e o título não foi pago.','cr','pagar'));
-  if(semCaixa.length) linhas.push(cons(plural(semCaixa.length,'solicitação sem caixa na semana','solicitações sem caixa na semana'),
-    'A recomendação é reprogramar na reunião.','wa','aprovacoes'));
-  if(foraPrazo.length) linhas.push(cons(plural(foraPrazo.length,'solicitação fora do prazo mínimo','solicitações fora do prazo mínimo'),
-    'Pedidas com menos antecedência do que a categoria exige.','wa','aprovacoes'));
-  if(semAnexo.length) linhas.push(cons(plural(semAnexo.length,'solicitação sem orçamento anexo','solicitações sem orçamento anexo'),
-    'A categoria exige a cotação anexada para seguir.','wa','kanban'));
-  if(semPlaca.length) linhas.push(cons(plural(semPlaca.length,'gasto de frota sem placa','gastos de frota sem placa'),
-    'Sem a placa não há como apurar custo por veículo.','wa','kanban'));
-  if(semRateio.length) linhas.push(cons(plural(semRateio.length,'rateio que não fecha 100%','rateios que não fecham 100%'),
-    'A soma precisa fechar nos dois eixos: filial e centro de custo.','cr','rateio'));
-
-  if(!linhas.length) linhas.push(cons('Nada pendente de conferência',
-    plural(SOL.length,'solicitação no período','solicitações no período')+
-    ', com os pré-requisitos em ordem.','ok','minhas'));
-  linhas.push(cons('Plano de contas carregado',
-    plural(PLANO.length,'conta','contas')+' e '+
-    plural(CAT.length,'categoria de compra ativa','categorias de compra ativas')+'.','ok','plano'));
-  return linhas.join('');
-}
-
 const cons=(t,d,k,go_)=>`<div class="verdict ${k}" style="padding:11px 13px;cursor:pointer" onclick="go('${go_}')">
   <div style="flex:none;margin-top:1px">${svg(k==='ok'?I.check:'M12 8v5M12 16.5h.01M10.3 3.9 2.4 17.4A1.9 1.9 0 0 0 4 20.3h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z')}</div>
   <div><b>${t}</b><p>${d}</p></div>
   <div style="margin-left:auto;flex:none;opacity:.6">${svg('M9 6l6 6-6 6')}</div></div>`;
 
 function vMinhas(){
-  const me=EU.nome;
+  const me=USERS[ROLE][0];
   const list=PERMS[ROLE].escopo==='PROPRIO'?SOL.filter(s=>s.sol===me):SOL;
   return head(`<button class="btn pri" onclick="go('nova')">${svg(I.plus)}Nova solicitação</button>`)+
   `<div class="chips">${['Todas','Aguardando Aprovação','Aprovado','Reprogramado','Comprometido','Pago'].map((c,i)=>`<span class="chip ${i===0?'on':''}">${c}</span>`).join('')}</div>
@@ -1037,7 +1398,10 @@ function vMinhas(){
 /* ============================================================
    NOVA SOLICITAÇÃO — acordeão com estado por seção
    ============================================================ */
-let ALC=[];
+const ALC=[[2000,'Alçada 1 · Supervisão','Supervisor Administrativo'],
+           [10000,'Alçada 2 · Gerência','Gerente Adm./Financeiro'],
+           [50000,'Alçada 3 · Diretoria Financeira','Diretor Financeiro'],
+           [9e9,'Alçada 4 · Diretoria','Diretor Financeiro + CEO']];
 
 
 /* Tooltips dos campos. Texto curto que responde "por que isso importa", e não
@@ -1118,7 +1482,7 @@ function rotuloTudo(){
 
 function vNova(){
   return head(`<button class="btn" id="btnTudo" onclick="alternarTudo()">Expandir tudo</button>
-    `)+
+    <button class="btn" onclick="preencherExemplo()">Preencher exemplo</button>`)+
 
   secao(1,'O que você vai comprar',`<div class="form">
     <div class="f w2"><label>Mais usadas</label>
@@ -1144,16 +1508,16 @@ function vNova(){
   secao(2,'De quem, e para quem é o gasto',`<div class="form">
     ${campo('fForn','Fornecedor',true,sel('fForn',[]),'A lista encurta sozinha depois que você escolhe a categoria.')}
     <div class="f w2" id="fFornInfo"></div>
-    ${campo('fArea','Área solicitante',true,sel('fArea',AREAS_CAD.map(a=>({v:a.AREA_ID,t:a.NOME||a.AREA_ID}))))}
-    ${campo('fFil','Filial que emite a NF',true,sel('fFil',FILIAIS_CAD.map(f=>({v:f.FILIAL_ID,t:(f.CODIGO||f.FILIAL_ID)+' · '+(f.NOME||'')}))))}
+    ${campo('fArea','Área solicitante',true,sel('fArea',['Manutenção / Frota','Administrativo','Operação Armazém','TI','RH','Diretoria']))}
+    ${campo('fFil','Filial que emite a NF',true,sel('fFil',[{v:'RP',t:'RP · Rio Preto (Matriz)'},{v:'CPQ',t:'CPQ · Campinas'},{v:'OSA',t:'OSA · Osasco'},{v:'SPO',t:'SPO · São Paulo'}]))}
     ${campo('fCentro','Centro de custo',true,sel('fCentro',CENTROS.map(c=>({v:c[0],t:c[1]+' · '+c[2]}))),
       'Filial é quem paga. Centro de custo é qual natureza consome. São eixos diferentes — e o rateio usa os dois.')}
   </div>`)+
 
   secao(3,'Valor e condições',`<div class="form">
     ${campo('fVal','Valor bruto estimado (R$)',true,`<input id="fVal" inputmode="decimal" placeholder="0,00" oninput="checar()" onblur="normVal();marcar('fVal');checar()">`)}
-    ${campo('fCond','Condição de pagamento',false,sel('fCond',CONDICOES_CAD.map(c=>({v:c.CONDICAO_ID,t:c.NOME||c.CONDICAO_ID})),'— usar a padrão da categoria —'))}
-    ${campo('fForma','Forma de pagamento',false,sel('fForma',FORMAS_CAD.map(f=>({v:f.FORMA_ID,t:f.NOME||f.FORMA_ID}))))}
+    ${campo('fCond','Condição de pagamento',false,sel('fCond',['À vista','Fora semana / próx. quarta','15 dias','28 dias','30/60 dias'],'— usar a padrão da categoria —'))}
+    ${campo('fForma','Forma de pagamento',false,sel('fForma',['Boleto bancário','PIX','Cartão de crédito','Transferência (TED)','Débito automático']))}
     ${campo('fDt','Data prevista de pagamento',true,`<input id="fDt" type="date" onchange="marcar('fDt');checar()" onblur="marcar('fDt');checar()">`)}
     <div class="f w2" id="fRet"></div>
   </div>`)+
@@ -1167,7 +1531,7 @@ function vNova(){
   `<div class="form-foot">
      <div class="prog"><div class="t" id="progT">—</div><div class="bar"><i id="progB" style="width:0"></i></div></div>
      <div class="foot-acts">
-       <button class="btn" onclick="salvarRascunho()">Salvar rascunho</button>
+       <button class="btn" onclick="toast('Rascunho salvo no navegador. Você pode fechar e voltar depois.')">Salvar rascunho</button>
        <button class="btn pri" id="btnEnviar" onclick="enviar()">${svg(I.check)}Enviar para aprovação</button>
      </div>
    </div>`;
@@ -1295,7 +1659,7 @@ function calc(){
     return;
   }
 
-  const dt=new Date(dtTxt+'T00:00:00'), hoje=new Date(); hoje.setHours(0,0,0,0);
+  const dt=new Date(dtTxt+'T00:00:00'), hoje=new Date('2026-09-21T00:00:00');
   const dias=Math.round((dt-hoje)/864e5);
   set('fAntP',dias+' dias');
   const a=ALC.find(x=>valor<=x[0]);
@@ -1337,41 +1701,7 @@ function enviar(){
                               : 'Faltam '+r.faltam.length+' campos. Comece por '+r.faltam[0]+'.');
     return;
   }
-  enviarAoServidor();
-}
-
-async function salvarRascunho(){
-  const num=v=>numBR(v);
-  try{
-    await API.chamar('sol.salvar',{enviar:false,
-      categoriaId:val('fCat'), fornecedorId:val('fForn'), areaId:val('fArea'),
-      filialEmissao:val('fFil'), centroCusto:val('fCentro'), placa:val('fPlaca'),
-      descricao:val('fDesc'), valorBruto:num(val('fVal')), condicaoId:val('fCond'),
-      formaId:val('fForma'), dataPrevista:val('fDt')});
-    await recarregar('Rascunho salvo. Ele aparece em Minhas solicitações.');
-  }catch(e){ toast('Não consegui salvar: '+e.message,'cr'); }
-}
-
-async function enviarAoServidor(){
-  const btn=document.getElementById('btnEnviar');
-  const antes=btn.innerHTML; btn.disabled=true; btn.textContent='Enviando…';
-  const num=v=>numBR(v);
-  try{
-    const r=await API.chamar('sol.salvar',{
-      enviar:true,
-      categoriaId:val('fCat'), fornecedorId:val('fForn'),
-      areaId:val('fArea'), filialEmissao:val('fFil'), centroCusto:val('fCentro'),
-      placa:val('fPlaca'), descricao:val('fDesc'),
-      valorBruto:num(val('fVal')), condicaoId:val('fCond'), formaId:val('fForma'),
-      dataPrevista:val('fDt')
-    });
-    const id=(r&&(r.id||(r.registro&&r.registro.SOLICITACAO_ID)))||'';
-    FORM={aberto:{1:false,2:false,3:false,4:false},tocado:{},tentou:false};
-    await recarregar(id? id+' enviada para aprovação. Registrada no log.' : 'Solicitação enviada.');
-    go('minhas');
-  }catch(e){
-    toast('Não consegui enviar: '+e.message,'cr');
-  }finally{ btn.disabled=false; btn.innerHTML=antes; }
+  toast('Solicitação SOL-2026-00033 enviada para aprovação. Log registrado.');
 }
 
 function preencherExemplo(){
@@ -1459,46 +1789,9 @@ function vAutorizacoes(){
   </div>`;
 }
 
-async function autEmitir(id){
-  const r = await API.chamar('aut.emitir',{id:id}).catch(e=>{toast('Não consegui emitir: '+e.message,'cr');});
-  if(!r) return;
-  autMostrarCapa(id, r.capa, r.chave, r.reemissao);
-  await recarregar(r.mensagem);
-}
-async function autVerCapa(id){
-  const r = await API.chamar('aut.emitir',{id:id}).catch(e=>{toast('Não consegui abrir: '+e.message,'cr');});
-  if(r) autMostrarCapa(id, r.capa, r.chave, true);
-}
-/* A capa em texto, pronta para colar no e-mail. O PDF vem quando o Files.gs existir —
-   até lá o processo não pode ficar parado esperando o documento bonito. */
-function autMostrarCapa(id, capa, chave, reemissao){
-  openDrawer(`Autorização ${chave}`, `Solicitação ${id.slice(-5)}${reemissao?' · reemissão, mesma chave':''}`,
-    `<div class="note" style="margin-bottom:12px">Copie o texto abaixo e mande ao fornecedor.
-     Quando ele responder com o número do pedido, registre aqui — a nota fiscal só é aceita com ele.</div>
-     <textarea id="capa-${id}" readonly style="width:100%;min-height:300px;font-family:var(--mono);
-       font-size:12px;line-height:1.6;padding:14px;border:1px solid var(--line);border-radius:8px;
-       background:var(--surface-2);color:var(--ink)">${capa}</textarea>
-     <div class="acts" style="margin-top:12px">
-       <button class="btn pri" onclick="autCopiar('${id}')">Copiar o texto</button>
-       <button class="btn" onclick="closeDrawer();autPedido('${id}')">Registrar o pedido do fornecedor</button>
-     </div>`);
-}
-function autCopiar(id){
-  const e = document.getElementById('capa-'+id);
-  if(!e) return;
-  e.select();
-  try{ document.execCommand('copy'); toast('Capa copiada. Cole no e-mail ao fornecedor.'); }
-  catch(x){ toast('Selecione o texto e copie com Ctrl+C.'); }
-}
-async function autPedido(id){
-  const num = prompt('Número do pedido que o fornecedor devolveu:');
-  if(num===null) return;
-  if(!String(num).trim()){ toast('Sem o número não dá para registrar.','cr'); return; }
-  try{
-    const r = await API.chamar('aut.pedido',{id:id, pedido:num});
-    await recarregar(r.mensagem);
-  }catch(e){ toast('Não consegui gravar: '+e.message,'cr'); }
-}
+function autEmitir(id){ toast('No protótipo a capa não é gerada — no app oficial ela sai aqui.'); }
+function autVerCapa(id){ toast('No protótipo não há capa para mostrar.'); }
+function autPedido(id){ toast('No protótipo o pedido não é gravado.'); }
 
 function vAprov(){
   return head(`<button class="btn" onclick="openPhone()">${svg(I.phone)}Ver no celular</button>
@@ -1530,20 +1823,7 @@ function vAprov(){
     </tbody></table></div>
   </div>`;
 }
-async function decide(id,acao){
-  const mapa={'Aprovada':'APROVAR','Reprogramada':'REPROGRAMAR','Reprovada':'REPROVAR'};
-  let motivo='';
-  if(acao!=='Aprovada'){
-    motivo=prompt(acao==='Reprogramada'
-      ? 'Para qual data reprogramar, e por quê?'
-      : 'Motivo da reprovação:');
-    if(motivo===null) return;
-  }
-  try{
-    await API.chamar('sol.decidir',{id:id, decisao:mapa[acao], motivo:motivo});
-    await recarregar(id.slice(-5)+' '+acao.toLowerCase()+'. Decisão gravada e o solicitante avisado por e-mail.');
-  }catch(e){ toast('Não consegui gravar: '+e.message,'cr'); }
-}
+function decide(id,acao){toast(`${id} ${acao.toLowerCase()}. Status gravado, log de atividade registrado e e-mail enviado ao solicitante.`)}
 
 function vFluxo(){
   const th=`<tr><th>Linha</th>${WEEKS.map((w,i)=>`<th style="text-align:right">${w}<div style="font-weight:400;font-size:9px;opacity:.75">${WDATE[i]}</div></th>`).join('')}<th style="text-align:right">Total</th></tr>`;
@@ -1569,191 +1849,104 @@ function vFluxo(){
     <tr><td>Situação</td>${FLOW.sit.map(s=>`<td style="text-align:center"><span class="tag ${s==='OK'?'t-ok':s==='ATENÇÃO'?'t-wa':'t-cr'}">${s}</span></td>`).join('')}<td></td></tr>
    </tbody></table></div></div>`;
 }
-
-async function drillCell(tipo,linha,sem,val){
-  openDrawer(`${linha} · ${sem}`,'carregando a composição…','<div class="empty">Um instante…</div>');
-  let d;
-  try{ d = await API.chamar('cash.detalhe',{tipo:tipo,linha:linha,coluna:sem}); }
-  catch(e){ openDrawer(`${linha} · ${sem}`,'',`<div class="empty">Não consegui abrir o detalhe: ${e.message}</div>`); return; }
-
-  if(!d.itens.length){
-    openDrawer(`${linha} · ${sem}`, d.periodo?`${d.periodo} · nada compõe esta célula`:'',
-      `<div class="empty">${d.explica||'Nenhum lançamento nesta linha e nesta semana.'}</div>`);
-    return;
-  }
-
-  /* A coluna "valor na célula" existe porque ela nem sempre é o valor bruto: quem já foi
-     pago entra pelo valor do pagamento, quem tem nota entra pelo valor comprometido.
-     Mostrar os dois lado a lado é o que evita a pergunta "por que não bate". */
-  const linhas = d.itens.map(x=>`<tr onclick="closeDrawer();openSol('${x.id}')">
-      <td class="id">${x.id.slice(-5)}</td>
-      <td>${x.fornecedor}<div style="font-size:11px;color:var(--ink-3)">${x.descricao||''}</div></td>
-      <td>${x.filial}</td>
-      <td><span class="tag t-mu">${x.estagio}</span></td>
-      <td class="n">${x.data}<div style="font-size:10.5px;color:var(--ink-3)">${x.origemData}</div></td>
-      <td class="n">${money(x.valorBruto)}</td>
-      <td class="n"><b>${money(x.valor)}</b><div style="font-size:10.5px;color:var(--ink-3)">${x.origemValor}</div></td>
-    </tr>`).join('');
-
-  const bate = d.confere
-    ? `<div class="note" style="margin-top:14px">A soma dos ${d.itens.length} lançamentos acima é
-       <b>${money(d.total)}</b> — exatamente o valor da célula. O detalhe e o total saem da mesma
-       conta no servidor, então bater é consequência, não coincidência.</div>`
-    : `<div class="note" style="margin-top:14px;border-color:var(--crit)"><b>Os números não batem.</b>
-       A célula mostra ${money(d.daMatriz)} e a composição soma ${money(d.total)}.
-       Avise o Kleber antes de usar este número.</div>`;
-
-  /* O valor que a pessoa clicou aparece no topo, ao lado do que a composição somou.
-     É o "check do que foi clicado": ela não precisa confiar na minha palavra de que bate,
-     vê os dois números juntos — e a diferença, que tem de ser zero. */
-  const dif = Math.abs(nnum(val) - d.total);
-  openDrawer(`${linha} · ${sem}`,
-    `${d.periodo} · ${d.itens.length} lançamento(s) · clicado ${money(val)} · composição ${money(d.total)}`,
-    `<div class="grid g4" style="margin-bottom:14px">
-       <div class="card kpi ${d.confere?'c':'d2'}"><div class="l">Valor da célula</div>
-         <div class="v">${m0(val)}</div><div class="d">o número que você clicou</div></div>
-       <div class="card kpi b"><div class="l">Soma da composição</div>
-         <div class="v">${m0(d.total)}</div><div class="d">${d.itens.length} lançamento(s) abaixo</div></div>
-       <div class="card kpi ${dif<0.005?'c':'d2'}"><div class="l">Diferença</div>
-         <div class="v">${m0(dif)}</div>
-         <div class="d">${dif<0.005?'fecha exatamente':'PRECISA DE CONFERÊNCIA'}</div></div>
-       <div class="card kpi a"><div class="l">Semana</div>
-         <div class="v" style="font-size:19px">${sem}</div><div class="d">${d.periodo}</div></div>
-     </div>
-     <div class="note" style="margin-bottom:12px">${d.explica}</div>
-     <div class="tw"><table><thead><tr>
-       <th>Nº</th><th>Fornecedor</th><th>Filial</th><th>Estágio</th><th>Data que conta</th>
-       <th style="text-align:right">Valor bruto</th><th style="text-align:right">Valor nesta célula</th>
-     </tr></thead><tbody>${linhas}
-     <tr class="tot"><td colspan="6"><b>Total da célula</b></td><td class="n"><b>${money(d.total)}</b></td></tr>
-     </tbody></table></div>${bate}`);
+function drillCell(tipo,linha,sem,val){
+  const list=SOL.filter(s=>s.sem===sem);
+  openDrawer(`${linha} · ${sem}`,`R$ ${m0(val)} · ${list.length} lançamento(s) na semana`,
+    tblSol(list,false)+`<div class="note" style="margin-top:14px">No protótipo o detalhe é aproximado.
+    No app oficial ele vem do servidor, com o valor exato que cada solicitação levou para a célula.</div>`);
 }
 
 function vPagar(){
   const list=SOL.filter(s=>['Comprometido','Pago','Aprovado'].includes(s.st));
   return head(btnImport('TITULO'))+`
-  ${(()=>{const por=e=>SOL.filter(x=>x.st===e), som=l=>l.reduce((a,x)=>a+x.val,0);
-     const c=por('Comprometido'), g=por('Pago'), a=por('Aprovado');
-     const plu=(n,s1,s2)=>n+' '+(n===1?s1:s2);
-     return `<div class="grid g4" style="margin-bottom:16px">
-       <div class="card kpi b"><div class="l">Comprometido</div><div class="v">${m0(som(c))}</div><div class="d">${plu(c.length,'título','títulos')}</div></div>
-       <div class="card kpi c"><div class="l">Pago</div><div class="v">${m0(som(g))}</div><div class="d">${plu(g.length,'título','títulos')}</div></div>
-       <div class="card kpi a"><div class="l">Autorizado, ainda sem NF</div><div class="v">${m0(som(a))}</div><div class="d">${plu(a.length,'compra','compras')}</div></div>
-       <div class="card kpi d2"><div class="l">Divergência NF × aprovado</div><div class="v">—</div><div class="d">depende do recebimento da NF</div></div>
-     </div>`;})()}
-  <div class="note" style="margin-bottom:14px"><b>Aprovado ainda não é título.</b> Vira compromisso quando a nota
-  fiscal chega e o valor é confirmado — é a diferença entre previsto e comprometido.</div>
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card kpi b"><div class="l">Comprometido</div><div class="v">39.900</div><div class="d">2 títulos</div></div>
+    <div class="card kpi c"><div class="l">Pago no mês</div><div class="v">717.020</div><div class="d">12 títulos</div></div>
+    <div class="card kpi d2"><div class="l">Divergência NF × aprovado</div><div class="v">670</div><div class="d">2 títulos precisam de reaprovação</div></div>
+    <div class="card kpi a"><div class="l">Vence nos próximos 7 dias</div><div class="v">23.580</div><div class="d">3 títulos</div></div>
+  </div>
   <div class="card">${tblSol(list,false)}</div>`;
 }
 function vReceber(){
-  return head()+semDados('Contas a receber ainda não está ligada à base',
-    'Os recebíveis vêm do CT-e e da baixa no ERP. A integração é da Onda 2 — até lá esta tela ' +
-    'não tem de onde ler, e mostrar número aqui seria inventar.',
-    '<b>O que já funciona hoje:</b> o fluxo de caixa projeta as saídas das solicitações. ' +
-    'As entradas entram quando a integração com o ERP existir.');
-}
-function vRateio(){
-  return head()+`<div class="note" style="margin-bottom:14px"><b>O rateio da Salomé tem dois eixos, e eles não são a mesma coisa.</b>
-  A <b>filial</b> diz qual unidade consome. O <b>centro de custo</b> diz qual natureza consome —
-  os "18% distribuição / 82% transferência" da reunião são centro, não filial.
-  Cada eixo tem de fechar 100% por conta própria.</div>`+
-  semDados('Nenhum rateio lançado ainda',
-    'Esta tela mostra a distribuição das solicitações que foram marcadas com rateio. ' +
-    'Assim que a primeira for lançada com rateio, os dois eixos aparecem aqui.',
-    '<b>Como se lança:</b> no formulário da solicitação, marque <b>Tem rateio</b> e distribua ' +
-    'os percentuais. A soma de cada eixo tem de fechar 100% — o sistema recusa o envio se não fechar.');
-}
-/**
- * DRE gerencial montado da base, conta por conta.
- *
- * Os três estágios são os mesmos do fluxo de caixa e nunca se somam duas vezes: uma
- * solicitação está em UM deles. "Orçado" fica em branco enquanto a aba ORCAMENTO não
- * tiver linha — e branco é a resposta certa: inventar teto de gasto é pior que não ter.
- */
-const EST_UI = {
-  'Rascunho':null, 'Cancelado':null, 'Reprovado':null,
-  'Em validação':'prev', 'Aguardando caixa':'prev', 'Aguardando Aprovação':'prev',
-  'Reprogramado':'prev', 'Aprovado':'prev',
-  'Comprometido':'comp', 'Pago':'real'
-};
-function gerencialLinhas(){
-  const por = {};
-  SOL.forEach(s=>{
-    const col = EST_UI[s.st];
-    if(!col) return;
-    const k = s.cod || '(sem conta)';
-    if(!por[k]) por[k] = {cod:k, cls:s.cls||'(sem classificação)', prev:0, comp:0, real:0, itens:0};
-    por[k][col] += s.val;
-    por[k].itens++;
-  });
-  return Object.keys(por).map(k=>por[k]).sort((a,b)=>(b.prev+b.comp+b.real)-(a.prev+a.comp+a.real));
-}
-function vGerencial(){
-  const G = gerencialLinhas();
-  const som = c => G.reduce((a,g)=>a+g[c],0);
-  if(!G.length){
-    return head()+semDados('Nada lançado ainda para consolidar',
-      'O painel soma as solicitações por conta contábil, separando previsto, comprometido e realizado. ' +
-      'Assim que a primeira sair do rascunho, ela aparece aqui.',
-      '<b>Orçado:</b> a coluna fica em branco até a aba <b>ORCAMENTO</b> da planilha ter linha. ' +
-      'Sem orçamento carregado a resposta é "não sei", nunca um número estimado.');
-  }
-  return head()+`
-  <div class="grid g4" style="margin-bottom:16px">
-    <div class="card kpi a"><div class="l">Orçado</div><div class="v">—</div><div class="d">aba ORCAMENTO ainda vazia</div></div>
-    <div class="card kpi b"><div class="l">Previsto</div><div class="v">${m0(som('prev'))}</div><div class="d">ainda sem nota fiscal</div></div>
-    <div class="card kpi b"><div class="l">Comprometido</div><div class="v">${m0(som('comp'))}</div><div class="d">NF recebida</div></div>
-    <div class="card kpi c"><div class="l">Realizado</div><div class="v">${m0(som('real'))}</div><div class="d">pago</div></div>
-  </div>
-  <div class="note" style="margin-bottom:14px">Clique em qualquer linha para ver as solicitações que compõem o número — <b>conta por conta, uma a uma</b>.</div>`+`
-  <div class="card"><div class="card-h"><h3>DRE gerencial por conta contábil</h3></div><div class="tw"><table><thead><tr>
-    <th>Código</th><th>Classificação</th><th style="text-align:right">Orçado</th><th style="text-align:right">Previsto</th>
-    <th style="text-align:right">Comprometido</th><th style="text-align:right">Realizado</th><th style="text-align:right">Total</th>
-    <th style="text-align:right">Lançamentos</th></tr></thead><tbody>
-    ${G.map(g=>{const t=g.prev+g.comp+g.real;return `<tr onclick="drillConta('${g.cod}')">
-      <td class="id">${g.cod}</td><td>${g.cls}</td><td class="n" style="color:var(--ink-3)">—</td>
-      <td class="n">${g.prev?m0(g.prev):'–'}</td>
-      <td class="n">${g.comp?m0(g.comp):'–'}</td><td class="n">${g.real?m0(g.real):'–'}</td>
-      <td class="n"><b>${m0(t)}</b></td>
-      <td class="n" style="color:var(--ink-3)">${g.itens}</td></tr>`}).join('')}
+  const R=[['REC-2026-0041','21/09','CT-e Previsto','Axo Distribuidora S/A','OSA',68000],
+           ['REC-2026-0042','23/09','CT-e Previsto','Beta Alimentos Ltda','CPQ',52000],
+           ['REC-2026-0043','25/09','CT-e Previsto','Xerox do Brasil','SPO',52000],
+           ['REC-2026-0038','18/09','Recebível Confirmado','Rede Supermercados União','RP',48000],
+           ['REC-2026-0031','31/08','Recebido','Axo Distribuidora S/A','RP',60000]];
+  const TM={'CT-e Previsto':'t-nv','Recebível Confirmado':'t-in','Recebido':'t-ok'};
+  return head(btnImport('TITULO'))+`<div class="card"><div class="tw"><table><thead><tr>
+    <th>Nº</th><th>Data prevista</th><th>Tipo</th><th>Cliente</th><th>Filial</th><th style="text-align:right">Valor</th></tr></thead><tbody>
+    ${R.map(r=>`<tr onclick="toast('Ficha do recebível ${r[0]}')"><td class="id">${r[0].slice(-4)}</td><td class="n">${r[1]}</td>
+      <td><span class="tag ${TM[r[2]]}">${r[2]}</span></td><td>${r[3]}</td><td>${r[4]}</td><td class="n">${money(r[5])}</td></tr>`).join('')}
   </tbody></table></div></div>`;
 }
+function vRateio(){
+  // Dois eixos: FILIAL diz quem consome, CENTRO diz qual natureza consome.
+  const R=[['SOL-2026-00028','Combustível / Diesel','RP','RP','OPE',45,17505],
+           ['SOL-2026-00028','Combustível / Diesel','RP','CPQ','OPE',20,7780],
+           ['SOL-2026-00028','Combustível / Diesel','RP','OSA','TRF',20,7780],
+           ['SOL-2026-00028','Combustível / Diesel','RP','SPO','TRF',15,5835],
+           ['SOL-2026-00021','Energia Elétrica','RP','RP','ADM',55,8305],
+           ['SOL-2026-00021','Energia Elétrica','RP','CPQ','ADM',15,2265],
+           ['SOL-2026-00021','Energia Elétrica','RP','OSA','ADM',20,3020],
+           ['SOL-2026-00021','Energia Elétrica','RP','SPO','ADM',10,1510]];
+  const soma=(ix)=>{const o={};R.forEach(r=>o[r[ix]]=(o[r[ix]]||0)+r[6]);return o;};
+  const pf=soma(3), pc=soma(4), tot=R.reduce((a,r)=>a+r[6],0);
+  const barra=(o,rot)=>`<div class="card" style="padding:16px"><b style="font-size:13px">${rot}</b>
+    <table style="margin-top:10px"><tbody>${Object.keys(o).sort((a,b)=>o[b]-o[a]).map(k=>`<tr>
+      <td style="width:120px">${rot.indexOf('centro')>=0?(CENTROS.find(c=>c[0]===k)||[k,k])[1]:k}</td>
+      <td><div class="bar" style="height:8px"><i style="width:${(o[k]/tot*100).toFixed(1)}%"></i></div></td>
+      <td class="n" style="width:110px">${money(o[k])}</td>
+      <td class="n" style="width:70px">${(o[k]/tot*100).toFixed(1)}%</td></tr>`).join('')}</tbody></table></div>`;
 
-/**
- * O analítico de uma conta: cada solicitação que formou o número, com o estágio em que
- * ela entrou. Os subtotais por estágio fecham o total da linha — se não fecharem, a tela
- * avisa em vez de deixar passar.
- */
-function drillConta(cod){
-  const list = SOL.filter(s=>(s.cod||'(sem conta)')===cod && EST_UI[s.st]);
-  if(!list.length){ toast('Nenhum lançamento nesta conta.'); return; }
-  const som = c => list.filter(s=>EST_UI[s.st]===c).reduce((a,s)=>a+s.val,0);
-  const tot = list.reduce((a,s)=>a+s.val,0);
-  const ROT = {prev:'Previsto', comp:'Comprometido', real:'Realizado'};
-  openDrawer(`Conta ${cod}`, `${list[0].cls} · ${list.length} lançamento(s) · ${money(tot)}`,
-    `<div class="grid g4" style="margin-bottom:14px">
-      ${['prev','comp','real'].map(c=>`<div class="card kpi"><div class="l">${ROT[c]}</div><div class="v">${m0(som(c))}</div></div>`).join('')}
-     </div>
-     <div class="tw"><table><thead><tr><th>Nº</th><th>Fornecedor</th><th>Área</th><th>Filial</th>
-       <th>Estágio</th><th>Prev. pgto</th><th style="text-align:right">Valor</th></tr></thead><tbody>
-     ${list.sort((a,b)=>b.val-a.val).map(s=>`<tr onclick="closeDrawer();openSol('${s.id}')">
-       <td class="id">${s.id.slice(-5)}</td>
-       <td>${s.forn}<div style="font-size:11px;color:var(--ink-3)">${s.desc||''}</div></td>
-       <td>${s.area}</td><td>${s.fil}</td>
-       <td><span class="tag ${STMAP[s.st]}">${s.st}</span></td>
-       <td class="n">${s.prev}</td><td class="n">${money(s.val)}</td></tr>`).join('')}
-     <tr class="tot"><td colspan="6"><b>Total da conta</b></td><td class="n"><b>${money(tot)}</b></td></tr>
-     </tbody></table></div>
-     <div class="note" style="margin-top:14px">Cada solicitação aparece em <b>um</b> estágio só —
-     é o que impede o mesmo dinheiro de ser contado duas vezes. Clique em qualquer linha para abrir a ficha.</div>`);
+  return head()+`
+  <div class="note" style="margin-bottom:14px"><b>O rateio da Salomé tem dois eixos, e eles não são a mesma coisa.</b>
+  A <b>filial</b> diz qual unidade consome. O <b>centro de custo</b> diz qual natureza consome —
+  os "18% distribuição / 82% transferência" da reunião são centro, não filial.
+  Cada eixo tem de fechar 100% por conta própria.</div>
+  <div class="grid2" style="margin-bottom:14px">${barra(pf,'Por filial de destino')}${barra(pc,'Por centro de custo')}</div>
+  <div class="card"><div class="tw"><table><thead><tr>
+    <th>Nº solicitação</th><th>Classificação</th><th>Filial emissão</th><th>Filial destino</th><th>Centro de custo</th>
+    <th style="text-align:right">% rateio</th><th style="text-align:right">Valor rateado</th><th>Consistência</th></tr></thead><tbody>
+    ${R.map(r=>`<tr onclick="openSol('${r[0]}')"><td class="id">${r[0].slice(-5)}</td><td>${r[1]}</td><td>${r[2]}</td>
+      <td><b>${r[3]}</b></td><td>${(CENTROS.find(c=>c[0]===r[4])||[r[4],r[4]])[1]}</td>
+      <td class="n">${r[5]},0%</td><td class="n">${money(r[6])}</td>
+      <td><span class="tag t-ok"><i class="dot"></i>Soma 100%</span></td></tr>`).join('')}
+  </tbody></table></div></div>
+  <div class="note" style="margin-top:14px"><b>Regra:</b> não grava rateio cuja soma seja diferente de 100%,
+  nem linha sem filial ou sem centro, nem a mesma dupla filial+centro repetida — isso é sempre erro de digitação.</div>`;
+}
+function vGerencial(){
+  const G=[['3.01.001','Combustível / Diesel',85000,0,0,77100],['3.01.002','Peças e Manutenção',38000,9400,26020,0],
+   ['3.01.003','Pneus e Recapagem',35000,31800,0,0],['3.02.001','Freteiro / Agregado',59000,0,26400,27950],
+   ['3.03.002','Energia Elétrica',16500,0,0,15100],['3.04.001','Folha de Pagamento',453000,0,0,412000],
+   ['3.05.001','Equipamentos de TI',15000,0,13500,0],['3.05.003','Benfeitorias e Obras',94500,0,0,0]];
+  return head(`<select class="btn" style="padding:7px 11px"><option>Setembro / 2026</option><option>Outubro / 2026</option></select>`)+`
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card kpi a"><div class="l">Orçado do mês</div><div class="v">1.024.500</div></div>
+    <div class="card kpi b"><div class="l">Previsto</div><div class="v">73.830</div></div>
+    <div class="card kpi b"><div class="l">Comprometido</div><div class="v">39.900</div></div>
+    <div class="card kpi c"><div class="l">Realizado</div><div class="v">717.020</div></div>
+  </div>
+  <div class="card"><div class="card-h"><h3>DRE gerencial por classificação</h3></div><div class="tw"><table><thead><tr>
+    <th>Código</th><th>Classificação</th><th style="text-align:right">Orçado</th><th style="text-align:right">Previsto</th>
+    <th style="text-align:right">Comprometido</th><th style="text-align:right">Realizado</th><th style="text-align:right">Total</th>
+    <th style="text-align:right">% do orçado</th></tr></thead><tbody>
+    ${G.map(g=>{const t=g[3]+g[4]+g[5];const p=g[2]?t/g[2]:0;return `<tr onclick="toast('Drill-down: lançamentos de ${g[1]} em setembro')">
+      <td class="id">${g[0]}</td><td>${g[1]}</td><td class="n">${m0(g[2])}</td><td class="n">${g[3]?m0(g[3]):'–'}</td>
+      <td class="n">${g[4]?m0(g[4]):'–'}</td><td class="n">${g[5]?m0(g[5]):'–'}</td><td class="n"><b>${m0(t)}</b></td>
+      <td class="n" style="color:${p>1?'var(--crit)':'var(--ink-2)'}">${(p*100).toFixed(1)}%</td></tr>`}).join('')}
+  </tbody></table></div></div>`;
 }
 function vOrcamento(){
-  return head()+semDados('Nenhum orçamento carregado',
-    'O orçado é a trava do gerencial: é contra ele que previsto, comprometido e realizado são comparados. ' +
-    'Enquanto a aba <b>ORCAMENTO</b> da planilha estiver vazia, o painel mostra o gasto sem teto de comparação.',
-    '<b>Como carregar:</b> preencha a aba <b>ORCAMENTO</b> da planilha FC_DADOS com conta, mês e valor, ' +
-    'e use <b>FC Salomé → Recarregar no app</b>. Enquanto não houver orçamento, o painel responde ' +
-    '"não sei" em vez de estimar — estimativa de teto de gasto vira meta por engano.');
+  return head(btnImport('ORCAMENTO'))+`<div class="card"><div class="tw"><table><thead><tr>
+    <th>Código</th><th>Classificação</th><th style="text-align:right">Ago/26</th><th style="text-align:right">Set/26</th>
+    <th style="text-align:right">Out/26</th><th style="text-align:right">Nov/26</th><th style="text-align:right">Dez/26</th></tr></thead><tbody>
+    ${[['3.01.001','Combustível / Diesel',85000,85000,85000,88000,88000],['3.01.002','Peças e Manutenção',38000,38000,38000,38000,38000],
+       ['3.01.003','Pneus e Recapagem',35000,35000,35000,35000,35000],['3.04.001','Folha de Pagamento',453000,453000,457000,457000,690000]]
+      .map(r=>`<tr onclick="toast('Editar orçamento — permitido só para Diretoria')"><td class="id">${r[0]}</td><td>${r[1]}</td>
+      ${r.slice(2).map(v=>`<td class="n">${m0(v)}</td>`).join('')}</tr>`).join('')}
+  </tbody></table></div></div>`;
 }
 function vPlano(){
   const usadas={}; CAT.forEach(c=>{[c[4],c[5]].filter(Boolean).forEach(k=>usadas[k]=(usadas[k]||[]).concat(c[2]))});
@@ -1799,16 +1992,11 @@ function editarTexto(cod){
      <button class="btn" onclick="closeDrawer()">Cancelar</button>
    </div>`);
 }
-async function salvarTexto(cod){
-  const e=document.getElementById('pcNovo');
-  if(!e||!e.value.trim()) return;
-  try{
-    await API.chamar('cad.salvar',{tabela:'PLANO_CONTAS',
-      registro:{CONTA_ID:'CT-'+cod, CODIGO:cod, DESCRICAO:e.value.trim()}});
-    const p=PLANO.find(x=>x[0]===cod); if(p) p[1]=e.value.trim();
-    recalcular(); closeDrawer(); go('plano');
-    toast(cod+': descrição alterada. Registrado no log.','ok');
-  }catch(err){ toast('Não consegui gravar: '+err.message,'cr'); }
+function salvarTexto(cod){
+  const e=document.getElementById('pcNovo'), p=PLANO.find(x=>x[0]===cod);
+  if(e&&e.value.trim()) p[1]=e.value.trim();
+  closeDrawer(); go('plano');
+  toast(cod+': descrição alterada. Registrado no log.');
 }
 
 function vFornecedores(){
@@ -1851,7 +2039,8 @@ function vUsuarios(){
       <td class="mono" style="font-size:11.5px;color:var(--ink-3)">${u[7]}</td>
       <td style="text-align:right;white-space:nowrap" onclick="event.stopPropagation()">
         ${can('alterar','USUARIO')||can('alterar','*')
-          ?`<span class="lock" style="font-size:11px">edite na planilha</span>`
+          ?`<button class="btn sm" onclick="toast('Senha temporária gerada e enviada por e-mail. Troca obrigatória no 1º acesso.')">Resetar senha</button>
+            <button class="btn sm" onclick="toast('${u[0]} ${u[6]==='ATIVO'?'inativado':'reativado'}. Sessões ativas encerradas.')">${u[6]==='ATIVO'?'Inativar':'Reativar'}</button>`
           :`<span class="lock">${svg('M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z')} somente Administrador</span>`}
       </td></tr>`).join('')}
   </tbody></table></div></div>`;
@@ -1869,7 +2058,7 @@ function vPerfis(){
         Usuário:['V','I','A','X'],Perfil:['V','I','A','X'],Log:['V','X']}};
     return (map[p]?.[r]||[]).includes(a);
   };
-  return head()+`
+  return head(`<button class="btn pri" onclick="toast('Alterações gravadas na aba PERMISSOES e registradas no log.')">Salvar permissões</button>`)+`
   <div class="note" style="margin-bottom:14px"><b>V</b> ver · <b>I</b> incluir · <b>A</b> alterar · <b>X</b> inativar (nunca excluir) · <b>P</b> aprovar · <b>E</b> exportar. Além disso cada perfil tem <b>escopo de filial</b> e <b>limite de alçada</b>, e a aba <b>PERMISSOES_CAMPO</b> controla quais campos ficam editáveis em cada status do registro.</div>
   <div class="card"><div class="tw"><table class="perm"><thead><tr><th rowspan="2">Recurso</th>
     ${P.map(p=>`<th colspan="4" style="text-align:center;border-left:1px solid var(--line-2)">${p}</th>`).join('')}</tr>
@@ -1880,28 +2069,57 @@ function vPerfis(){
   ${ROLE!=='ADMIN'?`<div class="note" style="margin-top:14px">Somente o perfil <b>Administrador</b> edita esta matriz. Troque o perfil no topo para testar.</div>`:''}`;
 }
 function vImport(){
-  return head()+semDados('Importação por planilha ainda não está ligada',
-    'A tela existe e o desenho está de pé, mas o motor que lê o arquivo e mostra a prévia ' +
-    'de erros antes de gravar ainda não foi escrito.',
-    'Enquanto isso, carga em lote se faz pela planilha <b>FC_DADOS</b> e pelo ' +
-    '<b>conferirCadastros()</b>, que acusa chave repetida, campo obrigatório vazio e ' +
-    'referência para registro que não existe.');
+  const SM={'CONCLUIDA':'t-ok','CONCLUIDA COM ERROS':'t-wa','REJEITADA':'t-cr'};
+  return head()+`
+  <div class="grid g3" style="margin-bottom:16px">
+    ${['Plano de contas','Fornecedores','Filiais','Orçamento','Usuários','Saldos iniciais'].map(c=>`
+      <div class="card"><div class="card-b" style="display:flex;flex-direction:column;gap:9px">
+        <div style="font-weight:600">${c}</div>
+        <div style="font-size:12px;color:var(--ink-3)">Modelo com os cabeçalhos exatos, tipos e valores aceitos em cada coluna.</div>
+        <div style="display:flex;gap:7px;margin-top:2px">
+          <button class="btn sm" onclick="toast('Baixando modelo_${c.toLowerCase().replace(/ /g,'_')}.xlsx')">Baixar modelo</button>
+          <button class="btn sm pri" onclick="toast('Selecione o arquivo — a prévia mostra os erros antes de gravar.')">Importar</button>
+        </div></div></div>`).join('')}
+  </div>
+  <div class="card"><div class="card-h"><h3>Histórico de importações</h3></div><div class="tw"><table><thead><tr>
+    <th>Nº</th><th>Data</th><th>Cadastro</th><th>Arquivo</th><th style="text-align:right">Linhas</th>
+    <th style="text-align:right">OK</th><th style="text-align:right">Erros</th><th>Status</th><th>Usuário</th></tr></thead><tbody>
+    ${IMPORTS.map(i=>`<tr onclick="toast('Abrindo o relatório de validação de ${i[0]}')"><td class="id">${i[0].slice(-4)}</td>
+      <td class="mono" style="font-size:12px">${i[1]}</td><td>${i[2]}</td><td class="mono" style="font-size:12px">${i[3]}</td>
+      <td class="n">${i[4]}</td><td class="n" style="color:var(--ok)">${i[5]}</td>
+      <td class="n" style="color:${i[6]?'var(--crit)':'var(--ink-3)'}">${i[6]}</td>
+      <td><span class="tag ${SM[i[7]]}">${i[7]}</span></td>
+      <td class="mono" style="font-size:11.5px;color:var(--ink-3)">${i[8]}</td></tr>`).join('')}
+  </tbody></table></div></div>`;
 }
 function vLogs(){
-  return head()+`<div class="note" style="margin-bottom:14px"><b>Uma aba por semana.</b> O sistema cria
-  <span class="mono">LOG_ATIV_AAAA-Sww</span> e <span class="mono">LOG_ACESSO_AAAA-Sww</span> automaticamente
-  na primeira gravação da semana, e arquiva abas com mais de 12 semanas numa planilha separada.</div>`+
-  semDados('A trilha de auditoria está sendo gravada',
-    'Todo acesso e toda alteração de campo já vão para a planilha <b>FC_LOG</b>, com valor antes e ' +
-    'depois, autor, data e origem. O que ainda não existe é esta tela lendo de lá.',
-    'Para consultar hoje: abra a planilha <b>FC_LOG</b> e a aba da semana. É a mesma informação, ' +
-    'sem o filtro bonito.');
+  const AM={'INCLUIR':'t-nv','ALTERAR':'t-wa','INATIVAR':'t-cr','APROVAR':'t-ok','LOGIN_OK':'t-ok','LOGIN_FALHA':'t-cr'};
+  return head(`<select class="btn" style="padding:7px 11px"><option>Semana 2026-S39 (21 a 27/09)</option><option>Semana 2026-S38</option><option>Semana 2026-S37</option></select>
+    <button class="btn" onclick="toast('Exportando a aba LOG_ATIV_2026-S39 para XLSX…')">Exportar</button>`)+`
+  <div class="note" style="margin-bottom:14px"><b>Uma aba por semana.</b> O sistema cria <span class="mono">LOG_ATIV_2026-S39</span> e <span class="mono">LOG_ACESSO_2026-S39</span> automaticamente na primeira gravação da semana, e arquiva abas com mais de 12 semanas numa planilha separada.</div>
+  <div class="card"><div class="card-h"><h3>Trilha de auditoria — LOG_ATIV_2026-S39</h3></div><div class="tw"><table><thead><tr>
+    <th>Timestamp</th><th>Usuário</th><th>Perfil</th><th>Recurso</th><th>Ação</th><th>Registro</th><th>Campo</th>
+    <th>Valor antes</th><th>Valor depois</th><th>Origem</th></tr></thead><tbody>
+    ${LOGATIV.map(l=>`<tr onclick="${l[5].startsWith('SOL')?`openSol('${l[5]}')`:`toast('Registro ${l[5]}')`}">
+      <td class="mono" style="font-size:11.5px">${l[0]}</td><td class="mono" style="font-size:11.5px">${l[1]}</td><td>${l[2]}</td>
+      <td class="mono" style="font-size:11.5px">${l[3]}</td><td><span class="tag ${AM[l[4]]||'t-mu'}">${l[4]}</span></td>
+      <td class="id">${l[5]}</td><td style="font-size:11.5px">${l[6]}</td>
+      <td style="font-size:11.5px;color:var(--ink-3)">${l[7]}</td><td style="font-size:11.5px">${l[8]}</td>
+      <td><span class="tag ${l[9]==='MOBILE'?'t-in':'t-mu'}">${l[9]}</span></td></tr>`).join('')}
+  </tbody></table></div></div>`;
 }
 function vParams(){
-  return head()+semDados('Os parâmetros se editam na planilha',
-    'Saldo mínimo, horizonte do fluxo, dias de pagamento, alíquotas de retenção, duração da sessão — ' +
-    'tudo mora na aba <b>PARAMETROS</b> da planilha FC_DADOS.',
-    'Cadastro e parâmetro se mantêm direto na planilha <b>FC_DADOS</b>. Depois de editar, use o menu <b>FC Salomé → Recarregar no app</b> na própria planilha — senão o app leva até dez minutos para enxergar a mudança.');
+  const rows=[['Saldo inicial de caixa','R$ 385.000,00','Financeiro'],['Saldo mínimo de segurança','R$ 150.000,00','Diretoria'],
+   ['Horizonte do fluxo','12 semanas','Financeiro'],['Dias de pagamento','Segunda, quarta e sexta','Financeiro'],
+   ['Reunião de aprovação','Terça-feira, 09h00','Diretoria'],['Semana travada','1ª do mês — folha e encargos','Diretoria'],
+   ['Duração da sessão','8 horas','Administrador'],['Tentativas de login antes do bloqueio','5','Administrador'],
+   ['Validade da senha','90 dias','Administrador'],['Pasta de anexos no Drive','/FC Salomé/Anexos/{ano}/{nº}','Administrador'],
+   ['E-mail remetente','fc@salome.com.br','Administrador'],['Backup automático','Diário, 23h00','Administrador']];
+  return head(`<button class="btn pri" onclick="toast('Parâmetros gravados e registrados no log.')">Salvar</button>`)+`
+  <div class="card"><div class="tw"><table><thead><tr><th>Parâmetro</th><th>Valor</th><th>Quem altera</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr onclick="toast('Editar: ${r[0]}')"><td>${r[0]}</td><td class="mono">${r[1]}</td>
+      <td><span class="tag t-mu">${r[2]}</span></td></tr>`).join('')}
+  </tbody></table></div></div>`;
 }
 
 /* ==========================================================================
@@ -1943,7 +2161,7 @@ const MOVE_PERFIL = {
   ADMIN:       []
 };
 
-let HOJE_KB = new Date(); HOJE_KB.setHours(0,0,0,0);
+const HOJE_KB = new Date('2026-09-21T00:00:00');
 
 let KB = {f:{q:'',area:'',fil:'',centro:'',bloco:'',per:'',vmin:''}, abertos:{},
           recolhidas:{}, arrastando:null};
@@ -2235,22 +2453,15 @@ function kbPode(id, alvo){
     if(faltam.length) return {ok:false,
       motivo:'Para entrar em "'+ETAPAS[para].t+'" falta '+faltam.map(g=>NOMES[g[0]]).join(' e ')+'.'};
     if(alvo==='AUTORIZAR' && !podeAprovarValor(c.val)) return {ok:false,
-      motivo:'R$ '+m0(c.val)+' exige '+nomeAlcada(c.alc)+'. Seu perfil não cobre esse valor.'};
+      motivo:m0(c.val)+' exige '+c.alc+'. Seu perfil não cobre esse valor.'};
   }
   return {ok:true, motivo:''};
 }
 
-function nomeAlcada(id){
-  const a=(ALC||[]).find(x=>x[1]&&String(x[1]).includes(id));
-  return a?a[1]:(id||'uma alçada maior');
-}
 function podeAprovarValor(v){
-  const p=PERMS[ROLE]||{};
-  const aprov=(p.acao&&p.acao.aprovar)||[];
-  // A permissão de aprovar pode vir marcada em SOLICITACAO ou em APROVACAO — as duas
-  // querem dizer a mesma coisa, e qual delas a planilha usa não é problema da tela.
-  if(!aprov.includes('SOLICITACAO') && !aprov.includes('APROVACAO')) return false;
-  return Number(v) <= Number(p.limite||0);
+  if(ROLE==='DIRETORIA') return true;
+  if(ROLE==='FINANCEIRO') return v<=10000;
+  return false;
 }
 
 function kbDrop(ev,alvo){
@@ -2280,9 +2491,6 @@ function kbDrop(ev,alvo){
       </div>`);
     return;
   }
-  moverNoServidor(id, alvo);
-  return;
-  /* eslint-disable no-unreachable */
   const c = SOL.find(x=>x.id===id);
   const antes = c.etapa || 'APROVAR';
   c.etapa = alvo;
@@ -2299,9 +2507,10 @@ function kbConfirmarPedido(id){
   const e=document.getElementById('kbPed');
   if(!e || !e.value.trim()){ toast('Informe o número do pedido para seguir.', 'cr'); return; }
   const c=SOL.find(x=>x.id===id);
-  const pedido=e.value.trim();
+  c.pre.pedido=true; c.pedido=e.value.trim();
   closeDrawer();
-  moverNoServidor(id, 'RECEBER', pedido);
+  KB.arrastando=id;
+  kbDrop({preventDefault(){},dataTransfer:{getData:()=>id}}, 'RECEBER');
 }
 
 /* ---------- tooltips ---------- */
@@ -2399,41 +2608,21 @@ function openSol(id){
     </tbody></table>
     <div class="note" style="margin-top:14px">A soma precisa fechar em 100% — o sistema bloqueia a gravação caso contrário.</div></div>
   <div id="drt2" hidden>
-    <div class="note">O anexo de orçamento ainda não está ligado ao Drive — é a parte que falta
-      para a categoria que exige cotação travar de verdade. Até lá, guarde os arquivos na pasta
-      <span class="mono">/FC Salomé/Anexos/</span> e cite o número ${s.id} no nome.</div></div>
-  <div id="drt3" hidden><div id="hist-${s.id}"><div class="empty">Carregando o histórico…</div></div>
-    <div class="note" style="margin-top:14px">Este histórico é a leitura da aba <span class="mono">LOG_ATIV</span>
-    filtrada por este registro — uma linha por campo alterado, com valor antes e depois.</div></div>`;
+    <div class="imp">${svg('M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3')}
+      <div><b>3 arquivos</b> — orcamento_recapadora.pdf · orcamento_pneubras.pdf · email_negociacao.pdf<br>
+      <span style="color:var(--ink-3)">Armazenados no Drive em /FC Salomé/Anexos/2026/${s.id}</span></div>
+      <div class="r"><button class="btn sm">Abrir pasta</button></div></div></div>
+  <div id="drt3" hidden>
+    <ul class="tl">
+      <li><time>21/09 08:47</time><div><b>Consulta de caixa</b> <span>— saldo da semana ${s.sem} recalculado: R$ ${m0(s.saldo)}</span></div></li>
+      <li><time>${s.dt} 16:41</time><div><b>Solicitação criada</b> <span>por ${s.sol} · origem WEB</span></div></li>
+      <li><time>${s.dt} 16:41</time><div><b>Regra aplicada</b> <span>— antecedência mínima da classificação ${s.cod}</span></div></li>
+      ${s.st==='Reprogramado'?`<li><time>09/09 09:12</time><div><b>Reprogramada</b> <span>por Carlos Salomé — sem caixa na data pedida</span></div></li>`:''}
+      ${s.st==='Comprometido'?`<li><time>16/09 08:12</time><div><b>NF recebida</b> <span>— valor alterado de R$ ${money(s.val)} para R$ ${money(s.val+400)}</span></div></li>`:''}
+    </ul>
+    <div class="note" style="margin-top:14px">Este histórico é a leitura da aba <span class="mono">LOG_ATIV</span> filtrada por este registro.</div></div>`;
   openDrawer(s.id,`${s.forn} · R$ ${money(s.val)} · previsto para ${s.prev}`,body);
-  carregarHistorico(s.id);
 }
-/**
- * O histórico vem do log de verdade, não de uma lista escrita à mão.
- *
- * Perfil sem permissão de LOG recebe a recusa do servidor — e o certo é dizer isso, não
- * mostrar um histórico vazio como se nada tivesse acontecido com o registro.
- */
-async function carregarHistorico(id){
-  const alvo = document.getElementById('hist-'+id);
-  if(!alvo) return;
-  let l;
-  try{ l = await API.chamar('log.historico',{registroId:id}); }
-  catch(e){
-    alvo.innerHTML = `<div class="empty">${/PERMISSAO/i.test(e.message)
-      ? 'Seu perfil não tem permissão para ler o log. Financeiro, Diretoria e Administrador têm.'
-      : 'Não consegui ler o histórico: '+e.message}</div>`;
-    return;
-  }
-  if(!l || !l.length){
-    alvo.innerHTML = '<div class="empty">Nenhuma alteração registrada além da criação.</div>';
-    return;
-  }
-  alvo.innerHTML = '<ul class="tl">'+l.map(x=>`<li><time>${x.QUANDO||x.DATA||''}</time>
-    <div><b>${x.ACAO||''}</b> <span>— ${x.CAMPO?x.CAMPO+': ':''}${x.VALOR_ANTES||'—'} → ${x.VALOR_DEPOIS||'—'}
-    ${x.USUARIO_EMAIL?' · '+x.USUARIO_EMAIL:''}${x.MOTIVO?' · '+x.MOTIVO:''}</span></div></li>`).join('')+'</ul>';
-}
-
 function drTab(btn,i){
   [...btn.parentElement.children].forEach((b,j)=>b.classList.toggle('on',j===i));
   for(let j=0;j<4;j++){const e=document.getElementById('drt'+j);if(e)e.hidden=(j!==i)}
@@ -2464,8 +2653,13 @@ function openUser(id){
      <dt>Último acesso</dt><dd class="mono">${u[7]}</dd>
      <dt>Senha</dt><dd>Hash SHA-256 + salt por usuário. Nunca visível, nem para o Administrador.</dd>
    </dl>
-   <div class="note" style="margin-top:18px">Os acessos desta pessoa estão na planilha <b>FC_LOG</b>,
-   na aba <span class="mono">LOG_ACESSO</span> da semana — com data, origem e o motivo de cada falha.</div>`);
+   <h3 style="font-size:14px;margin:20px 0 10px">Últimos acessos — LOG_ACESSO</h3>
+   <ul class="tl">
+     <li><time>21/09 08:12</time><div><b>LOGIN_OK</b> <span>— Chrome/Windows · sessão 8h</span></div></li>
+     <li><time>20/09 16:39</time><div><b>LOGIN_FALHA</b> <span>— senha incorreta (1/5)</span></div></li>
+     <li><time>20/09 07:55</time><div><b>LOGIN_OK</b> <span>— Safari/iPhone · origem MOBILE</span></div></li>
+     <li><time>19/09 18:02</time><div><b>LOGOUT</b> <span>— encerrado pelo usuário</span></div></li>
+   </ul>`);
 }
 
 /* ============================================================
@@ -2498,7 +2692,8 @@ function mBulk(a){toast(`${a} em lote — selecione os cards primeiro.`)}
 /* ============================================================
    BOOT
    ============================================================ */
-function closeLogin(){}
+function openLogin(){document.getElementById('loginWrap').classList.add('on')}
+function closeLogin(){document.getElementById('loginWrap').classList.remove('on')}
 function toast(m,tom){const t=document.getElementById('toast');t.textContent=m;
   t.className='toast on'+(tom?' t-'+tom:'');
   clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('on'),tom==='cr'?5200:3600)}
@@ -2510,7 +2705,14 @@ document.getElementById('mobBtn').onclick=()=>document.getElementById('rail').cl
 document.getElementById('drClose').onclick=closeDrawer;
 document.getElementById('scrim').onclick=closeDrawer;
 document.getElementById('phoneX').onclick=()=>document.getElementById('phoneWrap').classList.remove('on');
-document.getElementById('sairBtn').onclick=sair;
+document.getElementById('roleSel').onchange=e=>{
+  ROLE=e.target.value;
+  document.getElementById('uname').textContent=USERS[ROLE][0];
+  document.getElementById('avatar').textContent=USERS[ROLE][1];
+  if(!sees(VIEW))VIEW='inicio';
+  renderMenu();render();
+  toast('Perfil: '+e.target.selectedOptions[0].text+' — menu, botões e alçadas recalculados.');
+};
 document.getElementById('themeBtn').onclick=()=>{
   const r=document.documentElement;
   const cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
@@ -2526,271 +2728,9 @@ document.getElementById('gsearch').oninput=e=>{
   if(hit&&q.length>3){toast('Encontrado: '+hit.id+' — Enter para abrir');
     document.getElementById('gsearch').onkeydown=k=>{if(k.key==='Enter')openSol(hit.id)}}
 };
-
-/**
- * Tela que ainda não lê a base. Dizer isso é melhor que inventar número.
- */
-function semDados(titulo, texto, onde){
-  return `<div class="card" style="padding:38px 28px;text-align:center">
-    <div style="font-size:15px;font-weight:600;margin-bottom:8px">${titulo}</div>
-    <div style="font-size:13px;color:var(--ink-2);max-width:560px;margin:0 auto;line-height:1.6">${texto}</div>
-    ${onde?`<div class="note" style="margin:18px auto 0;max-width:560px;text-align:left">${onde}</div>`:''}
-  </div>`;
-}
-
-/* ==========================================================================
-   PONTE COM O SERVIDOR
-   --------------------------------------------------------------------------
-   Uma função só chega ao servidor: api(acao, payload, token). O roteador do
-   Code.gs resolve sessão → permissão → execução → log. Nenhuma outra função
-   do backend fica exposta ao navegador.
-
-   google.script.run não devolve Promise, então embrulhamos. E ele só existe
-   dentro de uma página servida pelo HtmlService — por isso este app nunca
-   roda abrindo o HTML direto do GitHub Pages.
-   ========================================================================== */
-const API = {
-  token: null,
-
-  chamar(acao, payload) {
-    return new Promise((ok, falhou) => {
-      if (typeof google === 'undefined' || !google.script || !google.script.run) {
-        falhou(new Error('Esta página precisa ser aberta pela URL do app (…/exec). ' +
-          'Abrindo o arquivo direto, não existe ponte com o servidor.'));
-        return;
-      }
-      google.script.run
-        .withSuccessHandler(r => {
-          if (!r) { falhou(new Error('O servidor não respondeu.')); return; }
-          if (r.ok) { ok(r.dados); return; }
-          const e = new Error(r.mensagem || 'Falha no servidor.');
-          e.codigo = r.codigo;
-          falhou(e);
-        })
-        .withFailureHandler(e => falhou(new Error(e && e.message ? e.message : String(e))))
-        .api(acao, payload || {}, API.token);
-    });
-  },
-
-  /** Guarda o token entre recarregamentos da aba. Falha silenciosa é aceitável:
-      sem ele a pessoa só faz login de novo. */
-  guardar(t) {
-    API.token = t;
-    try { sessionStorage.setItem('fc_token', t || ''); } catch (e) { /* aba privada */ }
-  },
-  recuperar() {
-    try { API.token = sessionStorage.getItem('fc_token') || null; } catch (e) { API.token = null; }
-    return API.token;
-  },
-  esquecer() {
-    API.token = null;
-    try { sessionStorage.removeItem('fc_token'); } catch (e) { /* ok */ }
-  }
-};
-
-/* ---------- carregando ---------- */
-function carregando(on, texto) {
-  const el = document.getElementById('lgLoad');
-  if (!el) return;
-  el.classList.toggle('off', !on);
-  if (texto) document.getElementById('lgLoadTxt').textContent = texto;
-}
-
-/* ---------- login ---------- */
-function erroLogin(msg) {
-  const e = document.getElementById('lgErro');
-  e.style.display = msg ? 'flex' : 'none';
-  e.innerHTML = msg ? `<div><b>Não foi possível entrar</b><p>${msg}</p></div>` : '';
-}
-
-async function entrar() {
-  const btn = document.getElementById('lgBtn');
-  const email = document.getElementById('lgMail').value.trim();
-  const senha = document.getElementById('lgSenha').value;
-  if (!email || !senha) { erroLogin('Informe e-mail e senha.'); return; }
-
-  btn.disabled = true; btn.textContent = 'Entrando…'; erroLogin('');
-  try {
-    const r = await API.chamar('auth.login', { email, senha, origem: 'WEB', userAgent: navigator.userAgent });
-    API.guardar(r.token);
-    document.getElementById('lgSenha').value = '';
-    if (r.trocarSenha) {
-      document.getElementById('loginWrap').classList.remove('on');
-      document.getElementById('trocaWrap').classList.add('on');
-      return;
-    }
-    await carregarTudo();
-  } catch (e) {
-    erroLogin(e.message);
-  } finally {
-    btn.disabled = false; btn.textContent = 'Entrar';
-  }
-}
-
-async function salvarSenha() {
-  const atual = document.getElementById('tcAtual').value;
-  const nova = document.getElementById('tcNova').value;
-  const conf = document.getElementById('tcConf').value;
-  const err = document.getElementById('tcErro');
-  const mostrar = m => { err.style.display = m ? 'flex' : 'none';
-    err.innerHTML = m ? `<div><b>Não deu</b><p>${m}</p></div>` : ''; };
-
-  if (nova !== conf) { mostrar('As duas senhas novas não são iguais.'); return; }
-  if (nova.length < 8) { mostrar('A nova senha precisa de pelo menos 8 caracteres.'); return; }
-  try {
-    await API.chamar('auth.trocarSenha', { atual, nova });
-    document.getElementById('trocaWrap').classList.remove('on');
-    await carregarTudo();
-  } catch (e) { mostrar(e.message); }
-}
-
-async function sair() {
-  try { await API.chamar('auth.logout', {}); } catch (e) { /* segue assim mesmo */ }
-  API.esquecer();
-  location.reload();
-}
-
-/* ---------- abertura ---------- */
-
-/** Uma chamada traz tudo. No Apps Script o custo é a ida e volta, não o tamanho. */
-async function carregarTudo() {
-  carregando(true, 'Carregando a base…');
-  try {
-    const d = await API.chamar('vista.abrir', {});
-    aplicar(d);
-    document.getElementById('loginWrap').classList.remove('on');
-    document.getElementById('trocaWrap').classList.remove('on');
-    carregando(false);
-    renderMenu(); render();
-  } catch (e) {
-    carregando(false);
-    if (e.codigo === 'SESSAO_INVALIDA' || e.codigo === 'SESSAO_EXPIRADA') {
-      API.esquecer();
-      document.getElementById('loginWrap').classList.add('on');
-      erroLogin('Sua sessão expirou. Entre de novo.');
-      return;
-    }
-    document.getElementById('loginWrap').classList.add('on');
-    erroLogin(e.message);
-  }
-}
-
-/** Joga os dados do servidor nas variáveis que as telas já desenham. */
-function aplicar(d) {
-  EU = d.usuario;
-  ROLE = d.usuario.perfil;
-  PERMS[ROLE] = normalizarPermissoes(d.permissoes);
-
-  const c = d.cadastros || {};
-  PLANO = (c.contas || []).map(x => [x.CODIGO, x.DESCRICAO, x.TIPO, x.GRUPO_DRE, x.NATUREZA, x.DESCRICAO_CONTABIL || '']);
-  FORN  = (c.fornecedores || []).map(x => [x.FORNECEDOR_ID, x.RAZAO_SOCIAL, x.TIPO || 'PJ', x.OPTANTE_SIMPLES || '', x.CATEGORIAS || '']);
-  CAT   = (c.categorias || []).map(x => [x.CATEGORIA_ID, x.BLOCO, x.NOME, x.EXEMPLOS, x.CONTA_PJ, x.CONTA_PF,
-                                          x.CENTRO_PADRAO, x.EXIGE_PLACA, x.EXIGE_ANEXO, x.RETENCAO, x.ANTECEDENCIA_MIN_DIAS]);
-  CENTROS = (c.centros || []).map(x => [x.CENTRO_ID, x.NOME, x.DESCRICAO]);
-  USUARIOS = (c.usuarios || []).map(x => [x.USUARIO_ID, x.NOME, x.EMAIL, x.PERFIL_ID,
-                                          x.FILIAIS || 'Todas', x.LIMITE_ALCADA || '—', x.STATUS, x.ULTIMO_ACESSO || '—']);
-  FILIAIS_CAD = c.filiais || [];
-  AREAS_CAD   = c.areas || [];
-  CONDICOES_CAD = c.condicoes || [];
-  FORMAS_CAD  = c.formas || [];
-
-  SOL = d.solicitacoes || [];
-  AUTORIZ = d.autorizacoes || [];
-  ALC = d.alcadas || [];
-  FLUXO_SRV = d.fluxo || {};
-  WEEKS = FLUXO_SRV.semanas || [];
-  WDATE = FLUXO_SRV.datas || [];
-  FLOW  = FLUXO_SRV;
-  SALDO_MINIMO = (d.parametros && d.parametros.saldoMinimo) || 0;
-  VERSAO_APP = d.versao || '';
-
-  recalcular();
-
-  document.getElementById('uname').textContent = EU.nome;
-  document.getElementById('uperfil').textContent = PERFIL_NOME[ROLE] || ROLE;
-  document.getElementById('avatar').textContent = EU.iniciais;
-}
-
-let FILIAIS_CAD = [], AREAS_CAD = [], CONDICOES_CAD = [], FORMAS_CAD = [], FLUXO_SRV = {};
-let SALDO_MINIMO = 0, VERSAO_APP = '';
-
-function recalcular() {
-  PEND = SOL.filter(s => ['Aguardando Aprovação', 'Reprogramado', 'Aguardando caixa'].includes(s.st));
-  PC_MAP = {}; PLANO.forEach(p => PC_MAP[p[0]] = { desc:p[1], tipo:p[2], g:p[3], n:p[4], contabil:p[5] });
-  CAT_MAP = {}; CAT.forEach(c => CAT_MAP[c[0]] = { bloco:c[1], nome:c[2], ex:c[3], pj:c[4], pf:c[5],
-    centro:c[6], placa:c[7]==='SIM', anexo:c[8]==='SIM', ret:c[9], ant:c[10] });
-  FORN_MAP = {}; FORN.forEach(f => FORN_MAP[f[0]] = { nome:f[1], tipo:f[2], simples:f[3], cats:f[4] });
-}
-
-/** O servidor devolve a matriz por recurso; a tela pensa por tela e por ação. */
-function normalizarPermissoes(p) {
-  const base = { ver: [], acao: { incluir: [], alterar: [], inativar: [], aprovar: [] },
-                 limite: 0, escopo: 'PROPRIO' };
-  if (!p) return base;
-  if (p.limite !== undefined) base.limite = Number(p.limite) || 0;
-
-  const TELA = {
-    SOLICITACAO:['inicio','minhas','nova','kanban'], APROVACAO:['aprovacoes','autorizacoes'],
-    TITULO_PAGAR:['pagar'], TITULO_RECEBER:['receber'], RATEIO:['rateio'],
-    ORCAMENTO:['orcamento','gerencial'], PLANO_CONTAS:['plano'], CATEGORIA:['plano'],
-    CENTRO_CUSTO:['filiais'], FORNECEDOR:['fornecedores'], FILIAL:['filiais'], AREA:['filiais'],
-    USUARIO:['usuarios'], PERFIL:['perfis'], PARAMETRO:['params'], LOG:['logs'], IMPORTACAO:['import']
-  };
-  const recursos = p.recursos || p;
-  Object.keys(recursos).forEach(r => {
-    const a = recursos[r] || {};
-    if (a.VER || a.ver) (TELA[r] || []).forEach(t => { if (base.ver.indexOf(t) < 0) base.ver.push(t); });
-    ['INCLUIR','ALTERAR','INATIVAR','APROVAR'].forEach(k => {
-      if (a[k] || a[k.toLowerCase()]) base.acao[k.toLowerCase()].push(r);
-    });
-  });
-  if (base.ver.indexOf('inicio') < 0) base.ver.push('inicio');
-  // O escopo mora no recurso SOLICITACAO: é ele que diz se a pessoa vê só o que lançou.
-  const sol = recursos.SOLICITACAO || {};
-  base.escopo = sol.escopo || sol.ESCOPO || p.escopo || 'PROPRIO';
-  return base;
-}
-
-/* ---------- ações que vão ao servidor ---------- */
-
-/** Recarrega só o que muda. Não refaz cadastro — cadastro não muda a cada minuto. */
-async function recarregar(msg) {
-  try {
-    const d = await API.chamar('vista.atualizar', {});
-    SOL = d.solicitacoes || SOL;
-    if (d.autorizacoes) AUTORIZ = d.autorizacoes;
-    if (d.fluxo) { FLUXO_SRV = d.fluxo; FLOW = d.fluxo; WEEKS = d.fluxo.semanas; WDATE = d.fluxo.datas; }
-    recalcular();
-    render();
-    if (msg) toast(msg, 'ok');
-  } catch (e) { toast('Não consegui recarregar: ' + e.message, 'cr'); }
-}
-
-/** Mover card no quadro. A regra que vale é a do servidor — a da tela é só resposta rápida. */
-async function moverNoServidor(id, etapa, pedido) {
-  try {
-    const r = await API.chamar('fluxo.mover', { id, etapa, pedido });
-    await recarregar(r.mensagem);
-    return true;
-  } catch (e) {
-    toast('Movimento recusado — ' + e.message, 'cr');
-    const el = document.getElementById('kc-' + id);
-    if (el) { el.classList.add('nega'); setTimeout(() => el.classList.remove('nega'), 320); }
-    return false;
-  }
-}
-
-/* ---------- abertura da página ---------- */
-async function abrirApp() {
-  renderMenu();
-  if (API.recuperar()) { await carregarTudo(); return; }
-  carregando(false);
-  document.getElementById('loginWrap').classList.add('on');
-}
-
 function fitMob(){document.getElementById('mobBtn').style.display=innerWidth<=860?'grid':'none'}
 addEventListener('resize',fitMob);fitMob();
-abrirApp();
+renderMenu();render();
 </script>
 </body>
 </html>
