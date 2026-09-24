@@ -551,8 +551,9 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
       <div><div style="font-size:11.5px;color:var(--ink-3)">FC · Apontamento Financeiro de Compras</div></div>
     </div>
     <form id="lgForm" onsubmit="event.preventDefault();entrar()">
-      <div class="f"><label for="lgMail">E-mail</label>
-        <input id="lgMail" type="email" autocomplete="username" required autofocus></div>
+      <div class="f"><label for="lgMail">Usuário</label>
+        <input id="lgMail" type="text" autocomplete="username" autocapitalize="none"
+               spellcheck="false" placeholder="seu usuário" required autofocus></div>
       <div class="f" style="margin-top:12px"><label for="lgSenha">Senha</label>
         <input id="lgSenha" type="password" autocomplete="current-password" required></div>
       <div id="lgErro" class="verdict cr" style="display:none;margin-top:14px"></div>
@@ -560,7 +561,7 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
         style="justify-content:center;padding:10px;width:100%;margin-top:16px">Entrar</button>
     </form>
     <div style="font-size:11.5px;color:var(--ink-3);line-height:1.5;border-top:1px solid var(--line);padding-top:12px;margin-top:16px">
-      Senha guardada como <b>hash SHA-256 com salt por usuário</b> — nunca em texto.
+Entre com o <b>usuário</b>, não com o e-mail. Senha guardada como <b>hash SHA-256 com salt por usuário</b> — nunca em texto.
       Bloqueio após tentativas seguidas e toda tentativa registrada no log de acesso.
     </div>
   </div>
@@ -1843,10 +1844,12 @@ function vFiliais(){
 }
 function vUsuarios(){
   return head(btnImport('USUARIO'))+`<div class="card"><div class="tw"><table><thead><tr>
-    <th>ID</th><th>Nome</th><th>E-mail (login)</th><th>Perfil</th><th>Escopo de filial</th>
+    <th>ID</th><th>Nome</th><th>Usuário</th><th>E-mail (avisos)</th><th>Perfil</th><th>Escopo de filial</th>
     <th style="text-align:right">Limite de alçada</th><th>Status</th><th>Último acesso</th><th></th></tr></thead><tbody>
     ${USUARIOS.map(u=>`<tr onclick="openUser('${u[0]}')"><td class="id">${u[0]}</td><td>${u[1]}</td>
-      <td class="mono" style="font-size:12px">${u[2]}</td><td><span class="tag t-nv">${u[3]}</span></td><td>${u[4]}</td>
+      <td class="mono" style="font-size:12px"><b>${u[8]||'—'}</b></td>
+      <td class="mono" style="font-size:11.5px;color:var(--ink-3)">${u[2]||'—'}</td>
+      <td><span class="tag t-nv">${u[3]}</span></td><td>${u[4]}</td>
       <td class="n">${u[5]}</td><td><span class="tag ${u[6]==='ATIVO'?'t-ok':'t-mu'}"><i class="dot"></i>${u[6]}</span></td>
       <td class="mono" style="font-size:11.5px;color:var(--ink-3)">${u[7]}</td>
       <td style="text-align:right;white-space:nowrap" onclick="event.stopPropagation()">
@@ -2456,8 +2459,9 @@ function openPC(cod){
 }
 function openUser(id){
   const u=USUARIOS.find(x=>x[0]===id);
-  openDrawer(u[1],`${u[2]} · ${u[3]}`,`
+  openDrawer(u[1],`${u[8]?'login '+u[8]:'(sem login)'} · ${u[3]}`,`
    <dl class="dl">
+     <dt>Usuário (login)</dt><dd class="mono"><b>${u[8]||'—'}</b></dd>
      <dt>ID</dt><dd class="mono">${u[0]}</dd><dt>Perfil</dt><dd>${u[3]}</dd>
      <dt>Escopo de filial</dt><dd>${u[4]}</dd><dt>Limite de alçada</dt><dd>${u[5]}</dd>
      <dt>Status</dt><dd><span class="tag ${u[6]==='ATIVO'?'t-ok':'t-mu'}">${u[6]}</span></dd>
@@ -2605,13 +2609,13 @@ function erroLogin(msg) {
 
 async function entrar() {
   const btn = document.getElementById('lgBtn');
-  const email = document.getElementById('lgMail').value.trim();
+  const usuario = document.getElementById('lgMail').value.trim();
   const senha = document.getElementById('lgSenha').value;
-  if (!email || !senha) { erroLogin('Informe e-mail e senha.'); return; }
+  if (!usuario || !senha) { erroLogin('Informe usuário e senha.'); return; }
 
   btn.disabled = true; btn.textContent = 'Entrando…'; erroLogin('');
   try {
-    const r = await API.chamar('auth.login', { email, senha, origem: 'WEB', userAgent: navigator.userAgent });
+    const r = await API.chamar('auth.login', { usuario, senha, origem: 'WEB', userAgent: navigator.userAgent });
     API.guardar(r.token);
     document.getElementById('lgSenha').value = '';
     if (r.trocarSenha) {
@@ -2688,7 +2692,8 @@ function aplicar(d) {
                                           x.CENTRO_PADRAO, x.EXIGE_PLACA, x.EXIGE_ANEXO, x.RETENCAO, x.ANTECEDENCIA_MIN_DIAS]);
   CENTROS = (c.centros || []).map(x => [x.CENTRO_ID, x.NOME, x.DESCRICAO]);
   USUARIOS = (c.usuarios || []).map(x => [x.USUARIO_ID, x.NOME, x.EMAIL, x.PERFIL_ID,
-                                          x.FILIAIS || 'Todas', x.LIMITE_ALCADA || '—', x.STATUS, x.ULTIMO_ACESSO || '—']);
+                                          x.FILIAIS || x.ESCOPO_FILIAL || 'Todas', x.LIMITE_ALCADA || '—',
+                                          x.STATUS, x.ULTIMO_ACESSO || '—', x.LOGIN || '']);
   FILIAIS_CAD = c.filiais || [];
   AREAS_CAD   = c.areas || [];
   CONDICOES_CAD = c.condicoes || [];
