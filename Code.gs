@@ -11,14 +11,19 @@
 
 /**
  * Duas versões da interface, de propósito:
- *   app    — a oficial. Exige login, lê e grava na planilha.
- *   proto  — o protótipo navegável, com dados fictícios. Serve para apresentar
- *            e para desenhar telas novas sem tocar na base real.
- * A oficial é o padrão. O protótipo só abre com ?p=proto na URL.
+ *   index.html      — a OFICIAL. Exige login, lê e grava na planilha. É o padrão.
+ *   prototipo.html  — o protótipo navegável, com dados fictícios. Serve para apresentar
+ *                     e para desenhar telas novas sem tocar na base real.
+ *
+ * O nome não é detalhe: "index" é o que qualquer um abre primeiro, no editor ou no
+ * GitHub. Se o protótipo morasse ali, a versão de mentira seria a que todo mundo
+ * encontraria — e foi exatamente o que aconteceu antes desta troca.
+ *
+ * O protótipo só abre com ?p=proto na URL.
  */
 function doGet(e) {
   const p = (e && e.parameter && e.parameter.p) || 'app';
-  const arquivo = (p === 'proto' || p === 'demo') ? 'index' : 'app';
+  const arquivo = (p === 'proto' || p === 'demo') ? 'prototipo' : 'index';
   const fonte = Cfg.param('UI_SOURCE', 'LOCAL');
 
   anotarUrlDoApp();
@@ -32,7 +37,7 @@ function doGet(e) {
     : HtmlService.createHtmlOutputFromFile(arquivo);
 
   return out
-    .setTitle('FC Salomé — Apontamento Financeiro' + (arquivo === 'index' ? ' (protótipo)' : ''))
+    .setTitle('FC Salomé — Apontamento Financeiro' + (arquivo === 'prototipo' ? ' (protótipo)' : ''))
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover')
     .setFaviconUrl('https://ssl.gstatic.com/docs/script/images/favicon.ico')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
@@ -114,7 +119,9 @@ function limparCacheUI() {
 
 const ROTAS = {
   // públicas
-  'auth.login':        { publica: true,  fn: function (d) { return Auth.login(d.email, d.senha, d.origem, d.userAgent); } },
+  // `usuario` é o campo novo; `email` continua aceito para não derrubar uma aba que
+  // ficou aberta com a versão anterior da tela carregada.
+  'auth.login':        { publica: true,  fn: function (d) { return Auth.login(d.usuario || d.email, d.senha, d.origem, d.userAgent); } },
   'ping':              { publica: true,  fn: function () { return { ok: true, hora: new Date() }; } },
 
   // sessão, sem recurso específico
@@ -129,6 +136,9 @@ const ROTAS = {
   'sol.salvar':        { recurso: 'SOLICITACAO', acao: 'ALTERAR',  fn: function (d, s) { return Sol.salvar(d, s); } },
   'sol.decidir':       { recurso: 'SOLICITACAO', acao: 'APROVAR',  fn: function (d, s) { return Sol.decidir(d, s); } },
   'cash.fluxo':        { recurso: 'SOLICITACAO', acao: 'VER',      fn: function (d, s) { return Cash.fluxo(d, s); } },
+  // A composição exata de uma célula do fluxo: linha × coluna, com o valor que cada
+  // solicitação contribuiu — que nem sempre é o valor bruto dela.
+  'cash.detalhe':      { recurso: 'SOLICITACAO', acao: 'VER',      fn: function (d, s) { return Cash.detalhe(d, s); } },
 
   // Categoria -> conta contábil, centro sugerido e retenção. É o que o formulário chama
   // assim que o usuário escolhe "o que vai comprar" e "de quem".
@@ -143,6 +153,12 @@ const ROTAS = {
   'fluxo.quadro':      { recurso: 'SOLICITACAO', acao: 'VER',      fn: function (d, s) { return Fluxo.quadro(d, s); } },
   'fluxo.simular':     { recurso: 'SOLICITACAO', acao: 'VER',      fn: function (d, s) { return Fluxo.simularMovimento(d, s); } },
   'fluxo.mover':       { recurso: 'SOLICITACAO', acao: 'ALTERAR',  fn: function (d, s) { return Fluxo.mover(d, s); } },
+
+  // Autorizar é ato próprio: emite a capa ao fornecedor e registra o pedido que ele
+  // devolve. Antes da v1.2 isso acontecia dentro da aprovação, e a etapa não pedia nada.
+  'aut.fila':          { recurso: 'SOLICITACAO', acao: 'VER',      fn: function (d, s) { return Fluxo.pendentesDeAutorizacao(d, s); } },
+  'aut.emitir':        { recurso: 'SOLICITACAO', acao: 'ALTERAR',  fn: function (d, s) { return Fluxo.autorizar(d, s); } },
+  'aut.pedido':        { recurso: 'SOLICITACAO', acao: 'ALTERAR',  fn: function (d, s) { return Fluxo.registrarPedido(d, s); } },
 
   'cad.listar':        { recursoDe: true, acao: 'VER',      fn: function (d, s) { return Repo.listar(d.tabela, null, !!d.inativos); } },
   'cad.salvar':        { recursoDe: true, acao: 'ALTERAR',  fn: function (d, s) { return Repo.salvar(d.tabela, d.registro, s); } },

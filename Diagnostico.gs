@@ -220,3 +220,65 @@ function diagnosticarPorEmail() {
   });
   return 'enviado';
 }
+
+/* ==========================================================================
+   QUAL INTERFACE ESTÁ SENDO SERVIDA
+   ========================================================================== */
+
+/**
+ * Responde uma pergunta só: por que abriu o protótipo em vez do app oficial?
+ *
+ * Três causas possíveis, e elas se distinguem aqui:
+ *   1. UI_SOURCE = GITHUB — aí a página não vem do projeto, vem do GITHUB_RAW, que
+ *      aponta para UM arquivo só, seja qual for a rota.
+ *   2. O arquivo index.html do projeto tem o conteúdo errado — o protótipo foi colado
+ *      por cima dele, ou ficou truncado na colagem.
+ *   3. Projeto certo, implantação velha. Esta função roda sempre no código ATUAL do
+ *      editor, nunca no que está publicado, então esse caso ela não enxerga: se tudo
+ *      aqui estiver certo e a URL continuar mostrando o protótipo, é implantação.
+ *
+ * O que separa um arquivo do outro: o oficial chama google.script.run (é como ele fala
+ * com o servidor) e esconde a tarja de protótipo. O protótipo não tem nem um nem outro.
+ */
+function conferirUI() {
+  const L = [];
+  const fonte = Cfg.param('UI_SOURCE', 'LOCAL');
+  const raw = Cfg.param('GITHUB_RAW', '');
+
+  L.push('De onde vem a interface:');
+  L.push('  UI_SOURCE ..... ' + fonte + (fonte === 'GITHUB'
+    ? '   ← a página NÃO vem do projeto; vem da URL abaixo'
+    : '   (a página vem dos arquivos do projeto)'));
+  if (fonte === 'GITHUB') L.push('  GITHUB_RAW .... ' + (raw || '(vazio — o doGet vai estourar)'));
+  L.push('');
+
+  L.push('Arquivos de interface no projeto:');
+  ['index', 'prototipo'].forEach(function (nome) {
+    let html = null;
+    try { html = HtmlService.createHtmlOutputFromFile(nome).getContent(); }
+    catch (e) { L.push('  ' + nome + '.html — NÃO EXISTE ou não abre: ' + e.message); return; }
+
+    const tam = html.length;
+    const fala = html.indexOf('google.script.run') >= 0;
+    const tarja = html.indexOf('protobar{display:none') >= 0;
+    L.push('  ' + nome + '.html — ' + tam + ' caracteres · ' +
+           (fala ? 'fala com o servidor' : 'NÃO fala com o servidor') + ' · ' +
+           (tarja ? 'tarja escondida' : 'tarja de protótipo à mostra'));
+    L.push('     é o ' + (fala ? 'APP OFICIAL' : 'PROTÓTIPO') +
+           (nome === 'index' && !fala ? '   ← PROBLEMA: o index.html está com o protótipo dentro' : '') +
+           (nome === 'prototipo' && fala ? '   ← estranho: o prototipo deveria ser a versão de mentira' : ''));
+  });
+
+  L.push('');
+  L.push('O que o doGet serviria AGORA, com o código do editor:');
+  L.push('  sem parâmetro ...... ' + (fonte === 'GITHUB' ? 'o que estiver em GITHUB_RAW' : 'index.html (oficial)'));
+  L.push('  com ?p=proto ....... ' + (fonte === 'GITHUB' ? 'o que estiver em GITHUB_RAW' : 'prototipo.html'));
+  L.push('');
+  L.push('Se isto tudo estiver certo e a URL ainda mostrar o protótipo, o problema é a');
+  L.push('IMPLANTAÇÃO: ela está servindo uma versão antiga do código. Implantar →');
+  L.push('Gerenciar implantações → lápis → Versão: Nova versão → Implantar.');
+
+  const txt = L.join('\n');
+  console.log(txt);
+  return txt;
+}

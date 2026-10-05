@@ -309,10 +309,11 @@ const SCHEMA = {
   },
   "USUARIOS": {
     "pl": "FC_DADOS",
-    "desc": "Login próprio. A senha nunca é armazenada em texto — só o hash e o salt.",
+    "desc": "Login próprio: entra-se pelo LOGIN, não pelo e-mail. A senha nunca é armazenada em texto — só o hash e o salt.",
     "cols": [
       "USUARIO_ID",
       "NOME",
+      "LOGIN",
       "EMAIL",
       "PERFIL_ID",
       "ESCOPO_FILIAL",
@@ -390,6 +391,9 @@ const SCHEMA = {
       "APROVADOR_ID",
       "DATA_APROVACAO",
       "CHAVE_AUTORIZACAO",
+      "DATA_AUTORIZACAO",
+      "AUTORIZADO_POR",
+      "PEDIDO_FORNECEDOR",
       "VALOR_COMPROMETIDO",
       "DATA_PAGAMENTO",
       "VALOR_REALIZADO",

@@ -145,8 +145,14 @@ const Sol = (function () {
 
     if (d.decisao === 'APROVAR') {
       s.STATUS = 'APROVADO';
-      s.CHAVE_AUTORIZACAO = 'AUT-' + new Date().getFullYear() + '-'
-                            + Utilities.getUuid().substring(0, 6).toUpperCase();
+      // A chave de autorização NÃO nasce aqui.
+      //
+      // Aprovar é dizer "pode comprar". Autorizar é mandar a capa ao fornecedor — outro
+      // ato, outra pessoa, outro momento. Enquanto os dois moravam nesta linha, o portão
+      // de "Receber" já nascia aberto na aprovação, e a etapa Autorizar não pedia nada de
+      // ninguém: virava um clique para passar adiante.
+      //
+      // Quem gera a chave agora é Fluxo.autorizar().
     } else if (d.decisao === 'REPROGRAMAR') {
       s.STATUS = 'REPROGRAMADO';
       if (d.novaData) s.DATA_PREVISTA_PGTO = new Date(d.novaData);

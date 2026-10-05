@@ -83,8 +83,8 @@ const Setup = (function () {
         ['LOG_SEMANAS_ONLINE', '12', 'NUMERO', 'Abas de log mantidas antes de arquivar', 'ADMIN'],
         ['EMAIL_REMETENTE', '', 'TEXTO', 'Remetente das notificações', 'ADMIN'],
         ['UI_SOURCE', 'LOCAL', 'TEXTO', 'LOCAL (clasp) ou GITHUB (busca o HTML em runtime)', 'ADMIN'],
-        ['GITHUB_RAW', '', 'TEXTO', 'URL raw do index.html quando UI_SOURCE = GITHUB', 'ADMIN'],
-        ['VERSAO_APP', '1.0.8', 'TEXTO', 'Mostrada no rodapé do app', 'ADMIN'],
+        ['GITHUB_RAW', '', 'TEXTO', 'URL raw do index.html oficial quando UI_SOURCE = GITHUB', 'ADMIN'],
+        ['VERSAO_APP', VERSAO, 'TEXTO', 'Mostrada no rodapé do app', 'ADMIN'],
         ['RET_IRRF_PJ', '1.5', 'NUMERO', 'IRRF sobre serviço de PJ não optante do Simples (%)', 'FINANCEIRO'],
         ['RET_CSRF_PJ', '4.65', 'NUMERO', 'PIS/COFINS/CSLL sobre serviço de PJ, acima do piso (%)', 'FINANCEIRO'],
         ['RET_ISS', '0', 'NUMERO', 'ISS retido — depende do município do serviço (%)', 'FINANCEIRO'],
@@ -129,10 +129,9 @@ const Setup = (function () {
 
     if (!Repo.listar('ALCADAS', null, true).length) {
       lote('ALCADAS', [
-        ['ALC-1', 1, 'Alçada 1 · Supervisão', 2000, 'FINANCEIRO', 1, 'NAO', 'ATIVO', new Date(), 'setup', '', '', 1, '', '', ''],
-        ['ALC-2', 2, 'Alçada 2 · Gerência', 10000, 'FINANCEIRO', 2, 'NAO', 'ATIVO', new Date(), 'setup', '', '', 1, '', '', ''],
-        ['ALC-3', 3, 'Alçada 3 · Diretoria Financeira', 50000, 'DIRETORIA', 3, 'NAO', 'ATIVO', new Date(), 'setup', '', '', 1, '', '', ''],
-        ['ALC-4', 4, 'Alçada 4 · Diretoria', 99999999, 'DIRETORIA', 5, 'SIM', 'ATIVO', new Date(), 'setup', '', '', 1, '', '', '']
+        ['ALC-1', 1, 'Alçada 1 · Financeiro', 5000, 'FINANCEIRO', 1, 'NAO', 'ATIVO', new Date(), 'setup', '', '', 1, '', '', ''],
+        ['ALC-2', 2, 'Alçada 2 · Diretoria', 50000, 'DIRETORIA', 2, 'NAO', 'ATIVO', new Date(), 'setup', '', '', 1, '', '', ''],
+        ['ALC-3', 3, 'Alçada 3 · Diretoria, dupla assinatura', 99999999, 'DIRETORIA', 3, 'SIM', 'ATIVO', new Date(), 'setup', '', '', 1, '', '', '']
       ]);
     }
   }
@@ -182,7 +181,11 @@ const Setup = (function () {
                      LOG: 'SNNNNSN', IMPORTACAO: 'SSNNNSS' }
     };
     const ESCOPO = { SOLICITANTE: 'PROPRIO', FINANCEIRO: 'TODAS', DIRETORIA: 'TODAS', ADMIN: 'TODAS' };
-    const LIMITE = { SOLICITANTE: 0, FINANCEIRO: 10000, DIRETORIA: 99999999, ADMIN: 0 };
+    // O divisor da alçada. Até este valor o Financeiro decide sozinho; acima, é Diretoria.
+    // Mora aqui e na aba ALCADAS, e os dois têm de contar a mesma história — por isso
+    // Migrar.ajustarAlcadas() mexe nos dois de uma vez.
+    const TETO_FINANCEIRO = 5000;
+    const LIMITE = { SOLICITANTE: 0, FINANCEIRO: TETO_FINANCEIRO, DIRETORIA: 99999999, ADMIN: 0 };
 
     const linhas = [];
     Object.keys(P).forEach(function (perfil) {
@@ -216,8 +219,8 @@ const Setup = (function () {
   // ------------------------------------------------------------------ admin
 
   /** Rode uma vez para criar o primeiro usuário. */
-  function criarAdmin(nome, email, senhaProvisoria) {
-    return criarUsuario(nome, email, 'ADMIN', 'TODAS', senhaProvisoria);
+  function criarAdmin(nome, login, senhaProvisoria) {
+    return criarUsuario(nome, login, 'ADMIN', 'TODAS', senhaProvisoria);
   }
 
   /**
@@ -226,7 +229,7 @@ const Setup = (function () {
    *
    * O perfil decide o que a pessoa faz, e os quatro não se sobrepõem por acidente:
    *   SOLICITANTE  abre pedido e acompanha o dele. Não aprova.
-   *   FINANCEIRO   valida, consulta caixa, aprova até R$ 10.000, recebe.
+   *   FINANCEIRO   valida, consulta caixa, aprova até o teto da alçada, recebe.
    *   DIRETORIA    a mesma coisa, sem teto de alçada.
    *   ADMIN        cadastros, usuários, permissões e log. **Não aprova e não move card.**
    *
@@ -234,24 +237,39 @@ const Setup = (function () {
    * autoriza o dinheiro. Para operar o fluxo, a mesma pessoa usa uma segunda conta.
    *
    * escopoFilial: 'TODAS', ou as filiais separadas por ponto e vírgula — 'RP;CPQ'.
+   *
+   * O segundo parâmetro é o LOGIN — o que a pessoa digita para entrar. Não é e-mail:
+   * metade da equipe não tem caixa própria, e inventar endereço só para servir de
+   * identificador cria um dado que ninguém mantém. E-mail fica opcional, na ficha.
    */
-  function criarUsuario(nome, email, perfil, escopoFilial, senhaProvisoria) {
-    if (!nome || !email || !perfil || !senhaProvisoria) {
-      throw new Error("Use: criarUsuario('Nome', 'email@salome.com.br', 'PERFIL', 'TODAS', 'senhaProvisoria')");
+  function criarUsuario(nome, login, perfil, escopoFilial, senhaProvisoria, email) {
+    if (!nome || !login || !perfil || !senhaProvisoria) {
+      throw new Error("Use: criarUsuario('Nome', 'login', 'PERFIL', 'TODAS', 'senhaProvisoria')");
     }
     if (String(senhaProvisoria).length < 8) {
       throw new Error('A senha provisória precisa de pelo menos 8 caracteres.');
     }
-    const p = Repo.achar('PERFIS', 'PERFIL_ID', String(perfil).toUpperCase());
-    if (!p) throw new Error('Perfil inexistente: ' + perfil + '. Use SOLICITANTE, FINANCEIRO, DIRETORIA ou ADMIN.');
-
-    const mail = String(email).toLowerCase().trim();
-    if (Repo.achar('USUARIOS', 'EMAIL', mail)) {
-      throw new Error('Já existe usuário com esse e-mail: ' + mail);
+    // Vários perfis na mesma pessoa, separados por ponto e vírgula. A permissão vira a
+    // união deles — quem lança a compra da frota muitas vezes é quem confere o caixa.
+    const dele = String(perfil).toUpperCase().split(';')
+      .map(function (x) { return x.trim(); }).filter(String);
+    const ruins = dele.filter(function (x) { return !Repo.achar('PERFIS', 'PERFIL_ID', x); });
+    if (ruins.length) {
+      throw new Error('Perfil inexistente: ' + ruins.join(', ') +
+                      '. Use SOLICITANTE, FINANCEIRO, DIRETORIA ou ADMIN — ou vários, ' +
+                      'separados por ponto e vírgula.');
     }
 
+    const chave = Auth.normalizarLogin(login);
+    if (!chave) throw new Error('O login "' + login + '" fica vazio depois de normalizado. Use letras e números.');
+    const repetido = Repo.listar('USUARIOS', null, true).filter(function (x) {
+      return Auth.normalizarLogin(x.LOGIN) === chave;
+    })[0];
+    if (repetido) throw new Error('Já existe usuário com o login "' + chave + '": ' + repetido.NOME + '.');
+    const mail = String(email || '').toLowerCase().trim();
+
     const r = Repo.salvar('USUARIOS', {
-      NOME: nome, EMAIL: mail, PERFIL_ID: String(perfil).toUpperCase(),
+      NOME: nome, LOGIN: chave, EMAIL: mail, PERFIL_ID: dele.join(';'),
       ESCOPO_FILIAL: escopoFilial || 'TODAS', LIMITE_ALCADA: 0,
       SENHA_HASH: 'x', SENHA_SALT: 'x', SENHA_TROCAR: 'SIM',
       SENHA_EXPIRA_EM: new Date(), TENTATIVAS_FALHA: 0, STATUS: 'ATIVO'
@@ -259,7 +277,7 @@ const Setup = (function () {
 
     Auth.definirSenha(r.registro.USUARIO_ID, senhaProvisoria, true);
     console.log('Usuário criado: ' + r.registro.USUARIO_ID + ' · ' + nome +
-                ' · ' + String(perfil).toUpperCase() + ' · ' + mail);
+                ' · ' + dele.join(';') + ' · login: ' + chave);
     return r.registro.USUARIO_ID;
   }
 
@@ -267,14 +285,17 @@ const Setup = (function () {
    * Senha nova para quem esqueceu a antiga — provisória, troca obrigatória no acesso.
    * A senha atual não é lida (nem daria: é hash com salt). É substituída.
    */
-  function redefinirSenha(email, senhaProvisoria) {
-    const u = Repo.achar('USUARIOS', 'EMAIL', String(email).toLowerCase().trim());
-    if (!u) throw new Error('Não achei usuário com o e-mail ' + email + '.');
+  function redefinirSenha(login, senhaProvisoria) {
+    const chave = Auth.normalizarLogin(login);
+    const u = Repo.listar('USUARIOS', null, true).filter(function (x) {
+      return Auth.normalizarLogin(x.LOGIN) === chave;
+    })[0];
+    if (!u) throw new Error('Não achei usuário com o login ' + login + '.');
     if (String(senhaProvisoria).length < 8) {
       throw new Error('A senha provisória precisa de pelo menos 8 caracteres.');
     }
     Auth.definirSenha(u.USUARIO_ID, senhaProvisoria, true);
-    console.log('Senha redefinida para ' + u.NOME + ' (' + u.EMAIL + '). Troca obrigatória no próximo acesso.');
+    console.log('Senha redefinida para ' + u.NOME + ' (login ' + u.LOGIN + '). Troca obrigatória no próximo acesso.');
     return u.USUARIO_ID;
   }
 
@@ -282,7 +303,7 @@ const Setup = (function () {
   function listarUsuarios() {
     const l = Repo.listar('USUARIOS', null, true).map(function (u) {
       return '  ' + u.USUARIO_ID + ' · ' + u.NOME + ' · ' + u.PERFIL_ID +
-             ' · ' + u.EMAIL + ' · ' + u.STATUS +
+             ' · login: ' + (u.LOGIN || '(sem login!)') + ' · ' + u.STATUS +
              (u.SENHA_TROCAR === 'SIM' ? ' · senha provisória' : '');
     });
     const txt = (l.length ? 'Usuários cadastrados:\n' + l.join('\n') : 'Nenhum usuário cadastrado ainda.');
@@ -335,14 +356,14 @@ function criarPrimeiroUsuario() {
   const NOME  = 'Kleber Zumiotti';
   const SENHA = 'trocar@2026';                       // mínimo 8 caracteres
 
-  const admin = Setup.criarUsuario(NOME, 'kleber.zumiotti@iprocesso.com',
-                                   'ADMIN', 'TODAS', SENHA);
-  const dir   = Setup.criarUsuario(NOME, 'kleber.diretoria@iprocesso.com',
-                                   'DIRETORIA', 'TODAS', SENHA);
+  const admin = Setup.criarUsuario(NOME, 'kleber.admin', 'ADMIN', 'TODAS', SENHA,
+                                   'kleber.zumiotti@iprocesso.com');
+  const dir   = Setup.criarUsuario(NOME, 'kleber', 'DIRETORIA', 'TODAS', SENHA,
+                                   'kleber.zumiotti@iprocesso.com');
 
   const txt = 'Duas contas criadas:\n' +
-    '  ADMIN     kleber.zumiotti@iprocesso.com  (' + admin + ') — cadastros, usuários, log\n' +
-    '  DIRETORIA kleber.diretoria@iprocesso.com (' + dir + ') — solicita, aprova, move card\n' +
+    '  ADMIN     login "kleber.admin" (' + admin + ') — cadastros, usuários, log\n' +
+    '  DIRETORIA login "kleber"       (' + dir + ') — solicita, aprova, move card\n' +
     'Senha provisória nas duas: ' + SENHA + ' — troca obrigatória no primeiro acesso.';
   console.log(txt);
   return txt;
@@ -357,9 +378,9 @@ function criarPrimeiroUsuario() {
  */
 function criarEquipe() {
   const EQUIPE = [
-    // ['Nome completo', 'email@salome.com.br', 'PERFIL', 'ESCOPO', 'senhaProvisoria'],
-    // ['Fulano de Tal',  'fulano@salome.com.br', 'SOLICITANTE', 'RP',    'trocar@2026'],
-    // ['Ciclana Souza',  'ciclana@salome.com.br', 'FINANCEIRO', 'TODAS', 'trocar@2026'],
+    // ['Nome completo', 'login', 'PERFIL', 'ESCOPO', 'senhaProvisoria', 'email (opcional)'],
+    // ['Fulano de Tal',  'fulano',  'SOLICITANTE', 'RP',    'trocar@2026'],
+    // ['Ciclana Souza',  'ciclana', 'FINANCEIRO',  'TODAS', 'trocar@2026', 'ciclana@salome.com.br'],
   ];
   if (!EQUIPE.length) {
     const aviso = 'A lista EQUIPE está vazia. Edite a função criarEquipe() e rode de novo.';
@@ -368,7 +389,7 @@ function criarEquipe() {
   }
   const l = [];
   EQUIPE.forEach(function (u) {
-    try { l.push('  ok ..... ' + u[1] + ' · ' + Setup.criarUsuario(u[0], u[1], u[2], u[3], u[4])); }
+    try { l.push('  ok ..... ' + u[1] + ' · ' + Setup.criarUsuario(u[0], u[1], u[2], u[3], u[4], u[5])); }
     catch (e) { l.push('  pulado . ' + u[1] + ' · ' + e.message); }
   });
   const txt = l.join('\n');
@@ -384,9 +405,9 @@ function listarUsuarios() { return Setup.listarUsuarios(); }
  * A senha atual não é lida — é hash com salt, ninguém lê. É substituída.
  */
 function redefinirSenha() {
-  const EMAIL = 'kleber.zumiotti@iprocesso.com';
+  const LOGIN = 'kleber';
   const SENHA = 'trocar@2026';        // mínimo 8 caracteres
-  return Setup.redefinirSenha(EMAIL, SENHA);
+  return Setup.redefinirSenha(LOGIN, SENHA);
 }
 
 /** PASSO 3 — diagnóstico: mostra no log o que está e o que falta. */

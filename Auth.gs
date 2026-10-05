@@ -26,10 +26,31 @@ const Auth = (function () {
     return p;
   }
 
+  /**
+   * Bytes aleatórios para o sal e para o pepper.
+   *
+   * `Math.random()` NÃO serve para isso, e era o que estava aqui. Ele é rápido e bem
+   * distribuído, mas é previsível: conhecendo algumas saídas dá para inferir o estado
+   * interno e prever as próximas. Num sal isso enfraquece a proteção; num pepper, que é
+   * único para o sistema inteiro e nasce uma vez só, seria o pilar da autenticação apoiado
+   * num gerador que não foi feito para segredo.
+   *
+   * O Apps Script não expõe um gerador criptográfico. O que ele tem de melhor é
+   * `getUuid()` — UUID v4, que a plataforma monta a partir do gerador seguro da JVM. A
+   * saída aqui é o digest SHA-256 de vários UUIDs concatenados com o relógio: a força vem
+   * dos UUIDs, e o digest só espalha isso uniformemente pelos N bytes pedidos.
+   */
   function gerarBytes(n) {
-    const b = [];
-    for (let i = 0; i < n; i++) b.push(Math.floor(Math.random() * 256) - 128);
-    return b;
+    const out = [];
+    let volta = 0;
+    while (out.length < n) {
+      const semente = Utilities.getUuid() + Utilities.getUuid() +
+                      Utilities.getUuid() + Date.now() + ':' + (volta++);
+      const bloco = Utilities.computeDigest(
+        Utilities.DigestAlgorithm.SHA_256, semente, Utilities.Charset.UTF_8);
+      for (let i = 0; i < bloco.length && out.length < n; i++) out.push(bloco[i]);
+    }
+    return out;
   }
 
   function novoSalt() {
@@ -56,16 +77,41 @@ const Auth = (function () {
 
   // ---------------------------------------------------------------- login
 
-  function login(email, senha, origem, userAgent) {
-    email = String(email || '').trim().toLowerCase();
-    const u = Repo.achar('USUARIOS', 'EMAIL', email);
+  /**
+   * Normaliza o nome de usuário.
+   *
+   * Sem isso, "Maitê" e "maite" seriam pessoas diferentes, e quem cadastrou com acento
+   * não conseguiria entrar digitando sem. Acento, maiúscula e espaço somem; sobra o que
+   * dá para digitar em qualquer teclado, inclusive o do celular na estrada.
+   */
+  function normalizarLogin(v) {
+    return String(v || '')
+      .trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '')
+      .replace(/[^a-z0-9._-]/g, '');
+  }
+
+  /**
+   * Entra-se pelo LOGIN, não pelo e-mail.
+   *
+   * O motivo é operacional: metade da equipe da Salomé não tem caixa de e-mail própria, e
+   * inventar endereço só para servir de identificador cria um dado que ninguém mantém — e
+   * que um dia alguém tenta usar para mandar mensagem. O e-mail continua na ficha, opcional,
+   * para os avisos de quem tiver.
+   */
+  function login(usuario, senha, origem, userAgent) {
+    const chave = normalizarLogin(usuario);
+    const u = Repo.listar('USUARIOS', null, true).filter(function (x) {
+      return normalizarLogin(x.LOGIN) === chave && chave;
+    })[0];
 
     if (!u || u.STATUS !== 'ATIVO') {
-      Log.acesso(email, null, 'LOGIN_FALHA', origem, userAgent, null, 'usuário inexistente ou inativo');
-      throw new Error('E-mail ou senha inválidos.');
+      Log.acesso(chave, null, 'LOGIN_FALHA', origem, userAgent, null, 'usuário inexistente ou inativo');
+      throw new Error('Usuário ou senha inválidos.');
     }
     if (u.BLOQUEADO_ATE && new Date(u.BLOQUEADO_ATE) > new Date()) {
-      Log.acesso(email, u.USUARIO_ID, 'BLOQUEIO', origem, userAgent, null, 'tentativa durante bloqueio');
+      Log.acesso(chave, u.USUARIO_ID, 'BLOQUEIO', origem, userAgent, null, 'tentativa durante bloqueio');
       throw new Error('Acesso bloqueado temporariamente. Tente de novo em alguns minutos.');
     }
 
@@ -78,9 +124,9 @@ const Auth = (function () {
         u.TENTATIVAS_FALHA = 0;
       }
       Repo.salvar('USUARIOS', u, null, { forcar: true });
-      Log.acesso(email, u.USUARIO_ID, 'LOGIN_FALHA', origem, userAgent, null,
+      Log.acesso(chave, u.USUARIO_ID, 'LOGIN_FALHA', origem, userAgent, null,
                  'tentativa ' + tentativas + ' de ' + max);
-      throw new Error('E-mail ou senha inválidos.');
+      throw new Error('Usuário ou senha inválidos.');
     }
 
     // sucesso
@@ -90,7 +136,7 @@ const Auth = (function () {
     Repo.salvar('USUARIOS', u, null, { forcar: true });
 
     const ses = abrirSessao(u, origem, userAgent);
-    Log.acesso(email, u.USUARIO_ID, 'LOGIN_OK', origem, userAgent, ses.sessaoId, '');
+    Log.acesso(chave, u.USUARIO_ID, 'LOGIN_OK', origem, userAgent, ses.sessaoId, '');
 
     return {
       token: ses.token,
@@ -100,11 +146,21 @@ const Auth = (function () {
     };
   }
 
+  /**
+   * O que a sessão carrega. `perfilId` pode trazer vários, separados por ponto e vírgula —
+   * quem soma as permissões é o Perm, aqui só se resolve o nome de cada um para a tela.
+   */
   function publico(u) {
-    const perfil = Repo.achar('PERFIS', 'PERFIL_ID', u.PERFIL_ID) || {};
+    const ids = String(u.PERFIL_ID || '').split(';')
+      .map(function (p) { return p.trim().toUpperCase(); }).filter(String);
+    const nomes = ids.map(function (id) {
+      const p = Repo.achar('PERFIS', 'PERFIL_ID', id);
+      return (p && p.NOME) || id;
+    });
     return {
-      id: u.USUARIO_ID, nome: u.NOME, email: u.EMAIL,
-      perfilId: u.PERFIL_ID, perfilNome: perfil.NOME || u.PERFIL_ID,
+      id: u.USUARIO_ID, nome: u.NOME, login: u.LOGIN, email: u.EMAIL,
+      perfilId: ids.join(';'), perfis: ids,
+      perfilNome: nomes.join(' + ') || u.PERFIL_ID,
       escopoFilial: u.ESCOPO_FILIAL, limiteAlcada: Number(u.LIMITE_ALCADA || 0)
     };
   }
@@ -153,7 +209,7 @@ const Auth = (function () {
       const s = Repo.achar('SESSOES', 'SESSAO_ID', ses.sessaoId);
       s.ENCERRADA_EM = new Date();
       Repo.salvar('SESSOES', s, null, { forcar: true });
-      Log.acesso(ses.email, ses.id, 'LOGOUT', ses.origem, '', ses.sessaoId, '');
+      Log.acesso(ses.login || ses.email, ses.id, 'LOGOUT', ses.origem, '', ses.sessaoId, '');
     } catch (e) { /* sessão já inválida — nada a encerrar */ }
     return true;
   }
@@ -182,7 +238,7 @@ const Auth = (function () {
       throw new Error('Senha atual incorreta.');
     }
     definirSenha(ses.id, senhaNova, false);
-    Log.acesso(ses.email, ses.id, 'SENHA_ALTERADA', ses.origem, '', ses.sessaoId, '');
+    Log.acesso(ses.login || ses.email, ses.id, 'SENHA_ALTERADA', ses.origem, '', ses.sessaoId, '');
     return true;
   }
 
@@ -200,13 +256,14 @@ const Auth = (function () {
           + 'Ela deve ser trocada no primeiro acesso.\n'
           + Cfg.prop('URL_APP', '') + '\n'
     });
-    Log.acesso(u.EMAIL, usuarioId, 'SENHA_RESET', 'WEB', '', ses && ses.sessaoId, 'reset por ' + (ses && ses.email));
+    Log.acesso(u.LOGIN || u.EMAIL, usuarioId, 'SENHA_RESET', 'WEB', '', ses && ses.sessaoId,
+               'reset por ' + (ses && (ses.login || ses.email)));
     return true;
   }
 
   return {
     login: login, validar: validar, logout: logout,
     definirSenha: definirSenha, trocarSenha: trocarSenha, resetarSenha: resetarSenha,
-    hash: hash, novoSalt: novoSalt, publico: publico
+    hash: hash, novoSalt: novoSalt, publico: publico, normalizarLogin: normalizarLogin
   };
 })();

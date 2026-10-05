@@ -39,6 +39,7 @@ const Vista = (function () {
       cadastros: cad,
       solicitacoes: solicitacoes(ses, cad),
       fluxo: fluxo(ses),
+      autorizacoes: Fluxo.pendentesDeAutorizacao({}, ses),
       alcadas: cad.alcadas.map(function (a) {
         return [Number(a.LIMITE_ATE), a.NOME, a.PERFIL_APROVADOR];
       }).sort(function (a, b) { return a[0] - b[0]; })
@@ -119,6 +120,8 @@ const Vista = (function () {
         rec: s.RECOMENDACAO || '—',
         obs: s.OBSERVACAO || '',
         placa: s.PLACA || '',
+        chave: s.CHAVE_AUTORIZACAO || '',
+        pedido: s.PEDIDO_FORNECEDOR || '',
         pre: pre,
         orc: estourouOrcamento(s)
       };
@@ -175,7 +178,8 @@ const Vista = (function () {
   /** Recarregar só o que muda, sem refazer o bootstrap inteiro. */
   function atualizar(d, ses) {
     const cad = cadastros();
-    return { solicitacoes: solicitacoes(ses, cad), fluxo: fluxo(ses) };
+    return { solicitacoes: solicitacoes(ses, cad), fluxo: fluxo(ses),
+             autorizacoes: Fluxo.pendentesDeAutorizacao({}, ses) };
   }
 
   return { abrir: abrir, atualizar: atualizar, solicitacoes: solicitacoes, fluxo: fluxo };

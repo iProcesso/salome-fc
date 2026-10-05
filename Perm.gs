@@ -4,10 +4,54 @@
  */
 const Perm = (function () {
 
+  /**
+   * Uma pessoa pode ter mais de um perfil.
+   *
+   * Na Salomé isso é a regra, não a exceção: quem lança a compra da frota muitas vezes é
+   * a mesma pessoa que confere o caixa. Obrigar duas contas para a mesma pessoa é o tipo
+   * de burocracia que faz todo mundo compartilhar senha — e aí o log deixa de valer.
+   *
+   * O campo PERFIL_ID aceita vários, separados por ponto e vírgula: SOLICITANTE;FINANCEIRO.
+   */
+  function perfisDe(x) {
+    return String((x && x.perfilId !== undefined ? x.perfilId : x) || '')
+      .split(';')
+      .map(function (p) { return p.trim().toUpperCase(); })
+      .filter(String);
+  }
+
+  /** Escopo mais largo vence: quem enxerga tudo por um perfil não passa a enxergar menos por outro. */
+  const PESO_ESCOPO = { PROPRIO: 1, FILIAL: 2, TODAS: 3 };
+
+  /**
+   * A permissão de quem tem vários perfis é a UNIÃO deles, não a interseção.
+   *
+   * O contrário seria absurdo: acumular o perfil de Financeiro tiraria da pessoa o direito
+   * de abrir a própria solicitação, porque Financeiro sozinho não inclui. Perfil se soma.
+   *
+   * Cada bandeira é SIM se qualquer perfil disser SIM; o limite de alçada é o MAIOR; o
+   * escopo é o mais largo. Quem quiser restringir alguém tira o perfil, não acumula.
+   */
   function mapa(perfilId) {
-    const linhas = Repo.listar('PERMISSOES', function (p) { return p.PERFIL_ID === perfilId; }, true);
+    const perfis = perfisDe(perfilId);
+    if (!perfis.length) return {};
+
+    const linhas = Repo.listar('PERMISSOES', function (p) {
+      return perfis.indexOf(String(p.PERFIL_ID).toUpperCase()) >= 0;
+    }, true);
+
     const m = {};
-    linhas.forEach(function (p) { m[p.RECURSO] = p; });
+    const BANDEIRAS = ['VER', 'INCLUIR', 'ALTERAR', 'INATIVAR', 'APROVAR', 'EXPORTAR', 'IMPORTAR'];
+
+    linhas.forEach(function (p) {
+      const r = p.RECURSO;
+      if (!m[r]) { m[r] = Object.assign({}, p); return; }
+      BANDEIRAS.forEach(function (b) {
+        if (String(p[b]).toUpperCase() === 'SIM') m[r][b] = 'SIM';
+      });
+      if ((PESO_ESCOPO[p.ESCOPO] || 0) > (PESO_ESCOPO[m[r].ESCOPO] || 0)) m[r].ESCOPO = p.ESCOPO;
+      m[r].LIMITE_VALOR = Math.max(Number(m[r].LIMITE_VALOR || 0), Number(p.LIMITE_VALOR || 0));
+    });
     return m;
   }
 
@@ -54,20 +98,30 @@ const Perm = (function () {
    */
   function filtrarCampos(ses, recurso, atual, entrada) {
     const status = (atual && atual.STATUS) || 'RASCUNHO';
+    const perfis = perfisDe(ses);
     const regras = Repo.listar('PERMISSOES_CAMPO', function (r) {
-      return r.PERFIL_ID === ses.perfilId && r.RECURSO === recurso;
+      return perfis.indexOf(String(r.PERFIL_ID).toUpperCase()) >= 0 && r.RECURSO === recurso;
     }, true);
 
+    /**
+     * Dentro de um perfil, a regra mais específica vence. ENTRE perfis, basta um permitir.
+     *
+     * A ordem importa: resolver a especificidade primeiro e só depois somar os perfis é o
+     * que impede um "*" genérico de um perfil apagar um "NAO" específico de outro.
+     */
     function permitido(campo) {
-      let melhor = null, peso = -1;
-      regras.forEach(function (r) {
-        const cOk = (r.CAMPO === campo), cAny = (r.CAMPO === '*');
-        const sOk = (r.STATUS_REGISTRO === status), sAny = (r.STATUS_REGISTRO === '*');
-        if (!(cOk || cAny) || !(sOk || sAny)) return;
-        const w = (cOk ? 2 : 0) + (sOk ? 1 : 0);
-        if (w > peso) { peso = w; melhor = r; }
+      return perfis.some(function (perfil) {
+        let melhor = null, peso = -1;
+        regras.forEach(function (r) {
+          if (String(r.PERFIL_ID).toUpperCase() !== perfil) return;
+          const cOk = (r.CAMPO === campo), cAny = (r.CAMPO === '*');
+          const sOk = (r.STATUS_REGISTRO === status), sAny = (r.STATUS_REGISTRO === '*');
+          if (!(cOk || cAny) || !(sOk || sAny)) return;
+          const w = (cOk ? 2 : 0) + (sOk ? 1 : 0);
+          if (w > peso) { peso = w; melhor = r; }
+        });
+        return melhor ? String(melhor.PODE_EDITAR).toUpperCase() === 'SIM' : false;
       });
-      return melhor ? String(melhor.PODE_EDITAR).toUpperCase() === 'SIM' : false;
     }
 
     const saida = {};
@@ -93,6 +147,6 @@ const Perm = (function () {
 
   return {
     exigir: exigir, pode: pode, filtrarEscopo: filtrarEscopo, filtrarCampos: filtrarCampos,
-    limite: limite, podeAprovar: podeAprovar, resumo: resumo, mapa: mapa
+    limite: limite, podeAprovar: podeAprovar, resumo: resumo, mapa: mapa, perfisDe: perfisDe
   };
 })();

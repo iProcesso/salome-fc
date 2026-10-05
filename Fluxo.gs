@@ -39,8 +39,23 @@ const Fluxo = (function () {
     CAIXA:     ['anexo', 'rateio', 'placa'],
     APROVAR:   ['caixa'],
     AUTORIZAR: ['alcada'],
-    RECEBER:   ['pedido']
+    RECEBER:   ['capa', 'pedido']
   };
+
+  /**
+   * "Autorizar" é trabalho, não carimbo.
+   *
+   * Aprovar é dizer "pode comprar". Autorizar é emitir a capa, mandar ao fornecedor e
+   * anotar o número que ele devolve. São dois atos, duas pessoas possíveis, dois momentos
+   * — e dois identificadores que nada têm a ver um com o outro:
+   *
+   *   CHAVE_AUTORIZACAO   nossa. Nasce aqui, vai na capa, é o que o fornecedor recebe.
+   *   PEDIDO_FORNECEDOR   dele. Volta para nós e é o que amarra a nota fiscal depois.
+   *
+   * Até a v1.1 os dois dividiam o mesmo campo, e o número do fornecedor gravava por cima
+   * da nossa chave. Um campo, dois donos: o segundo apagava o primeiro, e junto ia embora
+   * a prova de qual autorização gerou aquela compra.
+   */
 
   const EXPLICA = {
     anexo:  'o orçamento anexado',
@@ -48,7 +63,8 @@ const Fluxo = (function () {
     placa:  'a placa do veículo',
     caixa:  'caixa na semana — hoje a recomendação é reprogramar',
     alcada: 'alçada suficiente para o valor',
-    pedido: 'o número do pedido ao fornecedor'
+    pedido: 'o número do pedido que o fornecedor devolveu',
+    capa:   'a capa de autorização emitida ao fornecedor'
   };
 
   /** Quem move para onde. É a mesma matriz de permissão do resto do app. */
@@ -58,6 +74,148 @@ const Fluxo = (function () {
     DIRETORIA:   ['VALIDAR', 'CAIXA', 'APROVAR', 'AUTORIZAR', 'RECEBER'],
     ADMIN:       []
   };
+
+  /**
+   * Emitir a capa ao fornecedor é trabalho de quem fala com ele — e quem fala com o
+   * fornecedor costuma ser quem pediu a compra, não quem liberou o dinheiro.
+   *
+   * Isso não afrouxa nada: o solicitante só chega aqui depois de a compra estar APROVADA,
+   * e aprovar continua sendo de quem tem alçada. Mandar a capa de algo já aprovado é
+   * execução, não decisão.
+   */
+  const AUTORIZA_PERFIL = ['SOLICITANTE', 'FINANCEIRO', 'DIRETORIA'];
+
+  /** A união do que os perfis da pessoa permitem — perfil se soma, nunca se subtrai. */
+  function movimentosDe(ses) {
+    const out = [];
+    Perm.perfisDe(ses).forEach(function (p) {
+      (MOVE_PERFIL[p] || []).forEach(function (e) { if (out.indexOf(e) < 0) out.push(e); });
+    });
+    return out;
+  }
+
+
+  /* ====================================================================== */
+  /*  AUTORIZAR — a capa que vai ao fornecedor                              */
+  /* ====================================================================== */
+
+  /** A fila da autorização: aprovado e ainda não foi ao fornecedor. */
+  function pendentesDeAutorizacao(d, ses) {
+    const forn = {};
+    Repo.listar('FORNECEDORES', null, true).forEach(function (f) { forn[f.FORNECEDOR_ID] = f; });
+
+    return Sol.listar({}, ses)
+      .filter(function (s) { return s.STATUS === 'APROVADO'; })
+      .map(function (s) {
+        const f = forn[s.FORNECEDOR_ID] || {};
+        return {
+          id: s.SOLICITACAO_ID,
+          fornecedor: f.RAZAO_SOCIAL || s.FORNECEDOR_ID,
+          fornecedorId: s.FORNECEDOR_ID,
+          email: f.EMAIL || '',
+          descricao: s.DESCRICAO,
+          valor: Number(s.VALOR_BRUTO || 0),
+          previsto: s.DATA_PREVISTA_PGTO,
+          condicao: s.CONDICAO_ID,
+          filial: s.FILIAL_EMISSAO,
+          chave: s.CHAVE_AUTORIZACAO || '',
+          pedido: s.PEDIDO_FORNECEDOR || '',
+          autorizadaEm: s.DATA_AUTORIZACAO || ''
+        };
+      });
+  }
+
+  /**
+   * Emite a autorização. Gera a chave, carimba quem e quando, e devolve o texto da capa.
+   *
+   * A chave é gerada UMA vez. Autorizar de novo devolve a mesma — reemitir a capa é
+   * comum (o e-mail se perdeu, o contato mudou), gerar chave nova não: seria dizer ao
+   * fornecedor que a autorização anterior não valia.
+   */
+  function autorizar(d, ses) {
+    const s = Repo.achar('SOLICITACOES', 'SOLICITACAO_ID', d.id);
+    if (!s) throw new Error('NAO_ENCONTRADO: solicitação ' + d.id + '.');
+    if (s.STATUS !== 'APROVADO') {
+      throw new Error('ESTADO_INVALIDO: só se autoriza o que foi aprovado. ' +
+                      d.id + ' está como ' + s.STATUS + '.');
+    }
+    const podeAutorizar = Perm.perfisDe(ses).some(function (p) { return AUTORIZA_PERFIL.indexOf(p) >= 0; });
+    if (!podeAutorizar) {
+      throw new Error('SEM_PERMISSAO: o perfil ' + (ses.perfilNome || ses.perfilId) +
+                      ' não emite autorização ao fornecedor.');
+    }
+
+    const nova = !String(s.CHAVE_AUTORIZACAO || '').trim();
+    if (nova) {
+      s.CHAVE_AUTORIZACAO = 'AUT-' + new Date().getFullYear() + '-' +
+                            Utilities.getUuid().substring(0, 6).toUpperCase();
+      s.DATA_AUTORIZACAO = new Date();
+      s.AUTORIZADO_POR = ses.id;
+      Repo.salvar('SOLICITACOES', s, ses, { forcar: true });
+      Log.ativ(ses, 'SOLICITACAO', 'AUTORIZAR', d.id,
+        [{ campo: 'CHAVE_AUTORIZACAO', antes: '', depois: s.CHAVE_AUTORIZACAO,
+           motivo: 'capa emitida ao fornecedor' }]);
+    }
+
+    return {
+      id: d.id, chave: s.CHAVE_AUTORIZACAO, reemissao: !nova,
+      capa: textoDaCapa(s),
+      mensagem: nova ? 'Autorização ' + s.CHAVE_AUTORIZACAO + ' emitida.'
+                     : 'Capa reemitida com a mesma chave ' + s.CHAVE_AUTORIZACAO + '.'
+    };
+  }
+
+  /**
+   * O texto da capa, pronto para colar no e-mail.
+   *
+   * Enquanto o PDF não existe (Files.gs), o processo não pode parar esperando o documento
+   * bonito. Texto que se copia hoje vale mais que anexo que chega mês que vem.
+   */
+  function textoDaCapa(s) {
+    const f = Repo.achar('FORNECEDORES', 'FORNECEDOR_ID', s.FORNECEDOR_ID) || {};
+    const fil = Repo.achar('FILIAIS', 'FILIAL_ID', s.FILIAL_EMISSAO) || {};
+    const d = function (x) {
+      return x ? Utilities.formatDate(new Date(x), 'America/Sao_Paulo', 'dd/MM/yyyy') : '—';
+    };
+    const brl = function (v) {
+      return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    };
+    return [
+      'AUTORIZAÇÃO DE COMPRA ' + s.CHAVE_AUTORIZACAO,
+      'Expresso Salomé — ' + (fil.NOME || s.FILIAL_EMISSAO),
+      '',
+      'Fornecedor: ' + (f.RAZAO_SOCIAL || s.FORNECEDOR_ID),
+      'Item: ' + (s.DESCRICAO || '—'),
+      'Valor autorizado: ' + brl(s.VALOR_BRUTO),
+      'Condição de pagamento: ' + (s.CONDICAO_ID || '—'),
+      'Previsão de pagamento: ' + d(s.DATA_PREVISTA_PGTO),
+      '',
+      'Esta autorização é a condição para faturar. A nota fiscal deve citar o número',
+      s.CHAVE_AUTORIZACAO + ' e o valor não pode exceder o autorizado acima.',
+      '',
+      'Responda este e-mail com o número do seu pedido.'
+    ].join('\n');
+  }
+
+  /** O número que o fornecedor devolveu. É ele que amarra a nota fiscal. */
+  function registrarPedido(d, ses) {
+    const s = Repo.achar('SOLICITACOES', 'SOLICITACAO_ID', d.id);
+    if (!s) throw new Error('NAO_ENCONTRADO: solicitação ' + d.id + '.');
+    if (!String(s.CHAVE_AUTORIZACAO || '').trim()) {
+      throw new Error('SEM_AUTORIZACAO: emita a capa antes de registrar o pedido do fornecedor.');
+    }
+    const num = String(d.pedido || '').trim();
+    if (!num) throw new Error('PEDIDO_OBRIGATORIO: informe o número que o fornecedor devolveu.');
+
+    const antes = s.PEDIDO_FORNECEDOR || '';
+    s.PEDIDO_FORNECEDOR = num;
+    const r = Repo.salvar('SOLICITACOES', s, ses, { forcar: true });
+    Log.ativ(ses, 'SOLICITACAO', 'PEDIDO', d.id,
+      [{ campo: 'PEDIDO_FORNECEDOR', antes: antes, depois: num, motivo: 'informado pelo fornecedor' }]);
+
+    return { id: d.id, pedido: num, versao: r.registro.VERSAO,
+             mensagem: 'Pedido ' + num + ' registrado. A nota fiscal já pode ser recebida.' };
+  }
 
   /* ====================================================================== */
 
@@ -117,7 +275,8 @@ const Fluxo = (function () {
       placa:  exigePlaca ? !!String(s.PLACA || '').trim() : true,
       caixa:  s.RECOMENDACAO !== 'REPROGRAMAR',
       alcada: Perm.podeAprovar(ses, Number(s.VALOR_BRUTO || 0)),
-      pedido: !!String(s.CHAVE_AUTORIZACAO || '').trim()
+      pedido: !!String(s.PEDIDO_FORNECEDOR || '').trim(),
+      capa:   !!String(s.CHAVE_AUTORIZACAO || '').trim()
     };
   }
 
@@ -145,16 +304,17 @@ const Fluxo = (function () {
                       ROTULO[ETAPAS[iDe + 1]] + '".');
     }
 
-    const podeMover = MOVE_PERFIL[ses.perfilId] || [];
+    const podeMover = movimentosDe(ses);
     if (iPara > iDe && podeMover.indexOf(alvo) < 0) {
       throw new Error('SEM_PERMISSAO: o perfil ' + (ses.perfilNome || ses.perfilId) + ' não move card para "' + ROTULO[alvo] + '".');
     }
-    if (iPara < iDe && ses.perfilId === 'SOLICITANTE') {
+    if (iPara < iDe && podeMover.indexOf('APROVAR') < 0) {
       throw new Error('SEM_PERMISSAO: só Financeiro e Diretoria devolvem card para uma etapa anterior.');
     }
 
-    // O número do pedido é o único pré-requisito que se resolve no próprio movimento.
-    if (alvo === 'RECEBER' && d.pedido) s.CHAVE_AUTORIZACAO = String(d.pedido).trim();
+    // O número do pedido é o único pré-requisito que se resolve no próprio movimento —
+    // e vai para o campo DELE, nunca por cima da nossa chave de autorização.
+    if (alvo === 'RECEBER' && d.pedido) s.PEDIDO_FORNECEDOR = String(d.pedido).trim();
 
     if (iPara > iDe) {
       const pre = prerequisitos(s, ses);
@@ -207,7 +367,10 @@ const Fluxo = (function () {
 
   return {
     ETAPAS: ETAPAS, ROTULO: ROTULO, PARA_STATUS: PARA_STATUS, DE_STATUS: DE_STATUS,
+    movimentosDe: movimentosDe, AUTORIZA_PERFIL: AUTORIZA_PERFIL,
     quadro: quadro, mover: mover, simularMovimento: simularMovimento,
-    prerequisitos: prerequisitos
+    prerequisitos: prerequisitos,
+    pendentesDeAutorizacao: pendentesDeAutorizacao, autorizar: autorizar,
+    registrarPedido: registrarPedido, textoDaCapa: textoDaCapa
   };
 })();

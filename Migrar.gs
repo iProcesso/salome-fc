@@ -46,6 +46,11 @@ function repararCarga() {
   return Migrar.repararCarga();
 }
 
+/** Muda o divisor da alçada: até este valor o Financeiro decide, acima é Diretoria. */
+function ajustarAlcadas() {
+  return Migrar.ajustarAlcadas(5000);
+}
+
 const Migrar = (function () {
 
   function planilha(pl) {
@@ -146,6 +151,8 @@ const Migrar = (function () {
 
     r.parametros  = completarParametros();
     r.permissoes  = completarPermissoes();
+    // Depois das colunas: completarLogins() precisa da coluna LOGIN já criada.
+    r.logins      = completarLogins();
     r.filiais     = completarFiliais();
     r.areas       = completarAreas();
 
@@ -160,6 +167,8 @@ const Migrar = (function () {
       r.colunasAdicionadas.map(function (x) { return '     ' + x; }).join('\n'),
       '  parâmetros novos ..... ' + r.parametros,
       '  permissões novas ..... ' + r.permissoes,
+      '  logins postos ........ ' + (r.logins || []).filter(function (x) { return x.indexOf('→') > 0; }).length,
+      (r.logins || []).join('\n'),
       '  filiais .............. ' + r.filiais,
       '  áreas ................ ' + r.areas,
       '',
@@ -199,9 +208,11 @@ const Migrar = (function () {
     if (novos.length) escrever('PARAMETROS', novos.map(function (p) {
       return { CHAVE: p[0], VALOR: p[1], TIPO: p[2], DESCRICAO: p[3], PERFIL_QUE_ALTERA: p[4] };
     }));
-    // VERSAO_APP existe desde o começo: aqui é atualização, não inserção.
+    // VERSAO_APP existe desde o começo: aqui é atualização, não inserção. O valor vem da
+    // constante VERSAO, em Cfg.gs — escrever o número à mão aqui foi o que fez toda
+    // migração rebaixar o rodapé para uma versão antiga.
     const v = Repo.achar('PARAMETROS', 'CHAVE', 'VERSAO_APP');
-    if (v && String(v.VALOR) !== '1.0.4') { v.VALOR = '1.0.4'; Repo.salvar('PARAMETROS', v, null, { forcar: true }); }
+    if (v && String(v.VALOR) !== VERSAO) { v.VALOR = VERSAO; Repo.salvar('PARAMETROS', v, null, { forcar: true }); }
     return novos.length;
   }
 
@@ -381,6 +392,112 @@ const Migrar = (function () {
     return txt;
   }
 
+
+  /**
+   * Muda o divisor da alçada numa instalação que já existe.
+   *
+   * A regra é do Kleber: até R$ 5.000 o Financeiro decide sozinho, acima é Diretoria.
+   * O valor vive em DOIS lugares — o LIMITE_VALOR da linha SOLICITACAO em PERMISSOES, que
+   * é o que o servidor confere na hora de aprovar, e a aba ALCADAS, que é o que a tela
+   * mostra. Os dois contando histórias diferentes é pior que qualquer um dos dois errado:
+   * a tela diria "pode" e o servidor recusaria, sem ninguém entender por quê.
+   *
+   * Esta é a única função do sistema que sobrescreve cadastro existente, e por isso ela
+   * relata cada linha que mexeu.
+   */
+  function ajustarAlcadas(teto) {
+    const novo = Number(teto || 5000);
+    const L = ['Divisor da alçada em R$ ' + novo.toLocaleString('pt-BR') + ':', ''];
+
+    // 1. o limite que o servidor confere
+    const ctx = Repo.abrir('PERMISSOES');
+    const iP = ctx.idx.PERFIL_ID, iR = ctx.idx.RECURSO, iL = ctx.idx.LIMITE_VALOR;
+    let mexidas = 0;
+    for (let i = 1; i < ctx.valores.length; i++) {
+      if (String(ctx.valores[i][iP]).toUpperCase() !== 'FINANCEIRO') continue;
+      if (String(ctx.valores[i][iR]).toUpperCase() !== 'SOLICITACAO') continue;
+      const antes = Number(ctx.valores[i][iL] || 0);
+      if (antes === novo) { L.push('  PERMISSOES: já estava em ' + novo); break; }
+      ctx.sheet.getRange(i + 1, iL + 1).setValue(novo);
+      L.push('  PERMISSOES: limite do Financeiro ' + antes + ' → ' + novo);
+      mexidas++;
+      break;
+    }
+    Repo.invalidar('PERMISSOES');
+
+    // 2. as faixas que a tela mostra
+    const alc = Repo.abrir('ALCADAS');
+    const iLim = alc.idx.LIMITE_ATE, iPerf = alc.idx.PERFIL_APROVADOR, iNome = alc.idx.NOME;
+    for (let i = 1; i < alc.valores.length; i++) {
+      const lim = Number(alc.valores[i][iLim] || 0);
+      const perf = String(alc.valores[i][iPerf] || '').toUpperCase();
+      // Faixa de Financeiro acima do novo teto passa a ser de Diretoria: é exatamente a
+      // regra nova, e deixá-la como estava seria manter a antiga viva na tela.
+      if (perf === 'FINANCEIRO' && lim > novo) {
+        alc.sheet.getRange(i + 1, iPerf + 1).setValue('DIRETORIA');
+        L.push('  ALCADAS: "' + alc.valores[i][iNome] + '" (até ' + lim + ') passa a ser da Diretoria');
+        mexidas++;
+      }
+    }
+    Repo.invalidar('ALCADAS');
+
+    L.push('');
+    L.push(mexidas ? mexidas + ' linha(s) ajustada(s). Rode recarregarCadastros() para o app ver.'
+                   : 'Nada a ajustar — já estava na regra nova.');
+    const txt = L.join('\n');
+    console.log(txt);
+    return txt;
+  }
+
+
+  /**
+   * Dá um LOGIN a quem foi cadastrado quando se entrava por e-mail.
+   *
+   * Sem isso, a troca para login por usuário tranca todo mundo para fora no mesmo
+   * instante — e não há como recuperar pela tela, porque a tela é justamente a que pede
+   * o login. A migração roda ANTES de a regra nova valer, e é por isso que ela existe.
+   *
+   * O login sai da parte do e-mail antes do @, que é o que a pessoa já reconhece como
+   * seu. Se dois e-mails derem o mesmo login (fulano@salome vs fulano@iprocesso), o
+   * segundo ganha um sufixo — colidir em silêncio seria dar a chave de uma pessoa a outra.
+   */
+  function completarLogins() {
+    const ctx = Repo.abrir('USUARIOS');
+    const iLog = ctx.idx.LOGIN, iMail = ctx.idx.EMAIL, iNome = ctx.idx.NOME;
+    if (iLog === undefined) return ['  USUARIOS: coluna LOGIN não existe — rode migrarEstrutura() antes.'];
+
+    const usados = {};
+    for (let i = 1; i < ctx.valores.length; i++) {
+      const j = Auth.normalizarLogin(ctx.valores[i][iLog]);
+      if (j) usados[j] = true;
+    }
+
+    const L = [];
+    let postos = 0;
+    for (let i = 1; i < ctx.valores.length; i++) {
+      const linha = ctx.valores[i];
+      if (linha.join('') === '') continue;
+      if (Auth.normalizarLogin(linha[iLog])) continue;      // já tem
+
+      const mail = String(linha[iMail] || '');
+      let base = Auth.normalizarLogin(mail.split('@')[0]);
+      if (!base) base = Auth.normalizarLogin(String(linha[iNome] || '').split(/\s+/)[0]);
+      if (!base) base = 'usuario' + i;
+
+      let cand = base, n = 2;
+      while (usados[cand]) { cand = base + n; n++; }
+      usados[cand] = true;
+
+      ctx.sheet.getRange(i + 1, iLog + 1).setValue(cand);
+      L.push('  ' + (linha[iNome] || '(sem nome)') + ' → login "' + cand + '"' +
+             (cand === base ? '' : '   (o login "' + base + '" já era de outra pessoa)'));
+      postos++;
+    }
+    Repo.invalidar('USUARIOS');
+    if (!postos) L.push('  todos os usuários já tinham login');
+    return L;
+  }
+
   /* ---------- semente mínima para o formulário abrir ---------- */
 
   /**
@@ -434,5 +551,6 @@ const Migrar = (function () {
 
   return { tudo: tudo, conferir: conferir, escrever: escrever,
            conferirCarga: conferirCarga, repararCarga: repararCarga,
-           corrigirCodigos: corrigirCodigos };
+           corrigirCodigos: corrigirCodigos, ajustarAlcadas: ajustarAlcadas,
+           completarLogins: completarLogins };
 })();

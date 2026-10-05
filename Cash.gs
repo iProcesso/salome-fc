@@ -110,6 +110,109 @@ const Cash = (function () {
     };
   }
 
+
+  /* ====================================================================== */
+
+  /**
+   * A composição EXATA de uma célula do fluxo de caixa: linha × coluna.
+   *
+   * Por que isto mora no servidor e não na tela. O valor de uma célula não é a soma dos
+   * valores brutos das solicitações daquela semana — `normalizar()` escolhe, para cada
+   * uma, a data e o valor que valem: quem já foi pago entra pela data e pelo valor do
+   * pagamento; quem tem título entra pelo valor comprometido; o resto entra pelo bruto.
+   *
+   * Refazer essa conta no navegador seria manter a mesma regra em dois lugares, e no dia
+   * em que uma mudasse o detalhe passaria a discordar do total — que é o defeito mais
+   * caro de um relatório financeiro, porque tira a confiança no número inteiro.
+   *
+   * Aqui é a MESMA função que soma a célula e lista o que a compõe. Bater é consequência,
+   * não coincidência: o `confere` no fim prova isso a cada chamada.
+   */
+  function detalhe(d, ses) {
+    const f = fluxo({ semanas: d.semanas, inicio: d.inicio });
+    const i = f.semanas.map(function (s) { return s.rotulo; }).indexOf(d.coluna);
+    if (i < 0) throw new Error('SEMANA_DESCONHECIDA: ' + d.coluna + '.');
+    const sem = f.semanas[i];
+
+    const contas = {};
+    Repo.listar('PLANO_CONTAS').forEach(function (c) { contas[c.CODIGO] = c; });
+    const forn = {};
+    Repo.listar('FORNECEDORES', null, true).forEach(function (x) { forn[x.FORNECEDOR_ID] = x; });
+
+    const naSemana = Repo.listar('SOLICITACOES', null, true)
+      .map(function (s) { return Object.assign({}, s, normalizar(s)); })
+      .filter(function (s) {
+        return s.estagio !== 'EXCLUIDO' && s.data && s.data >= sem.inicio && s.data <= sem.fim;
+      });
+
+    const linha = String(d.linha || '');
+    let filtradas, explica;
+
+    if (d.tipo === 'tres') {
+      const alvo = linha.toUpperCase();
+      filtradas = naSemana.filter(function (s) { return s.estagio === alvo; });
+      explica = 'Solicitações no estágio ' + alvo + ' com data nesta semana.';
+
+    } else if (d.tipo === 'totalSaidas') {
+      filtradas = naSemana;
+      explica = 'Todas as saídas previstas para a semana, em qualquer estágio.';
+
+    } else if (d.tipo === 'entrada') {
+      // Entradas vêm de TITULOS_RECEBER, que só será alimentado pela integração do ERP.
+      return { linha: linha, coluna: d.coluna, tipo: d.tipo, itens: [], total: 0, confere: true,
+               explica: 'As entradas vêm do CT-e e da baixa no ERP. A integração é da Onda 2 — ' +
+                        'por isso esta linha ainda não tem composição para mostrar.' };
+
+    } else {
+      filtradas = naSemana.filter(function (s) {
+        const c = contas[s.CONTA_CODIGO];
+        return (c ? c.CLASSIFICACAO : '(sem classificação)') === linha;
+      });
+      explica = 'Solicitações classificadas em "' + linha + '" com data nesta semana.';
+    }
+
+    const itens = filtradas.map(function (s) {
+      const c = contas[s.CONTA_CODIGO] || {};
+      return {
+        id: s.SOLICITACAO_ID,
+        fornecedor: (forn[s.FORNECEDOR_ID] || {}).RAZAO_SOCIAL || s.FORNECEDOR_ID,
+        descricao: s.DESCRICAO,
+        conta: s.CONTA_CODIGO,
+        classificacao: c.CLASSIFICACAO || '(sem classificação)',
+        filial: s.FILIAL_EMISSAO,
+        area: s.AREA_ID,
+        status: s.STATUS,
+        estagio: s.estagio,
+        // Qual data e qual valor entraram na conta — e por quê. É o que explica a
+        // diferença entre o valor bruto da solicitação e o que a célula somou.
+        data: Utilities.formatDate(s.data, 'America/Sao_Paulo', 'dd/MM/yyyy'),
+        origemData: s.estagio === 'REALIZADO' ? 'data do pagamento' : 'previsão de pagamento',
+        valor: s.valor,
+        valorBruto: Number(s.VALOR_BRUTO || 0),
+        origemValor: s.estagio === 'REALIZADO' ? 'valor pago'
+                    : (s.VALOR_COMPROMETIDO ? 'valor comprometido na NF' : 'valor bruto solicitado')
+      };
+    }).sort(function (a, b) { return b.valor - a.valor; });
+
+    const total = itens.reduce(function (a, x) { return a + x.valor; }, 0);
+
+    // A célula que a tela desenhou, recalculada aqui. Se discordar, quem avisa é o
+    // relatório, não o usuário seis meses depois.
+    let daMatriz = null;
+    if (d.tipo === 'tres') daMatriz = f.tresNumeros[linha.toUpperCase()][i];
+    else if (d.tipo === 'totalSaidas') daMatriz = f.totalSaidas[i];
+    else if (f.saidas[linha]) daMatriz = f.saidas[linha][i];
+
+    return {
+      linha: linha, coluna: d.coluna, tipo: d.tipo || 'saida',
+      periodo: Utilities.formatDate(sem.inicio, 'America/Sao_Paulo', 'dd/MM') + ' a ' +
+               Utilities.formatDate(sem.fim, 'America/Sao_Paulo', 'dd/MM'),
+      explica: explica,
+      itens: itens, total: total, daMatriz: daMatriz,
+      confere: daMatriz === null || Math.abs(daMatriz - total) < 0.005
+    };
+  }
+
   /** Usado pela simulação e pelo painel de aprovação: quanto sobra na semana daquela data. */
   function saldoNaData(data) {
     const f = fluxo({});
@@ -122,5 +225,6 @@ const Cash = (function () {
     return { semana: null, saldo: null, situacao: null };
   }
 
-  return { fluxo: fluxo, saldoNaData: saldoNaData, semanas: semanas, normalizar: normalizar };
+  return { fluxo: fluxo, detalhe: detalhe, saldoNaData: saldoNaData,
+           semanas: semanas, normalizar: normalizar };
 })();

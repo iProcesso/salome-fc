@@ -5,6 +5,18 @@
  *  - ScriptProperties: segredos e IDs de infraestrutura. Nunca vão para a planilha nem para o Git.
  *  - Aba PARAMETROS:   regras de negócio que o usuário pode mudar pela tela.
  */
+/**
+ * A versão do sistema, num lugar só.
+ *
+ * Ela estava escrita à mão em dois arquivos, e o Migrar tinha '1.0.4' fixo — de modo que
+ * toda migração rebaixava o rodapé para uma versão de três semanas atrás. Número de versão
+ * que mente é pior que não ter: some a única forma de saber, olhando a tela, qual código
+ * está de fato no ar.
+ *
+ * Mudou de versão? Mude AQUI, e só aqui.
+ */
+const VERSAO = '1.3.1';
+
 const Cfg = (function () {
 
   const SP = PropertiesService.getScriptProperties;
