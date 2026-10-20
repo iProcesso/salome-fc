@@ -1,3 +1,9 @@
+## Versão 11.06 — 2026-10-20 · Release
+
+Consolida 11.05 a 11.05.3: frete contratado com rotas, compra para outra unidade, data de pagamento pela entrega,
+parcelas de cartão e boleto, Administrador com acesso a lançamento e a todas as etapas, e aprovação em lote.
+Para ativar no Apps Script, seguir os passos de cada versão acima (Schema, Rules, Sol, Setup, Fluxo, Code, Vista, Seq).
+
 ## Versão 11.05.3 — 2026-10-20 · Administrador executa todas as etapas
 
 - ADMIN passa a aprovar, autorizar e mover cards em todas as etapas (validar, caixa, aprovar, autorizar, receber),
