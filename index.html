@@ -556,7 +556,13 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
         <input id="lgMail" type="text" autocomplete="username" autocapitalize="none"
                spellcheck="false" placeholder="seu usuário" required autofocus></div>
       <div class="f" style="margin-top:12px"><label for="lgSenha">Senha</label>
-        <input id="lgSenha" type="password" autocomplete="current-password" required></div>
+        <div style="position:relative">
+          <input id="lgSenha" type="password" autocomplete="current-password" required
+                 style="padding-right:44px">
+          <button type="button" id="lgVer" aria-label="Mostrar ou ocultar senha"
+                  onclick="(function(b){var i=document.getElementById('lgSenha');var m=i.type==='password';i.type=m?'text':'password';b.textContent=m?'Ocultar':'Ver';})(this)"
+                  style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:var(--navy-2,#8ACCF0);font-size:12px;font-weight:600;cursor:pointer;padding:4px 6px">Ver</button>
+        </div></div>
       <div id="lgErro" class="verdict cr" style="display:none;margin-top:14px"></div>
       <button class="btn pri" id="lgBtn" type="submit"
         style="justify-content:center;padding:10px;width:100%;margin-top:16px">Entrar</button>
