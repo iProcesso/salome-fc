@@ -1,3 +1,11 @@
+## Protótipo (index.html) 11.0.1 — 2026-10-20 · Correção: Fluxo de caixa no menu
+
+- O item **Fluxo de caixa** não aparecia no menu de usuários reais: o mapa de telas de
+  `normalizarPermissoes` não tinha essa tela. Agora ele entra no menu para quem vê todas as
+  solicitações (escopo diferente de PROPRIO). Solicitante continua sem o item.
+- app.html regenerado.
+- **Para ativar no Apps Script:** o HTML que o app serve precisa ser atualizado (ou usar UI_SOURCE = GITHUB).
+
 ## Protótipo (index.html) 11.0 — 2026-10-20 · Visão em faixas no Fluxo
 
 - Botão **Visão em faixas** no Fluxo do processo: uma faixa por card, com as seis etapas lado a lado.
