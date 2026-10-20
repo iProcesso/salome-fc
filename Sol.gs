@@ -51,6 +51,7 @@ const Sol = (function () {
     campo('FORMA_ID',          d.formaId);
     campo('JUSTIFICATIVA_PRAZO', d.justificativa);
     campo('EMERGENCIAL',       d.emergencial ? 'SIM' : undefined);
+    if (d.dataEntrega) reg.DATA_ENTREGA = new Date(d.dataEntrega + 'T12:00:00');
     campo('TIPO_FRETE',        d.tipoFrete);
     campo('ROTA_ID',           d.rotaId);
     campo('UNIDADE_COMPRA_ID', d.unidadeCompra);
@@ -90,10 +91,13 @@ const Sol = (function () {
       reg.UNIDADE_COMPRA_ID = reg.FILIAL_EMISSAO;
     }
 
+    // Pagamento automático sai da entrega + condição. Manual (ou sem entrega, legado) mantém o valor enviado.
+    const manual = !!(d.pagamentoManual || !reg.DATA_ENTREGA);
     const sim = Rules.simular({
       categoriaId: reg.CATEGORIA_ID, fornecedorId: reg.FORNECEDOR_ID,
       centroCusto: reg.CENTRO_CUSTO, condicaoId: reg.CONDICAO_ID, valorBruto: reg.VALOR_BRUTO,
-      dataPrevista: reg.DATA_PREVISTA_PGTO, dataSolicitacao: reg.DATA_SOLICITACAO,
+      dataEntrega: reg.DATA_ENTREGA, dataSolicitacao: reg.DATA_SOLICITACAO,
+      dataPrevista: manual ? reg.DATA_PREVISTA_PGTO : undefined,
       emergencial: reg.EMERGENCIAL === 'SIM'
     }, ses);
 
@@ -103,7 +107,9 @@ const Sol = (function () {
       throw new Error('PLACA_OBRIGATORIA: "' + sim.categoriaNome +
         '" é gasto de frota. Sem placa não há como apurar custo por veículo.');
     }
+    if (!manual) reg.DATA_PREVISTA_PGTO = sim.dataPrevista;
     if (!reg.DATA_PREVISTA_PGTO) reg.DATA_PREVISTA_PGTO = sim.dataSugerida;
+    reg.NUM_PARCELAS = Rules.numeroParcelas(reg.FORMA_ID, reg.CONDICAO_ID, d.numParcelas);
     if (!reg.CONDICAO_ID) reg.CONDICAO_ID = sim.condicaoSugerida;
     if (!reg.CENTRO_CUSTO) reg.CENTRO_CUSTO = sim.centroSugerido;
     reg.RETENCAO_REGRA     = sim.retencao ? sim.retencao.regra : '';

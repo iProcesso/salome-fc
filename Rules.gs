@@ -82,7 +82,9 @@ const Rules = (function () {
     }
 
     const hoje = d.dataSolicitacao ? new Date(d.dataSolicitacao) : new Date();
-    const sugerida = dataPorCondicao(d.condicaoId || conta.CONDICAO_PADRAO, hoje);
+    // A data de pagamento sai da data prevista de RECEBIMENTO (entrega), quando ela existe.
+    const base = d.dataEntrega ? new Date(d.dataEntrega) : hoje;
+    const sugerida = dataPorCondicao(d.condicaoId || conta.CONDICAO_PADRAO, base);
     const prevista = d.dataPrevista ? new Date(d.dataPrevista) : sugerida;
 
     // Quem manda no prazo é a categoria; a conta só entra se a categoria não disser nada.
@@ -186,7 +188,29 @@ const Rules = (function () {
     return { porFilial: porFilial, porCentro: porCentro };
   }
 
+  /** Número de parcelas: cartão e boleto pedem as vezes; as demais formas seguem a condição. */
+  function numeroParcelas(formaId, condicaoId, vezes) {
+    if (formaId === 'CARTAO' || formaId === 'BOLETO') {
+      return Math.max(1, Math.min(12, Number(vezes) || 1));
+    }
+    const c = Repo.achar('CONDICOES_PGTO', 'CONDICAO_ID', condicaoId);
+    return c ? Math.max(1, Number(c.PARCELAS) || 1) : 1;
+  }
+
+  /** Datas das parcelas: a 1ª pela condição a partir da entrega; as seguintes de 30 em 30 dias, em dia útil. */
+  function cronograma(condicaoId, baseEntrega, n) {
+    const primeira = dataPorCondicao(condicaoId, baseEntrega);
+    const datas = [];
+    for (let k = 0; k < n; k++) {
+      const x = new Date(primeira);
+      x.setDate(x.getDate() + 30 * k);
+      datas.push(proximoUtil(x));
+    }
+    return datas;
+  }
+
   return {
+    numeroParcelas: numeroParcelas, cronograma: cronograma, feriados: feriados,
     dataPorCondicao: dataPorCondicao, alcadaPara: alcadaPara, simular: simular,
     validarRateio: validarRateio, totaisRateio: totaisRateio,
     proximoUtil: proximoUtil, diasEntre: diasEntre

@@ -267,6 +267,7 @@ function bootstrap(ses) {
     parametros: {
       saldoMinimo: Cfg.param('SALDO_MINIMO_SEGURANCA', 0),
       horizonte: Cfg.param('HORIZONTE_SEMANAS', 12),
+      feriados: Rules.feriados(),
       // SIM: o solicitante pode pedir compra para outra unidade e a solicitação mostra qual.
       permiteOutraUnidade: Cfg.param('PERMITE_COMPRA_OUTRA_UNIDADE', 'NAO') === 'SIM'
     },

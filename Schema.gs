@@ -413,7 +413,9 @@ const SCHEMA = {
       "MOTIVO_INATIVACAO",
       "TIPO_FRETE",
       "ROTA_ID",
-      "UNIDADE_COMPRA_ID"
+      "UNIDADE_COMPRA_ID",
+      "DATA_ENTREGA",
+      "NUM_PARCELAS"
     ]
   },
   "ROTAS": {

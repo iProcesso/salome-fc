@@ -1,3 +1,17 @@
+## Versão 11.05 — 2026-10-20 · Datas pela entrega e parcelas
+
+- **Data prevista de recebimento** (serviço, produto ou compra) é obrigatória. A **data de pagamento**
+  sai dela pela condição de pagamento, pulando fins de semana e feriados. Continua editável; ao mexer
+  à mão, o sistema para de recalcular.
+- **Cartão e boleto** pedem "Em quantas vezes" (1x a 12x). A prévia mostra cada parcela, o valor e as datas
+  (uma a cada 30 dias, a partir da condição). A solicitação grava o número de parcelas.
+- Condição sem o campo escolhido usa a padrão da conta da categoria, como no servidor.
+- Cartão do quadro e detalhe mostram "Nx" e a data de recebimento.
+- **Para ativar no Apps Script:** colar Schema.gs, Rules.gs, Sol.gs, Code.gs e Vista.gs; na aba SOLICITACOES,
+  acrescentar as colunas DATA_ENTREGA e NUM_PARCELAS no fim.
+- **Pendente:** só o número de parcelas é gravado; as datas de cada parcela são prévia, não lançamentos.
+  A condição "30/60 dias" (PARCELAS = 2) usa 30 e 60 dias na prévia; confirmar a regra com o financeiro.
+
 ## Versão 11.04 — 2026-10-20 · Frete contratado, rotas e compra para outra unidade
 
 - **Frete contratado (CA-FRE)** pede o tipo: **Transferência** (escolhe a rota origem → destino; um
