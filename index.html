@@ -1,43 +1,2802 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<base target="_top">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FC Salomé · Apontamento Financeiro de Compras</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>FC Salomé · Protótipo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
-  :root { color-scheme: light dark; }
-  body {
-    margin: 0; min-height: 100vh; display: grid; place-items: center;
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    background: #EEF1F5; color: #141C26;
-  }
-  main {
-    background: #FFFFFF; border: 1px solid #D8DEE7; border-radius: 10px;
-    padding: 28px 24px; width: min(380px, calc(100vw - 32px)); text-align: center;
-    box-shadow: 0 4px 16px -6px rgba(20,28,38,.22);
-  }
-  h1 { font-size: 18px; margin: 0 0 6px; }
-  p { font-size: 14px; color: #48566A; margin: 0 0 20px; line-height: 1.5; }
-  a.btn {
-    display: block; background: #015180; color: #FFFFFF; text-decoration: none;
-    border-radius: 6px; padding: 11px 14px; font-weight: 600; font-size: 15px;
-  }
-  a.btn:hover { filter: brightness(1.08); }
-  small { display: block; margin-top: 16px; color: #7A8798; font-size: 12px; }
-  @media (prefers-color-scheme: dark) {
-    body { background: #0C1219; color: #E8EDF3; }
-    main { background: #141C26; border-color: #28323F; }
-    p { color: #AFBBC9; }
-    small { color: #7E8C9C; }
-  }
+:root{
+  --paper:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --surface-3:#E7ECF2;
+  --ink:#141C26; --ink-2:#48566A; --ink-3:#7A8798;
+  --line:#D8DEE7; --line-2:#C2CAD6;
+  /* Paleta iProcesso — tirada do próprio logo:
+     petróleo #015180 · azul #1F91D1 · verde #2A942B · âmbar #E0AA08.
+     O vermelho da Salomé (#D2010B) fica FORA da interface: aqui vermelho já
+     significa atraso e erro, e misturar os dois atrapalha a leitura. Ele
+     aparece só no logo e numa marca fina de acento. */
+  --navy:#015180; --navy-2:#1F91D1; --navy-soft:#DCEDF7;
+  --topbar:#003A5E; --topbar-2:#00567F; --topbar-ink:#D7E7F2; --topbar-line:#0E6089;
+  --ok:#227A33; --ok-soft:#DFF0DF; --warn:#8A6508; --warn-soft:#FAEDCE;
+  --crit:#A3261C; --crit-soft:#F8DFDC; --info:#12688F; --info-soft:#DCEDF7;
+  --salome:#D2010B;
+  --sh-1:0 1px 2px rgba(20,28,38,.07); --sh-2:0 4px 16px -6px rgba(20,28,38,.22);
+  --sh-3:0 18px 48px -18px rgba(20,28,38,.42);
+  --rail:248px; --rail-min:60px; --top:58px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0C1219; --surface:#141C26; --surface-2:#1A2431; --surface-3:#22303F;
+  --ink:#E8EDF3; --ink-2:#AFBBC9; --ink-3:#7E8C9C;
+  --line:#28323F; --line-2:#3A4757;
+  --navy:#5CB4E4; --navy-2:#8ACCF0; --navy-soft:#0E2634;
+  --topbar:#01293F; --topbar-2:#013F5E; --topbar-ink:#CFE4F1; --topbar-line:#0A4664;
+  --ok:#6BC069; --ok-soft:#13250F; --warn:#E0B44A; --warn-soft:#2A2011;
+  --crit:#E2897E; --crit-soft:#2C1714; --info:#6FC0E0; --info-soft:#0E2634;
+  --salome:#F0564F;
+  --sh-1:0 1px 2px rgba(0,0,0,.5); --sh-2:0 4px 16px -6px rgba(0,0,0,.7);
+  --sh-3:0 18px 48px -18px rgba(0,0,0,.85);
+}}
+:root[data-theme="dark"]{
+  --paper:#0C1219; --surface:#141C26; --surface-2:#1A2431; --surface-3:#22303F;
+  --ink:#E8EDF3; --ink-2:#AFBBC9; --ink-3:#7E8C9C;
+  --line:#28323F; --line-2:#3A4757;
+  --navy:#5CB4E4; --navy-2:#8ACCF0; --navy-soft:#0E2634;
+  --topbar:#01293F; --topbar-2:#013F5E; --topbar-ink:#CFE4F1; --topbar-line:#0A4664;
+  --ok:#6BC069; --ok-soft:#13250F; --warn:#E0B44A; --warn-soft:#2A2011;
+  --crit:#E2897E; --crit-soft:#2C1714; --info:#6FC0E0; --info-soft:#0E2634;
+  --salome:#F0564F;
+  --sh-1:0 1px 2px rgba(0,0,0,.5); --sh-2:0 4px 16px -6px rgba(0,0,0,.7);
+  --sh-3:0 18px 48px -18px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased}
+.mono,.num{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--navy-2);outline-offset:2px;border-radius:3px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:6px;border:3px solid var(--paper)}
+
+/* ============ NOTE BAR ============ */
+.protobar{display:none;background:var(--navy);color:var(--surface);padding:7px 18px;font-size:12px;
+  gap:14px;align-items:center;flex-wrap:wrap}
+.protobar b{font-weight:600}
+.protobar span{opacity:.82}
+
+
+/* ============ TOPBAR ============ */
+.topbar{height:var(--top);background:var(--topbar);border-bottom:1px solid var(--topbar-line);
+  display:flex;align-items:center;gap:14px;padding:0 14px 0 10px;position:sticky;top:0;z-index:40;
+  color:var(--topbar-ink)}
+.topbar .tb-btn{color:var(--topbar-ink)}
+.topbar .tb-btn:hover{background:var(--topbar-2);border-color:var(--topbar-line)}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+/* O logo da Salomé tem letra preta em "expresso": sobre fundo escuro precisa de
+   uma placa clara. É o tratamento padrão de marca que exige fundo claro. */
+.logo-plate{background:#fff;border-radius:6px;padding:4px 9px;display:grid;place-items:center;flex:none}
+.logo-plate img{height:24px;width:auto;display:block}
+.logo-div{width:1px;height:26px;background:var(--topbar-line)}
+.logo-ip img{height:20px;width:auto;display:block;opacity:.95}
+.ph{font-size:9px;color:var(--ink-3);border:1px dashed var(--line-2);border-radius:3px;padding:1px 4px;margin-left:4px}
+.appname{font-size:12px;color:rgba(215,231,242,.72);border-left:1px solid var(--topbar-line);
+  padding-left:14px;margin-left:2px;white-space:nowrap}
+.appname b{color:#fff;font-size:13px;font-weight:600}
+.appver{margin-left:6px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;opacity:.85;border:1px solid var(--topbar-line);border-radius:4px;padding:0 5px}
+.spacer{flex:1}
+.search{display:flex;align-items:center;gap:8px;background:var(--topbar-2);border:1px solid var(--topbar-line);
+  border-radius:6px;padding:6px 10px;width:280px;color:rgba(215,231,242,.7);font-size:13px}
+.search input{border:0;background:transparent;outline:none;color:#fff;width:100%;font:inherit}
+.search input::placeholder{color:rgba(215,231,242,.6)}
+.search kbd{font-family:"IBM Plex Mono",monospace;font-size:10px;border:1px solid var(--topbar-line);
+  border-radius:3px;padding:1px 4px;color:rgba(215,231,242,.75)}
+.tb-btn{background:transparent;border:1px solid transparent;border-radius:6px;padding:6px;display:grid;place-items:center;color:var(--ink-2)}
+.tb-btn:hover{background:var(--surface-2);border-color:var(--line)}
+.who{display:flex;align-items:center;gap:9px;background:var(--topbar-2);border:1px solid var(--topbar-line);
+  border-radius:20px;padding:3px 12px 3px 3px;color:#fff}
+.av{width:26px;height:26px;border-radius:50%;background:#fff;color:var(--topbar);
+  display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.who .nm{font-size:12.5px;font-weight:600;line-height:1.15}
+.who .rl{font-size:10.5px;color:rgba(215,231,242,.7);line-height:1.15}
+.who select{border:0;background:transparent;font:inherit;font-size:10.5px;color:rgba(215,231,242,.92);
+  outline:none;cursor:pointer;padding:0;font-weight:600}
+.who select option{color:var(--ink);background:var(--surface)}
+
+/* ============ LAYOUT ============ */
+.shell{display:flex;min-height:calc(100vh - var(--top) - 34px)}
+.rail{width:var(--rail);flex:none;background:var(--surface);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;transition:width .16s ease;position:sticky;top:var(--top);
+  height:calc(100vh - var(--top));overflow:hidden}
+.rail.min{width:var(--rail-min)}
+.rail-scroll{overflow-y:auto;overflow-x:hidden;flex:1;padding:10px 8px 14px}
+.grp{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);
+  padding:16px 10px 6px;font-weight:600;white-space:nowrap}
+.rail.min .grp{opacity:0;height:14px;padding:6px 0 0}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;width:100%;
+  background:transparent;border:0;text-align:left;color:var(--ink-2);font-size:13.5px;white-space:nowrap;position:relative}
+.nav:hover{background:var(--surface-2);color:var(--ink)}
+.nav.on{background:var(--navy-soft);color:var(--navy);font-weight:600}
+.nav.on::before{content:"";position:absolute;left:-8px;top:7px;bottom:7px;width:3px;background:var(--navy);border-radius:0 2px 2px 0}
+.nav svg{flex:none;width:17px;height:17px}
+.nav .lb{overflow:hidden;text-overflow:ellipsis}
+.rail.min .nav .lb,.rail.min .nav .bdg{display:none}
+.rail.min .nav{justify-content:center;padding:9px 0}
+.bdg{margin-left:auto;background:var(--crit);color:var(--surface);font-size:10px;font-weight:700;
+  border-radius:9px;padding:1px 6px;min-width:18px;text-align:center}
+
+.bdg.q{background:var(--ink-3)}
+.rail-foot{border-top:1px solid var(--line);padding:8px}
+.collapse{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border:0;border-radius:6px;
+  background:transparent;color:var(--ink-3);font-size:12.5px;white-space:nowrap}
+.collapse:hover{background:var(--surface-2);color:var(--ink)}
+.rail.min .collapse{justify-content:center}
+.rail.min .collapse span{display:none}
+
+main{flex:1;min-width:0;padding:22px 26px 60px}
+.page{max-width:1220px;margin:0 auto}
+.crumb{font-size:11.5px;color:var(--ink-3);display:flex;gap:7px;align-items:center;margin-bottom:6px}
+.crumb b{color:var(--ink-2);font-weight:500}
+.ph1{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+h1{margin:0;font-size:23px;font-weight:700;letter-spacing:-.02em}
+.sub{color:var(--ink-3);font-size:13px;margin:3px 0 0}
+.acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:6px;font-size:13px;
+  font-weight:500;border:1px solid var(--line-2);background:var(--surface);color:var(--ink)}
+.btn:hover{background:var(--surface-2)}
+.btn.pri{background:var(--navy);border-color:var(--navy);color:var(--surface)}
+
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.ok{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.btn.wa{border-color:var(--warn);color:var(--warn);background:var(--warn-soft)}
+.btn.cr{border-color:var(--crit);color:var(--crit);background:var(--crit-soft)}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn[disabled]{opacity:.42;cursor:not-allowed}
+.btn svg{width:15px;height:15px}
+
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:var(--sh-1)}
+.card-h{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.card-h h3{margin:0;font-size:14px;font-weight:600}
+.card-h .r{margin-left:auto;display:flex;gap:7px;align-items:center}
+.card-b{padding:16px}
+.kpi{padding:15px 16px}
+.kpi .l{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.kpi .v{font-family:"IBM Plex Mono",monospace;font-size:25px;font-weight:600;letter-spacing:-.02em;margin-top:7px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:11.5px;color:var(--ink-3);margin-top:3px}
+.kpi.a{border-left:3px solid var(--navy)} .kpi.b{border-left:3px solid var(--warn)}
+.kpi.c{border-left:3px solid var(--ok)} .kpi.d2{border-left:3px solid var(--crit)}
+
+/* tables */
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th{text-align:left;font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-3);padding:9px 12px;border-bottom:1px solid var(--line-2);white-space:nowrap;background:var(--surface-2)}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:0}
+td.n{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.id{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--navy);font-weight:500;white-space:nowrap}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:11px;font-size:11px;
+  font-weight:600;white-space:nowrap}
+.t-ok{background:var(--ok-soft);color:var(--ok)} .t-wa{background:var(--warn-soft);color:var(--warn)}
+.t-cr{background:var(--crit-soft);color:var(--crit)} .t-in{background:var(--info-soft);color:var(--info)}
+.t-nv{background:var(--navy-soft);color:var(--navy)} .t-mu{background:var(--surface-3);color:var(--ink-3)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+
+/* stepper */
+.steps{display:flex;gap:0;overflow-x:auto;padding:2px 0 10px}
+.step{display:flex;align-items:center;gap:9px;padding:8px 14px 8px 12px;background:var(--surface-2);
+  border:1px solid var(--line);border-right:0;font-size:12px;color:var(--ink-3);white-space:nowrap;position:relative}
+.step:first-child{border-radius:6px 0 0 6px}
+.step:last-child{border-right:1px solid var(--line);border-radius:0 6px 6px 0}
+.step .ic{width:19px;height:19px;border-radius:50%;display:grid;place-items:center;flex:none;
+  background:var(--surface-3);color:var(--ink-3);font-size:10px;font-weight:700}
+.step.done{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.step.done .ic{background:var(--ok);color:var(--surface)}
+.step.now{background:var(--navy-soft);color:var(--navy);border-color:transparent;font-weight:600}
+.step.now .ic{background:var(--navy);color:var(--surface)}
+.step.blk{background:var(--crit-soft);color:var(--crit);border-color:transparent}
+.step.blk .ic{background:var(--crit);color:var(--surface)}
+.step[role="button"]{cursor:pointer}
+.step[role="button"]:hover{filter:brightness(.97)}
+
+/* form */
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.f{display:flex;flex-direction:column;gap:5px}
+.f.w2{grid-column:span 2}
+.f label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+.f label .req{color:var(--crit)}
+.f input,.f select,.f textarea{border:1px solid var(--line-2);border-radius:6px;padding:8px 10px;
+  background:var(--surface);color:var(--ink);font:inherit;font-size:13px;outline:none;width:100%}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--navy-2);box-shadow:0 0 0 3px var(--navy-soft)}
+.f .calc{background:var(--surface-2);color:var(--ink-2);border-style:dashed}
+.f .hint{font-size:11px;color:var(--ink-3)}
+.f .hint.bad{color:var(--crit)}
+fieldset{border:0;padding:0;margin:0 0 22px}
+legend{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--navy);
+  padding:0 0 10px;width:100%;border-bottom:1px solid var(--line);margin-bottom:14px}
+
+.verdict{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:8px;margin-top:6px}
+.verdict.ok{background:var(--ok-soft);color:var(--ok)}
+.verdict.wa{background:var(--warn-soft);color:var(--warn)}
+.verdict.cr{background:var(--crit-soft);color:var(--crit)}
+.verdict b{display:block;font-size:14px;margin-bottom:2px}
+.verdict svg{width:19px;height:19px}
+.verdict p{margin:0;font-size:12.5px;opacity:.9}
+
+/* cashflow matrix */
+.mtx{font-size:12px;min-width:900px}
+.mtx th{position:sticky;top:0;z-index:2}
+.mtx td:first-child,.mtx th:first-child{position:sticky;left:0;background:var(--surface);z-index:1;
+  border-right:1px solid var(--line);min-width:210px}
+.mtx th:first-child{background:var(--surface-2);z-index:3}
+.mtx td{text-align:right;font-family:"IBM Plex Mono",monospace;padding:6px 11px;font-variant-numeric:tabular-nums}
+.mtx td:first-child{text-align:left;font-family:"Archivo",sans-serif}
+.mtx tr.sec td{background:var(--surface-2);font-weight:700;font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3);font-family:"Archivo",sans-serif;text-align:left}
+.mtx tr.tot td{font-weight:700;border-top:1px solid var(--line-2)}
+.mtx .cell{cursor:pointer;border-radius:3px}
+.mtx .cell:hover{background:var(--navy-soft);color:var(--navy)}
+.mtx .neg{color:var(--crit)}
+.wk-ok{background:var(--ok-soft);color:var(--ok)} .wk-wa{background:var(--warn-soft);color:var(--warn)}
+.wk-cr{background:var(--crit-soft);color:var(--crit)}
+
+/* perms matrix */
+.perm td:first-child{text-align:left;font-weight:500}
+.perm input[type=checkbox]{width:15px;height:15px;accent-color:var(--navy);cursor:pointer}
+.perm td{text-align:center}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(10,16,24,.42);opacity:0;pointer-events:none;
+  transition:opacity .18s;z-index:60}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(720px,94vw);background:var(--paper);
+  box-shadow:var(--sh-3);transform:translateX(102%);transition:transform .2s cubic-bezier(.4,0,.2,1);
+  z-index:61;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dr-h{background:var(--surface);border-bottom:1px solid var(--line);padding:14px 18px;display:flex;
+  align-items:flex-start;gap:12px}
+.dr-h h2{margin:0;font-size:17px;font-weight:700}
+.dr-h .m{font-size:12px;color:var(--ink-3);margin-top:2px}
+.dr-b{overflow-y:auto;padding:16px 18px 40px;flex:1}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:0 0 16px;overflow-x:auto}
+.tab{background:transparent;border:0;border-bottom:2px solid transparent;padding:9px 13px;font-size:13px;
+  color:var(--ink-3);white-space:nowrap}
+.tab.on{color:var(--navy);border-bottom-color:var(--navy);font-weight:600}
+.dl{display:grid;grid-template-columns:minmax(120px,168px) 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:7px;overflow:hidden;font-size:13px}
+.dl dt{background:var(--surface-2);padding:8px 12px;color:var(--ink-3);font-size:11.5px;font-weight:600}
+.dl dd{background:var(--surface);padding:8px 12px;margin:0}
+.tl{list-style:none;padding:0;margin:0}
+.tl li{display:grid;grid-template-columns:112px 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.tl time{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+.tl b{font-weight:600}
+.tl span{color:var(--ink-2)}
+
+/* mobile phone */
+.phone-wrap{position:fixed;inset:0;background:rgba(10,16,24,.66);display:none;place-items:center;z-index:70;padding:20px}
+.phone-wrap.on{display:grid}
+.phone{width:378px;max-width:100%;height:min(780px,92vh);background:var(--paper);border-radius:32px;
+  border:9px solid #10161F;box-shadow:var(--sh-3);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.ph-top{background:var(--navy);color:var(--surface);padding:13px 16px 12px;flex:none}
+
+.ph-top .r1{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;letter-spacing:.02em}
+.ph-top .r2{display:flex;gap:14px;margin-top:11px;font-size:11px;opacity:.9}
+.ph-top .r2 b{display:block;font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:600;margin-top:1px}
+.ph-body{flex:1;overflow-y:auto;padding:12px 12px 90px;display:flex;flex-direction:column;gap:10px}
+.mc{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px 13px;box-shadow:var(--sh-1)}
+.mc .r{display:flex;align-items:baseline;gap:8px}
+.mc .who2{font-weight:600;font-size:13.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc .vl{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:15px}
+.mc .ln{font-size:11.5px;color:var(--ink-3);margin-top:3px}
+.mc .why{margin-top:9px;padding:7px 9px;border-radius:6px;font-size:11.5px;font-weight:600;display:flex;gap:7px;align-items:center}
+.mc .why svg{width:14px;height:14px;flex:none}
+.why.v-ok{background:var(--ok-soft);color:var(--ok)}
+.why.v-wa{background:var(--warn-soft);color:var(--warn)}
+.why.v-cr{background:var(--crit-soft);color:var(--crit)}
+.why.v-mu{background:var(--surface-3);color:var(--ink-3)}
+.mc .bt{display:flex;gap:7px;margin-top:10px}
+.mc .bt button{flex:1;padding:8px;border-radius:7px;font-size:12.5px;font-weight:600;border:1px solid}
+.ph-bar{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;align-items:center}
+.ph-bar .cnt{font-size:11.5px;color:var(--ink-3);flex:1}
+.ph-close{position:absolute;top:-4px;right:-4px}
+.phone-x{position:fixed;top:22px;right:26px;z-index:71;background:var(--surface);border:1px solid var(--line-2);
+  border-radius:20px;padding:7px 15px;font-size:13px;font-weight:600;box-shadow:var(--sh-2)}
+
+
+/* ---- acordeão do formulário ---- */
+.acc{border:1px solid var(--line);border-left:3px solid var(--line-2);border-radius:8px;
+  background:var(--surface);margin-bottom:12px;overflow:hidden;transition:border-color .18s}
+.acc.pend{border-left-color:var(--warn)}
+.acc.ok{border-left-color:var(--ok)}
+.acc.cr{border-left-color:var(--crit)}
+.acc-h{display:flex;align-items:center;gap:11px;width:100%;padding:13px 16px;background:transparent;
+  border:0;text-align:left;font:inherit}
+.acc-h:hover{background:var(--surface-2)}
+.acc-n{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);
+  border:1px solid var(--line-2);border-radius:4px;width:20px;height:20px;display:grid;place-items:center;flex:none}
+.acc.ok .acc-n{border-color:var(--ok);color:var(--ok)}
+.acc-t{font-weight:600;font-size:14.5px;flex:1;min-width:0}
+.acc-s{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;
+  padding:2px 9px;border-radius:11px;white-space:nowrap}
+.acc-s svg{width:13px;height:13px}
+.st-pend{background:var(--warn-soft);color:var(--warn)}
+.st-ok{background:var(--ok-soft);color:var(--ok)}
+.st-mu{background:var(--surface-3);color:var(--ink-3)}
+.st-cr{background:var(--crit-soft);color:var(--crit)}
+.acc-caret{width:15px;height:15px;color:var(--ink-3);transition:transform .16s;flex:none}
+.acc.closed .acc-caret{transform:rotate(-90deg)}
+.acc.closed .acc-c{display:none}
+.acc-c{padding:2px 16px 18px}
+.f input.falta,.f select.falta{border-color:var(--warn);background:var(--warn-soft)}
+.f .req{color:var(--warn)}
+.form-foot{position:sticky;bottom:0;background:var(--surface);border:1px solid var(--line);
+  border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  box-shadow:0 -4px 16px -10px rgba(20,28,38,.3);margin-top:4px}
+.prog{flex:1;min-width:190px}
+.prog .t{font-size:12px;color:var(--ink-3);margin-bottom:5px}
+.prog .bar{height:4px;background:var(--surface-3);border-radius:3px;overflow:hidden}
+.prog .bar i{display:block;height:100%;background:var(--ok);border-radius:3px;transition:width .25s}
+.foot-acts{display:flex;gap:8px}
+
+/* misc */
+.note{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--navy);
+  border-radius:0 7px 7px 0;padding:12px 15px;font-size:12.5px;color:var(--ink-2)}
+.note b{color:var(--ink)}
+.empty{padding:44px 20px;text-align:center;color:var(--ink-3);font-size:13px}
+.row-c{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);
+  border-radius:7px;cursor:pointer;background:var(--surface)}
+.row-c:hover{background:var(--surface-2);border-color:var(--line-2)}
+.row-c .t{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-c .d{font-size:11.5px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-c .v{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:14px;flex:none;font-variant-numeric:tabular-nums}
+.row-c svg{width:16px;height:16px}
+@media(max-width:1000px){.grid[style*="1.25fr"]{grid-template-columns:minmax(0,1fr)!important}}
+.imp{display:flex;gap:12px;align-items:center;padding:13px 15px;border:1px dashed var(--line-2);
+  border-radius:8px;background:var(--surface-2);font-size:12.5px;color:var(--ink-2);flex-wrap:wrap}
+.imp b{color:var(--ink)}
+.imp>svg{width:18px;height:18px;flex:none;color:var(--ink-3);align-self:flex-start;margin-top:1px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.bar{height:8px;background:var(--surface-3);border-radius:4px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--navy);border-radius:4px}
+.imp .r{margin-left:auto;display:flex;gap:8px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--line-2);background:var(--surface);border-radius:16px;padding:4px 12px;font-size:12px;color:var(--ink-2)}
+.chip.on{background:var(--navy);border-color:var(--navy);color:var(--surface);font-weight:600}
+
+/* O app inteiro fica atrás da tela de login até a sessão existir. */
+.login-wrap{position:fixed;inset:0;background:var(--paper);display:none;place-items:center;z-index:120;padding:20px}
+.login-wrap.on{display:grid}
+.troca-wrap{position:fixed;inset:0;background:var(--paper);display:none;place-items:center;z-index:121;padding:20px}
+.troca-wrap.on{display:grid}
+.lgcarregando{position:fixed;inset:0;background:var(--paper);display:grid;place-items:center;z-index:130}
+.lgcarregando.off{display:none}
+.lgcarregando .sp{width:26px;height:26px;border:2.5px solid var(--line-2);border-top-color:var(--navy);
+  border-radius:50%;animation:gira .7s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+.login-wrap.on{display:grid}
+.login-card{width:100%;max-width:390px;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--sh-3);padding:26px;display:flex;flex-direction:column;gap:15px}
+.lg-brand{display:flex;gap:12px;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.toast.t-ok{border-left:3px solid var(--ok)}
+.toast.t-cr{border-left:3px solid var(--crit)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,140%);background:var(--ink);
+  color:var(--paper);padding:11px 20px;border-radius:8px;font-size:13px;z-index:90;
+  transition:transform .22s cubic-bezier(.4,0,.2,1);box-shadow:var(--sh-3)}
+.toast.on{transform:translate(-50%,0)}
+.lock{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:var(--ink-3);
+  background:var(--surface-3);border-radius:4px;padding:1px 6px}
+@media(max-width:860px){
+  .rail{position:fixed;z-index:50;transform:translateX(-100%);transition:transform .2s}
+  .rail.mob{transform:none}
+  main{padding:16px 14px 60px}
+  .search{display:none}
+}
+
+/* ============ TOOLTIP ============ */
+#tip{position:fixed;z-index:200;max-width:280px;background:var(--ink);color:var(--paper);
+  font-size:11.5px;line-height:1.45;padding:7px 10px;border-radius:6px;box-shadow:var(--sh-2);
+  pointer-events:none;opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s}
+#tip.on{opacity:1;transform:translateY(0)}
+#tip b{color:#fff}
+[data-tip]{cursor:help}
+button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inherit}
+
+/* ============ KANBAN ============ */
+.kb-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.kb-bar select,.kb-bar input{border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  border-radius:6px;padding:6px 9px;font:inherit;font-size:12.5px;outline:none}
+.kb-bar input{min-width:190px}
+.kb-bar select:focus,.kb-bar input:focus{border-color:var(--navy-2);box-shadow:0 0 0 3px var(--navy-soft)}
+.kb-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;min-height:0}
+.kb-chip{display:inline-flex;align-items:center;gap:6px;background:var(--navy-soft);color:var(--navy);
+  border:1px solid transparent;border-radius:14px;padding:3px 6px 3px 11px;font-size:11.5px;font-weight:600}
+.kb-chip button{background:none;border:0;color:inherit;font-size:14px;line-height:1;padding:0 3px;opacity:.65}
+.kb-chip button:hover{opacity:1}
+
+.kb-tot{display:flex;gap:18px;flex-wrap:wrap;align-items:baseline;margin-bottom:12px;
+  padding:11px 14px;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.kb-tot div{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.kb-tot b{display:block;font-family:"IBM Plex Mono",monospace;font-size:17px;color:var(--ink);
+  letter-spacing:-.01em;font-variant-numeric:tabular-nums;text-transform:none}
+
+/* As seis colunas cabem na tela, sem rolagem lateral.
+   min-width:0 é o que permite o flex encolher: sem isso o conteúdo do card impõe uma
+   largura mínima e o quadro estoura para a direita, que era o que acontecia antes. */
+.kb-board{display:flex;gap:8px;padding-bottom:10px;align-items:stretch;width:100%}
+.kb-col{flex:1 1 0;min-width:0;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:9px;display:flex;flex-direction:column;max-height:calc(100vh - 290px);
+  transition:flex-grow .18s ease,flex-basis .18s ease}
+/* Coluna recolhida vira uma faixa estreita com o nome de pé: some da largura útil e
+   devolve o espaço às outras, sem sair do quadro nem esconder que existe. */
+.kb-col.min{flex:0 0 46px;min-width:46px}
+.kb-col.min .kb-body,.kb-col.min .kb-h .v,.kb-col.min .kb-h .pct{display:none}
+.kb-col.min .kb-h{border-bottom:0;height:100%;border-radius:9px;padding:10px 6px}
+.kb-col.min .kb-h .t{writing-mode:vertical-rl;transform:rotate(180deg);justify-content:flex-start;
+  gap:9px;height:100%;white-space:nowrap}
+.kb-min-btn{background:none;border:0;cursor:pointer;color:var(--ink-3);padding:2px;
+  border-radius:5px;line-height:0;flex:none}
+.kb-min-btn:hover{background:var(--line);color:var(--ink)}
+.kb-col.min .kb-min-btn{margin:0 auto 6px}
+/* Em tela estreita o quadro volta a rolar: espremer seis colunas num celular não é
+   caber, é ilegível. */
+@media(max-width:1180px){.kb-board{overflow-x:auto}.kb-col{flex:0 0 210px;min-width:210px}}
+.kb-col.drop-ok{border-color:var(--ok);background:var(--ok-soft);box-shadow:inset 0 0 0 1px var(--ok)}
+.kb-col.drop-no{border-color:var(--crit);background:var(--crit-soft)}
+.kb-h{padding:10px 11px 9px;border-bottom:1px solid var(--line);position:sticky;top:0;
+  background:var(--surface-2);border-radius:9px 9px 0 0;z-index:2}
+.kb-col.drop-ok .kb-h{background:var(--ok-soft)}
+.kb-col.drop-no .kb-h{background:var(--crit-soft)}
+.kb-h .t{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink)}
+.kb-h .n{margin-left:auto;background:var(--surface-3);color:var(--ink-2);border-radius:10px;
+  padding:1px 7px;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+.kb-h .v{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--ink-2);
+  margin-top:5px;font-variant-numeric:tabular-nums}
+.kb-h .pct{height:3px;border-radius:2px;background:var(--surface-3);margin-top:6px;overflow:hidden}
+.kb-h .pct i{display:block;height:100%;background:var(--navy-2);border-radius:2px}
+.kb-body{padding:9px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;flex:1;min-height:70px}
+.kb-vazio{font-size:11.5px;color:var(--ink-3);text-align:center;padding:16px 8px;
+  border:1px dashed var(--line-2);border-radius:7px}
+
+.kb-card{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--line-2);
+  border-radius:7px;padding:9px 10px;font-size:12px;cursor:grab;box-shadow:var(--sh-1);
+  transition:box-shadow .12s,transform .12s}
+.kb-card:hover{box-shadow:var(--sh-2)}
+.kb-card:active{cursor:grabbing}
+.kb-card.dragging{opacity:.4;transform:rotate(1.5deg)}
+.kb-card.nega{animation:nega .3s}
+@keyframes nega{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.kb-card.u-cr{border-left-color:var(--crit)}
+.kb-card.u-wa{border-left-color:var(--warn)}
+.kb-card.u-ok{border-left-color:var(--ok)}
+.kb-card.u-su{border-left-color:var(--ink-3);border-left-style:dashed}
+.kb-card.u-no{opacity:.62;border-left-color:var(--line-2)}
+.kb-card.u-no .kb-c1 b{text-decoration:line-through}
+
+.kb-c1{display:flex;align-items:baseline;gap:8px}
+.kb-c1 b{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);font-weight:600}
+.kb-c1 .val{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:13px;
+  color:var(--ink);font-variant-numeric:tabular-nums}
+.kb-forn{margin-top:4px;font-weight:600;color:var(--ink);line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kb-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;align-items:center}
+.kb-t{font-size:10.5px;border-radius:4px;padding:1px 6px;font-weight:600;
+  background:var(--surface-3);color:var(--ink-2);line-height:1.5}
+.kb-t.cr{background:var(--crit-soft);color:var(--crit)}
+.kb-t.wa{background:var(--warn-soft);color:var(--warn)}
+.kb-t.ok{background:var(--ok-soft);color:var(--ok)}
+.kb-t.nv{background:var(--navy-soft);color:var(--navy)}
+.kb-exp{margin-left:auto;background:none;border:0;color:var(--ink-3);padding:2px;line-height:0;border-radius:4px}
+.kb-exp:hover{background:var(--surface-2);color:var(--ink)}
+.kb-exp svg{width:14px;height:14px;transition:transform .15s}
+.kb-card.open .kb-exp svg{transform:rotate(180deg)}
+.kb-det{display:none;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:11.5px}
+.kb-card.open .kb-det{display:block}
+.kb-det dl{margin:0 0 9px}
+.kb-det dt{color:var(--ink-3);font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-top:6px}
+.kb-det dt:first-child{margin-top:0}
+.kb-det dd{margin:1px 0 0;color:var(--ink-2);line-height:1.35}
+.kb-pre{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
+.kb-pre span{display:flex;align-items:center;gap:6px;font-size:11px}
+.kb-pre .y{color:var(--ok)}
+.kb-pre .n{color:var(--crit);font-weight:600}
+.kb-pre .f{color:var(--ink-3)}
+.kb-det .acts{display:flex;gap:6px;flex-wrap:wrap}
+
+.kb-gav{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.kb-gav>summary{padding:11px 14px;font-size:12.5px;font-weight:600;color:var(--ink-2);cursor:pointer;
+  list-style:none;display:flex;align-items:center;gap:9px}
+.kb-gav>summary::-webkit-details-marker{display:none}
+.kb-gav>summary::before{content:'▸';color:var(--ink-3);transition:transform .15s}
+.kb-gav[open]>summary::before{transform:rotate(90deg)}
+.kb-gav .in{padding:0 14px 14px;display:flex;gap:8px;flex-wrap:wrap}
+.kb-gav .kb-card{width:232px;cursor:default}
+
+@media(max-width:900px){
+  .kb-board{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;max-width:100%}
+  .kb-col{min-width:78vw;scroll-snap-align:start;max-height:none}
+  .kb-bar input{min-width:0;flex:1 1 100%}
+  .kb-bar select{flex:1 1 44%;min-width:0}
+  .kb-tot{gap:12px 18px}
+}
+/* No celular o cabeçalho não tem espaço para busca nem para o nome por extenso.
+   O avatar e o seletor de perfil bastam — o resto é ruído numa tela de 390px. */
+@media(max-width:760px){
+  .topbar{gap:9px;padding:0 9px}
+  .topbar .search{display:none}
+  .who .nm{display:none}
+  .who{padding:3px 9px 3px 3px}
+  .appname{padding-left:9px}
+}
+@media(max-width:560px){ .logo-div,.logo-ip{display:none} }
+@media(max-width:480px){ .appname{display:none} }
+
 </style>
+
 </head>
 <body>
-<main>
-  <h1>FC Salomé · Apontamento Financeiro de Compras</h1>
-  <p>Para entrar, use o botão abaixo. O sistema abre pelo servidor, com seu usuário e senha.</p>
-  <a class="btn" href="https://script.google.com/macros/s/AKfycbz82zY0ATTEvhSM57ecsrnbRVS7o-_iWCxY85YfPyUM2JVhpO341EiLIRNiP51psu--/exec">Entrar no sistema</a>
-  <small>Entre com o usuário, não com o e-mail.</small>
-</main>
+<div class="login-wrap on" id="loginWrap">
+  <div class="login-card">
+    <div class="lg-brand">
+      <div class="logo-plate" style="padding:6px 12px"><img src="data:image/png;base64,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" alt="Expresso Salomé" style="height:30px"></div>
+      <div><div style="font-size:11.5px;color:var(--ink-3)">FC · Apontamento Financeiro de Compras · <b>v5.01</b></div></div>
+    </div>
+    <form id="lgForm" onsubmit="event.preventDefault();entrar()">
+      <div class="f"><label for="lgMail">Usuário</label>
+        <input id="lgMail" type="text" autocomplete="username" autocapitalize="none"
+               spellcheck="false" placeholder="seu usuário" required autofocus></div>
+      <div class="f" style="margin-top:12px"><label for="lgSenha">Senha</label>
+        <input id="lgSenha" type="password" autocomplete="current-password" required></div>
+      <div id="lgErro" class="verdict cr" style="display:none;margin-top:14px"></div>
+      <button class="btn pri" id="lgBtn" type="submit"
+        style="justify-content:center;padding:10px;width:100%;margin-top:16px">Entrar</button>
+    </form>
+    <div style="font-size:11.5px;color:var(--ink-3);line-height:1.5;border-top:1px solid var(--line);padding-top:12px;margin-top:16px">
+Entre com o <b>usuário</b>, não com o e-mail. Senha guardada como <b>hash SHA-256 com salt por usuário</b> — nunca em texto.
+      Bloqueio após tentativas seguidas e toda tentativa registrada no log de acesso.
+    </div>
+  </div>
+</div>
+
+<div class="troca-wrap" id="trocaWrap">
+  <div class="login-card">
+    <h2 style="font-size:16px;margin:0 0 4px">Troque a senha para continuar</h2>
+    <p style="font-size:12px;color:var(--ink-3);margin:0 0 16px">
+      A senha atual é provisória ou expirou. Escolha uma nova antes de entrar.</p>
+    <form onsubmit="event.preventDefault();salvarSenha()">
+      <div class="f"><label for="tcAtual">Senha atual</label>
+        <input id="tcAtual" type="password" autocomplete="current-password" required></div>
+      <div class="f" style="margin-top:12px"><label for="tcNova">Nova senha</label>
+        <input id="tcNova" type="password" autocomplete="new-password" minlength="8" required>
+        <span class="hint">Mínimo de 8 caracteres.</span></div>
+      <div class="f" style="margin-top:12px"><label for="tcConf">Repita a nova senha</label>
+        <input id="tcConf" type="password" autocomplete="new-password" minlength="8" required></div>
+      <div id="tcErro" class="verdict cr" style="display:none;margin-top:14px"></div>
+      <button class="btn pri" type="submit" style="justify-content:center;padding:10px;width:100%;margin-top:16px">
+        Salvar e entrar</button>
+    </form>
+  </div>
+</div>
+
+<div class="lgcarregando" id="lgLoad"><div style="text-align:center">
+  <div class="sp" style="margin:0 auto 14px"></div>
+  <div style="font-size:12.5px;color:var(--ink-3)" id="lgLoadTxt">Abrindo…</div>
+</div></div>
+
+<header class="topbar">
+  <button class="tb-btn" id="mobBtn" aria-label="Menu" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="19" height="19"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <div class="brand">
+    <div class="logo-plate" data-tip="Expresso Salomé — a transportadora dona do processo">
+      <img src="data:image/png;base64,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" alt="Expresso Salomé">
+    </div>
+    <div class="logo-div"></div>
+    <div class="logo-ip" data-tip="iProcesso — desenho e desenvolvimento do sistema">
+      <img src="data:image/png;base64,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" alt="iProcesso">
+    </div>
+  </div>
+  <div class="appname"><b>FC</b> · Apontamento Financeiro <span class="appver">v5.01</span></div>
+  <div class="spacer"></div>
+  <div class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input placeholder="Buscar nº, fornecedor, valor…" id="gsearch">
+    <kbd>Ctrl K</kbd>
+  </div>
+  <button class="tb-btn" id="themeBtn" aria-label="Tema">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+  </button>
+  <button class="tb-btn" id="sairBtn" aria-label="Sair" data-tip="Encerrar a sessão">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"
+      stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+  </button>
+  <div class="who">
+    <div class="av" id="avatar">–</div>
+    <div>
+      <div class="nm" id="uname">—</div>
+      <div class="rl" id="uperfil">—</div>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="rail">
+    <div class="rail-scroll" id="menu"></div>
+    <div class="rail-foot">
+      <button class="collapse" id="colBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17" id="colIcon"><path d="M15 6l-6 6 6 6"/></svg>
+        <span>Recolher menu</span>
+      </button>
+    </div>
+  </nav>
+  <main><div class="page" id="view"></div></main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dr-h">
+    <div style="flex:1;min-width:0">
+      <h2 id="drTitle">—</h2>
+      <div class="m" id="drMeta"></div>
+    </div>
+    <button class="tb-btn" id="drClose" aria-label="Fechar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="19" height="19"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="dr-b" id="drBody"></div>
+</aside>
+
+<div class="phone-wrap" id="phoneWrap">
+  <button class="phone-x" id="phoneX">Fechar visão mobile</button>
+  <div class="phone">
+    <div class="ph-top">
+      <div class="r1">
+        <div class="logo-mark" style="width:22px;height:22px;font-size:10px;background:rgba(255,255,255,.22)">S</div>
+        FC Salomé · Aprovações
+      </div>
+      <div class="r2">
+        <div>Pendentes<b id="mPend">—</b></div>
+        <div>Valor<b id="mVal">—</b></div>
+        <div>Caixa hoje<b id="mCx">—</b></div>
+      </div>
+    </div>
+    <div class="ph-body" id="phBody"></div>
+    <div class="ph-bar">
+      <span class="cnt" id="mSel">Nenhuma selecionada</span>
+      <button class="btn sm cr" onclick="mBulk('Reprogramar')">Reprogramar</button>
+      <button class="btn sm ok" onclick="mBulk('Aprovar')">Aprovar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   ÍCONES
+   ============================================================ */
+const I = {
+  home:'M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
+  doc:'M6 2h8l4 4v16H6zM14 2v4h4',
+  plus:'M12 5v14M5 12h14',
+  check:'M4 12l5 5L20 6',
+  flow:'M3 17l5-5 4 3 8-8M21 7v5h-5',
+  pay:'M3 7h18v11H3zM3 11h18M7 15h3',
+  rec:'M3 7h18v11H3zM7 11h6M7 15h3',
+  split:'M6 3v6a3 3 0 0 0 3 3h9M18 8l3 4-3 4M6 21v-6',
+  chart:'M4 20V9M10 20V4M16 20v-7M22 20H2',
+  budget:'M4 5h16v14H4zM4 10h16M9 10v9',
+  book:'M4 4h13a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3zM7 4v13',
+  truck:'M2 7h11v9H2zM13 10h4l3 3v3h-7M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4M17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4',
+  pin:'M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11M12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5',
+  user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M4 21a8 8 0 0 1 16 0',
+  key:'M14 8a4 4 0 1 1-3.4 6.1L4 21H2v-2l6.9-6.6A4 4 0 0 1 14 8M15.5 7.5h.01',
+  up:'M12 19V5M6 11l6-6 6 6M4 21h16',
+  log:'M4 4h16v16H4zM8 9h8M8 13h8M8 17h5',
+  cog:'M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7.9 19.4l-.1.1A2 2 0 1 1 5 16.7l.1-.1A1.6 1.6 0 0 0 4 13.9H4a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 5.2 7.2L5.1 7A2 2 0 1 1 7.9 4.2l.1.1a1.6 1.6 0 0 0 2.7-1.1V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1A2 2 0 1 1 20.3 7l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1.2',
+  phone:'M7 2h10v20H7zM11 18h2'
+};
+const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+
+/* ============================================================
+   PERMISSÕES (espelha a aba PERMISSOES do Google Sheets)
+   ============================================================ */
+const PERMS = {
+  SOLICITANTE:{ver:['inicio','minhas','nova','kanban'],acao:{incluir:['SOLICITACAO'],alterar:['SOLICITACAO'],inativar:[],aprovar:[]},limite:0,escopo:'PROPRIO'},
+  FINANCEIRO :{ver:['inicio','minhas','nova','kanban','aprovacoes','fluxo','pagar','receber','rateio','gerencial','orcamento','plano','fornecedores','filiais','import'],
+               acao:{incluir:['SOLICITACAO','TITULO','FORNECEDOR'],alterar:['SOLICITACAO','TITULO','FORNECEDOR','RATEIO'],inativar:['FORNECEDOR'],aprovar:['SOLICITACAO']},limite:10000,escopo:'TODAS'},
+  DIRETORIA  :{ver:['inicio','minhas','nova','kanban','aprovacoes','fluxo','pagar','receber','rateio','gerencial','orcamento','plano','fornecedores','filiais'],
+               acao:{incluir:['SOLICITACAO'],alterar:['SOLICITACAO','ORCAMENTO'],inativar:[],aprovar:['SOLICITACAO']},limite:9999999,escopo:'TODAS'},
+  ADMIN      :{ver:'*',acao:{incluir:['*'],alterar:['*'],inativar:['*'],aprovar:[]},limite:0,escopo:'TODAS'}
+};
+let ROLE='SOLICITANTE';
+let EU={nome:'',iniciais:'–',perfil:''};
+const can = (a,r)=>{const p=PERMS[ROLE].acao[a]||[];return p.includes('*')||p.includes(r)};
+const sees = v => PERMS[ROLE].ver==='*'||PERMS[ROLE].ver.includes(v);
+const podeAprovar = valor => PERMS[ROLE].acao.aprovar.includes('SOLICITACAO') && valor<=PERMS[ROLE].limite;
+
+const PERFIL_NOME={SOLICITANTE:'Solicitante',FINANCEIRO:'Financeiro',DIRETORIA:'Diretoria',ADMIN:'Administrador'};
+const USERS=new Proxy({},{get:()=>[EU.nome, EU.iniciais]});
+
+/* ============================================================
+   DADOS FICTÍCIOS
+   ============================================================ */
+/* ---------- formatação, num lugar só ----------
+   Tudo aqui aceita lixo e devolve algo legível. `money(undefined)` estourava
+   "toLocaleString of undefined" e derrubava a tela inteira — uma célula vazia não pode
+   levar o relatório junto. */
+const nnum = v => {
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  if (v === null || v === undefined || v === '') return 0;
+  const n = Number(v);
+  return isFinite(n) ? n : 0;
+};
+/** 1.234,56 — valores em reais, sempre com dois decimais. */
+const money = n => nnum(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+/** 1.235 — número redondo, para KPI e coluna de matriz, onde centavo é ruído. */
+const m0 = n => nnum(n).toLocaleString('pt-BR',{maximumFractionDigits:0});
+/** 12,5% — percentual já em escala de 0 a 100. */
+const pct1 = n => nnum(n).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+
+/**
+ * O valor que a pessoa digitou, em número.
+ *
+ * Aceita as duas escritas que aparecem na prática: "4.200,50" (brasileira) e "4200.50"
+ * (a que sai de planilha e de sistema em inglês). A versão antiga apagava TODO ponto
+ * antes de trocar a vírgula, então "4200.50" virava 420050 — cem vezes o valor, sem
+ * nenhum aviso, e a alçada era calculada em cima disso.
+ *
+ * A regra: o último separador que aparecer é o decimal; o resto é milhar.
+ */
+function numBR(v){
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  let t = String(v == null ? '' : v).trim().replace(/[R$\s ]/g,'');
+  if (!t) return 0;
+  const neg = /^-/.test(t) || /\(.*\)/.test(t);
+  t = t.replace(/[^0-9.,]/g,'');
+  const ult = Math.max(t.lastIndexOf(','), t.lastIndexOf('.'));
+  if (ult >= 0) {
+    const casas = t.length - ult - 1;
+    // 3 casas depois do último separador é milhar, não decimal: "1.234" são mil e duzentos.
+    if (casas === 3 && !/[.,]\d{1,2}([.,]|$)/.test(t.slice(0, ult))) {
+      t = t.replace(/[.,]/g,'');
+    } else {
+      t = t.slice(0, ult).replace(/[.,]/g,'') + '.' + t.slice(ult + 1);
+    }
+  }
+  const n = Number(t);
+  return isFinite(n) ? (neg ? -n : n) : 0;
+}
+
+/** dd/mm/aaaa a partir de aaaa-mm-dd, sem passar por Date — fuso não muda dia aqui. */
+function dataBR(iso){
+  const m = String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? m[3]+'/'+m[2]+'/'+m[1] : (iso||'');
+}
+let SOL = [];
+const STMAP={'Aguardando Aprovação':'t-wa','Aprovado':'t-nv','Reprogramado':'t-cr','Comprometido':'t-in','Pago':'t-ok','Reprovado':'t-mu'};
+const RECMAP={'LIBERAR':'ok','AVALIAR':'wa','REPROGRAMAR':'cr','—':'mu'};
+let PEND = [];
+/* Aprovado e ainda não foi ao fornecedor. No app oficial esta lista vem do servidor. */
+let AUTORIZ = [];   /* vem do servidor em vista.abrir e vista.atualizar */
+
+let WEEKS=[];
+let WDATE=[];
+let FLOW={saldoAcu:[],sit:[],previsto:[],comprometido:[],realizado:[],entradas:[],saidas:[]};
+
+let PLANO = [];
+let FORN = [];
+let CAT = [];
+let CENTROS = [];
+const BLOCOS={FROTA:['Frota','Gasto que tem placa'],
+              CARGA:['Carga e viagem','Gasto que acontece na estrada'],
+              ESTRUTURA:['Estrutura','Gasto da filial ou do escritório'],
+              SERVICOS:['Serviços e outros','Contratação e o que não se encaixa acima']};
+let PC_MAP={}; PLANO.forEach(p=>PC_MAP[p[0]]={desc:p[1],tipo:p[2],g:p[3],n:p[4],contabil:p[5]});
+let CAT_MAP={}; CAT.forEach(c=>CAT_MAP[c[0]]={bloco:c[1],nome:c[2],ex:c[3],pj:c[4],pf:c[5],
+   centro:c[6],placa:c[7]==='SIM',anexo:c[8]==='SIM',ret:c[9],ant:c[10]});
+let FORN_MAP={}; FORN.forEach(f=>FORN_MAP[f[0]]={nome:f[1],tipo:f[2],simples:f[3],cats:f[4]});
+const RET_TXT={NENHUMA:'sem retenção',
+  SERVICO_PJ:'serviço de PJ — IRRF 1,5% + CSRF 4,65%, dispensados se optante do Simples, mais ISS do município',
+  SERVICO_PF:'serviço de pessoa física — INSS 11%, IRRF na tabela e ISS do município',
+  FRETE_PF:'frete de autônomo — INSS 11% e SEST/SENAT 2,5% sobre 20% do frete'};
+
+/** Categoria + fornecedor -> conta contábil. Mesma regra do Catalogo.gs, do lado do cliente. */
+function classificar(catId,fornId){
+  const c=CAT_MAP[catId]; if(!c) return null;
+  const f=fornId?FORN_MAP[fornId]:null;
+  const pf=!!(f&&f.tipo==='PF');
+  const cod=pf?c.pf:c.pj;
+  if(!cod) return {erro:'"'+c.nome+'" não é um gasto que se contrate de pessoa física. Confira o fornecedor.'};
+  const pc=PC_MAP[cod];
+  if(!pc) return {erro:'A categoria "'+c.nome+'" aponta para a conta '+cod+', que ainda não está no plano de contas.'};
+  const simples=!!(f&&f.simples==='SIM');
+  let aliq=0;
+  if(c.ret==='SERVICO_PJ'&&!pf) aliq=simples?0:6.15;
+  else if(c.ret==='SERVICO_PF'||(c.ret==='SERVICO_PJ'&&pf)) aliq=11;
+  else if(c.ret==='FRETE_PF'&&pf) aliq=(11+2.5)*0.2;
+  return {cod:cod,desc:pc.desc,
+          grupo:pc.g,natureza:pc.n,centro:c.centro,placa:c.placa,anexo:c.anexo,
+          ant:Number(c.ant),ret:c.ret,aliq:aliq,simples:simples,pf:pf,nome:c.nome};
+}
+/** Fornecedores marcados naquela categoria; se nenhum, a lista inteira. */
+function fornDaCategoria(catId){
+  const r=FORN.filter(f=>(f[4]||'').split('|').indexOf(catId)>=0);
+  return r.length?r:FORN;
+}
+
+let USUARIOS = [];
+const RECURSOS=['Solicitação','Aprovação','Título a pagar','Título a receber','Rateio','Orçamento','Plano de contas','Fornecedor','Filial','Usuário','Perfil','Log'];
+
+/* ============================================================
+   MENU
+   ============================================================ */
+const MENU=[
+ {g:'',itens:[
+   {k:'inicio',t:'Início',i:I.home},
+   {k:'minhas',t:'Minhas solicitações',i:I.doc},
+   {k:'nova',t:'Nova solicitação',i:I.plus},
+   {k:'kanban',t:'Fluxo do processo',i:I.split}]},
+ {g:'Financeiro',itens:[
+   {k:'aprovacoes',t:'Aprovações',i:I.check,badge:()=>PEND.length},
+   {k:'autorizacoes',t:'Autorizações',i:I.doc,badge:()=>AUTORIZ.filter(a=>!a.chave).length},
+   {k:'fluxo',t:'Fluxo de caixa',i:I.flow},
+   {k:'pagar',t:'Contas a pagar',i:I.pay},
+   {k:'receber',t:'Contas a receber',i:I.rec},
+   {k:'rateio',t:'Rateio',i:I.split}]},
+ {g:'Gestão',itens:[
+   {k:'gerencial',t:'Painel gerencial',i:I.chart},
+   {k:'orcamento',t:'Orçamento',i:I.budget}]},
+ {g:'Cadastros',itens:[
+   {k:'plano',t:'Plano de contas',i:I.book},
+   {k:'fornecedores',t:'Fornecedores',i:I.truck},
+   {k:'filiais',t:'Filiais e centros de custo',i:I.pin}]},
+ {g:'Administração',itens:[
+   {k:'usuarios',t:'Usuários',i:I.user},
+   {k:'perfis',t:'Perfis e permissões',i:I.key},
+   {k:'import',t:'Importações',i:I.up},
+   {k:'logs',t:'Logs e auditoria',i:I.log},
+   {k:'params',t:'Parâmetros',i:I.cog}]}
+];
+const TITLES={inicio:'Início',minhas:'Minhas solicitações',nova:'Nova solicitação',
+ kanban:'Fluxo do processo',aprovacoes:'Aprovações',autorizacoes:'Autorizações',
+ fluxo:'Fluxo de caixa',pagar:'Contas a pagar',receber:'Contas a receber',rateio:'Rateio',
+ gerencial:'Painel gerencial',orcamento:'Orçamento',plano:'Plano de contas',fornecedores:'Fornecedores',
+ filiais:'Filiais e centros de custo',usuarios:'Usuários',perfis:'Perfis e permissões',
+ import:'Importações',logs:'Logs e auditoria',params:'Parâmetros'};
+const CRUMB={inicio:'',minhas:'',nova:'',kanban:'',aprovacoes:'Financeiro',fluxo:'Financeiro',pagar:'Financeiro',
+ receber:'Financeiro',rateio:'Financeiro',gerencial:'Gestão',orcamento:'Gestão',plano:'Cadastros',
+ fornecedores:'Cadastros',filiais:'Cadastros',usuarios:'Administração',perfis:'Administração',
+ import:'Administração',logs:'Administração',params:'Administração'};
+
+let VIEW='inicio';
+function renderMenu(){
+  const el=document.getElementById('menu'); let h='';
+  MENU.forEach(gr=>{
+    const vis=gr.itens.filter(it=>sees(it.k));
+    if(!vis.length)return;
+    if(gr.g)h+=`<div class="grp">${gr.g}</div>`;
+    vis.forEach(it=>{
+      const b=it.badge?it.badge():0;
+      h+=`<button class="nav ${VIEW===it.k?'on':''}" onclick="go('${it.k}')">
+            ${svg(it.i)}<span class="lb">${it.t}</span>${b?`<span class="bdg">${b}</span>`:''}</button>`;
+    });
+  });
+  el.innerHTML=h;
+}
+function go(k){ if(!sees(k))k='inicio'; VIEW=k; renderMenu(); render(); document.getElementById('rail').classList.remove('mob'); window.scrollTo(0,0);}
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+function head(extra=''){
+  const c=CRUMB[VIEW];
+  return `<div class="crumb">${c?`<b>${c}</b> <span>/</span> `:''}${TITLES[VIEW]}</div>
+  <div class="ph1"><div><h1>${TITLES[VIEW]}</h1><p class="sub">${SUBS[VIEW]||''}</p></div>
+  <div class="acts">${extra}</div></div>`;
+}
+const SUBS={
+ inicio:'Sua posição de hoje',
+ minhas:'Tudo que você lançou, em qualquer estágio',
+ nova:'A regra e o impacto no caixa aparecem enquanto você preenche',
+ kanban:'Solicitar · Validar · Consultar caixa · Aprovar · Autorizar · Receber',
+ aprovacoes:'A fila da reunião de aprovação financeira',
+ fluxo:'12 semanas · previsto, comprometido e realizado',
+ pagar:'Títulos comprometidos e pagos',
+ receber:'CT-e previsto, recebível confirmado e recebido',
+ rateio:'Distribuição das notas entre as filiais que consomem',
+ gerencial:'Orçado × previsto × comprometido × realizado',
+ orcamento:'Plano orçamentário mensal por classificação',
+ plano:'A espinha dorsal do processo — classificação e suas regras',
+ fornecedores:'Só fornecedor ativo pode ser selecionado numa solicitação',
+ filiais:'Unidades e centros de custo para rateio',
+ usuarios:'Acesso, perfil, escopo de filial e limite de alçada',
+ perfis:'O que cada perfil pode ver e fazer, recurso por recurso',
+ import:'Baixe o modelo, preencha, valide e confirme',
+ logs:'Log de acesso e trilha de auditoria — uma aba por semana',
+ params:'Saldo inicial, alçadas, calendário de pagamento e integrações'
+};
+const btnImport = rec => (can('incluir',rec)||can('incluir','*'))
+  ? `<button class="btn" onclick="toast('Baixando modelo XLSX com os cabeçalhos exatos…')">${svg('M12 3v12M7 10l5 5 5-5M4 21h16')}Baixar modelo</button>
+     <button class="btn pri" onclick="go('import')">${svg(I.up)}Importar</button>`
+  : `<span class="lock">${svg('M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z')} sem permissão de inclusão</span>`;
+
+function tblSol(list,cols){
+  if(!list.length)return `<div class="empty">Nada por aqui.</div>`;
+  return `<div class="tw"><table><thead><tr>
+    <th>Nº</th><th>Fornecedor</th><th>Classificação</th><th style="text-align:right">Valor</th>
+    <th>Prev. pgto</th><th>Prazo</th><th>Status</th>${cols?'<th>Recomendação</th>':''}</tr></thead><tbody>
+    ${list.map(s=>`<tr onclick="openSol('${s.id}')">
+      <td class="id">${s.id.slice(-5)}</td>
+      <td>${s.forn}<div style="font-size:11px;color:var(--ink-3)">${s.desc}</div></td>
+      <td>${s.cls}</td>
+      <td class="n">${money(s.val)}</td>
+      <td class="n">${s.prev}</td>
+      <td>${s.ant==='OK'?'<span class="tag t-ok"><i class="dot"></i>OK</span>':'<span class="tag t-cr"><i class="dot"></i>Fora do prazo</span>'}</td>
+      <td><span class="tag ${STMAP[s.st]}">${s.st}</span></td>
+      ${cols?`<td><span class="tag t-${RECMAP[s.rec]==='ok'?'ok':RECMAP[s.rec]==='wa'?'wa':RECMAP[s.rec]==='cr'?'cr':'mu'}">${s.rec}</span></td>`:''}
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+function vInicio(){
+  const pend=PEND.reduce((a,s)=>a+s.val,0);
+  return head()+`
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card kpi b"><div class="l">Pendentes de aprovação</div><div class="v">${PEND.length}</div><div class="d">R$ ${m0(pend)} parados</div></div>
+    <div class="card kpi a"><div class="l">Saldo projetado desta semana</div>
+      <div class="v">${WEEKS.length?m0(FLOW.saldoAcu[0]):'—'}</div>
+      <div class="d">${WEEKS.length?WEEKS[0]+' · a partir de '+WDATE[0]:'fluxo ainda não projetado'}</div></div>
+    <div class="card kpi d2"><div class="l">Semanas em atenção</div>
+      <div class="v">${(FLOW.sit||[]).filter(x=>x!=='OK').length}</div>
+      <div class="d">${(FLOW.sit||[]).map((x,i)=>x!=='OK'?WEEKS[i]:null).filter(Boolean).join(', ')||'nenhuma nas '+WEEKS.length+' semanas'}</div></div>
+    <div class="card kpi c"><div class="l">Comprometido nas 12 semanas</div>
+      <div class="v">${m0((FLOW.comprometido||[]).reduce((a,b)=>a+b,0))}</div>
+      <div class="d">${m0((FLOW.previsto||[]).reduce((a,b)=>a+b,0))} ainda como previsto</div></div>
+  </div>
+  <div class="grid" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <div class="card">
+      <div class="card-h"><h3>Precisa da sua decisão</h3><div class="r"><button class="btn sm" onclick="go('aprovacoes')">Ver todas</button></div></div>
+      <div class="card-b" style="display:flex;flex-direction:column;gap:9px;padding-top:13px">
+        ${PEND.slice(0,5).map(s=>`<div class="row-c" onclick="openSol('${s.id}')">
+          <span class="tag t-${RECMAP[s.rec]}" style="flex:none">${s.rec}</span>
+          <div style="flex:1;min-width:0">
+            <div class="t">${s.forn}</div>
+            <div class="d">${s.cls} · prev. ${s.prev} · ${s.sem} · saldo R$ ${m0(s.saldo)}</div>
+          </div>
+          <div class="v">${m0(s.val)}</div>
+          <div style="flex:none;opacity:.5">${svg('M9 6l6 6-6 6')}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Consistência do processo</h3></div>
+      <div class="card-b" style="display:flex;flex-direction:column;gap:11px">
+        ${consistencia()}
+      </div>
+    </div>
+  </div>`;
+}
+/** Cada linha aqui é uma contagem sobre os dados reais. Quando dá zero, vira um OK. */
+function consistencia(){
+  const hoje=new Date(); hoje.setHours(0,0,0,0);
+  const atrasadas = SOL.filter(s=>s.prevIso && new Date(s.prevIso+'T00:00:00')<hoje
+                                 && ['PAGO','REPROVADO','CANCELADO'].indexOf(s.status)<0);
+  const semAnexo  = SOL.filter(s=>s.pre && s.pre.anexo===false);
+  const semPlaca  = SOL.filter(s=>s.pre && s.pre.placa===false);
+  const semRateio = SOL.filter(s=>s.pre && s.pre.rateio===false);
+  const foraPrazo = SOL.filter(s=>s.ant==='FORA DO PRAZO'
+                                 && ['PAGO','REPROVADO','CANCELADO'].indexOf(s.status)<0);
+  const semCaixa  = SOL.filter(s=>s.rec==='REPROGRAMAR');
+  const plural=(n,a,b)=>n+' '+(n===1?a:b);
+
+  const linhas=[];
+  if(atrasadas.length) linhas.push(cons(plural(atrasadas.length,'solicitação em atraso','solicitações em atraso'),
+    'A data prevista de pagamento já passou e o título não foi pago.','cr','pagar'));
+  if(semCaixa.length) linhas.push(cons(plural(semCaixa.length,'solicitação sem caixa na semana','solicitações sem caixa na semana'),
+    'A recomendação é reprogramar na reunião.','wa','aprovacoes'));
+  if(foraPrazo.length) linhas.push(cons(plural(foraPrazo.length,'solicitação fora do prazo mínimo','solicitações fora do prazo mínimo'),
+    'Pedidas com menos antecedência do que a categoria exige.','wa','aprovacoes'));
+  if(semAnexo.length) linhas.push(cons(plural(semAnexo.length,'solicitação sem orçamento anexo','solicitações sem orçamento anexo'),
+    'A categoria exige a cotação anexada para seguir.','wa','kanban'));
+  if(semPlaca.length) linhas.push(cons(plural(semPlaca.length,'gasto de frota sem placa','gastos de frota sem placa'),
+    'Sem a placa não há como apurar custo por veículo.','wa','kanban'));
+  if(semRateio.length) linhas.push(cons(plural(semRateio.length,'rateio que não fecha 100%','rateios que não fecham 100%'),
+    'A soma precisa fechar nos dois eixos: filial e centro de custo.','cr','rateio'));
+
+  if(!linhas.length) linhas.push(cons('Nada pendente de conferência',
+    plural(SOL.length,'solicitação no período','solicitações no período')+
+    ', com os pré-requisitos em ordem.','ok','minhas'));
+  linhas.push(cons('Plano de contas carregado',
+    plural(PLANO.length,'conta','contas')+' e '+
+    plural(CAT.length,'categoria de compra ativa','categorias de compra ativas')+'.','ok','plano'));
+  return linhas.join('');
+}
+
+const cons=(t,d,k,go_)=>`<div class="verdict ${k}" style="padding:11px 13px;cursor:pointer" onclick="go('${go_}')">
+  <div style="flex:none;margin-top:1px">${svg(k==='ok'?I.check:'M12 8v5M12 16.5h.01M10.3 3.9 2.4 17.4A1.9 1.9 0 0 0 4 20.3h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z')}</div>
+  <div><b>${t}</b><p>${d}</p></div>
+  <div style="margin-left:auto;flex:none;opacity:.6">${svg('M9 6l6 6-6 6')}</div></div>`;
+
+function vMinhas(){
+  const me=EU.nome;
+  const list=PERMS[ROLE].escopo==='PROPRIO'?SOL.filter(s=>s.sol===me):SOL;
+  return head(`<button class="btn pri" onclick="go('nova')">${svg(I.plus)}Nova solicitação</button>`)+
+  `<div class="chips">${['Todas','Aguardando Aprovação','Aprovado','Reprogramado','Comprometido','Pago'].map((c,i)=>`<span class="chip ${i===0?'on':''}">${c}</span>`).join('')}</div>
+   <div class="card">${tblSol(list,false)}</div>
+   ${PERMS[ROLE].escopo==='PROPRIO'?`<div class="note" style="margin-top:14px"><b>Escopo do perfil Solicitante:</b> você só enxerga o que lançou. Financeiro e Diretoria veem todas as filiais.</div>`:''}`;
+}
+
+/* ============================================================
+   NOVA SOLICITAÇÃO — acordeão com estado por seção
+   ============================================================ */
+let ALC=[];
+
+
+/* Tooltips dos campos. Texto curto que responde "por que isso importa", e não
+   o que já está escrito no rótulo — repetir o rótulo num balão é ruído. */
+const TIPS = {
+  fCat:'Escolha em linguagem de operação. O sistema deduz a conta contábil a partir dela e do tipo do fornecedor — você nunca precisa saber o código.',
+  fDesc:'É a primeira coisa que o aprovador lê. "Recapagem de 16 pneus 295/80" decide mais rápido que "material diverso".',
+  fPlaca:'Categoria de frota exige placa: é o que permite apurar custo por veículo no fim do mês.',
+  fForn:'A lista já vem filtrada pela categoria. Se o fornecedor certo não aparece, a categoria provavelmente é outra.',
+  fArea:'Quem está pedindo. Define para onde vai a notificação de aprovação.',
+  fFil:'A filial que <b>emite a nota</b> — quem paga. Não é necessariamente quem consome.',
+  fCentro:'A natureza que <b>consome</b> o gasto. Eixo diferente da filial: o rateio usa os dois, e cada um fecha 100%.',
+  fVal:'Valor bruto estimado. É ele que define a alçada e o que entra no fluxo de caixa como compromisso.',
+  fCond:'Em branco, o sistema usa a condição padrão da categoria. Mudar aqui muda a data prevista.',
+  fForma:'Como o dinheiro sai. PIX e TED saem no dia; boleto e cartão têm data própria.',
+  fDt:'A data que entra no fluxo de caixa. É por ela que o sistema diz se há dinheiro na semana.',
+  fCod:'Deduzida da categoria e do fornecedor. Só o Financeiro altera, e a alteração fica no log.',
+  fGrp:'Grupo da DRE em que este gasto vai aparecer no resultado do mês.',
+  fAntM:'Antecedência que a categoria exige. Abaixo dela a recomendação vira AVALIAR — não bloqueia, avisa.',
+  fAntP:'Quantos dias faltam da data de hoje até a data prevista de pagamento.',
+  fAlc:'Faixa de valor que define quem pode aprovar. Quanto maior o valor, mais alta a alçada.',
+  fApr:'Quem tem de assinar. Acima de R$ 50 mil são duas assinaturas.',
+  fSem:'Semana do fluxo em que este pagamento cai.',
+  fSaldo:'Saldo projetado da semana <b>depois</b> de considerar este compromisso.'
+};
+
+const REQ={1:['fCat'],2:['fForn','fArea','fFil','fCentro'],3:['fVal','fDt']};
+const ROTULO={fCat:'O que você vai comprar',fPlaca:'Placa do veículo',fForn:'Fornecedor',fArea:'Área solicitante',
+              fFil:'Filial de emissão',fCentro:'Centro de custo',
+              fVal:'Valor bruto',fDt:'Data prevista de pagamento'};
+let FORM={aberto:{1:false,2:false,3:false,4:false},tocado:{},tentou:false};
+
+const val = id => (document.getElementById(id)||{}).value || '';
+const opt = (v,t)=>`<option value="${v}">${t||v}</option>`;
+
+function campo(id,label,obrig,html,hint){
+  const t=TIPS[id];
+  return `<div class="f"><label for="${id}"${t?` data-tip="${t}"`:''}>${label}${obrig?' <span class="req">*</span>':''}</label>
+    ${html}${hint?`<span class="hint">${hint}</span>`:''}</div>`;
+}
+function sel(id,itens,vazio){
+  return `<select id="${id}" onchange="marcar('${id}');checar()" onblur="marcar('${id}');checar()">
+    <option value="">${vazio||'— selecione —'}</option>${itens.map(i=>opt(i.v||i,i.t||i)).join('')}</select>`;
+}
+function calcField(id,label){
+  const t=TIPS[id];
+  return `<div class="f"><label${t?` data-tip="${t}"`:''}>${label}</label><input class="calc" id="${id}" readonly></div>`;
+}
+function secao(n,titulo,corpo){
+  return `<section class="acc ${FORM.aberto[n]?'':'closed'}" id="acc${n}">
+    <button class="acc-h" onclick="toggleSec(${n})" aria-expanded="${FORM.aberto[n]}" aria-controls="c${n}">
+      <svg class="acc-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      <span class="acc-n">${n}</span><span class="acc-t">${titulo}</span>
+      <span class="acc-s st-mu" id="st${n}">—</span>
+    </button>
+    <div class="acc-c" id="c${n}">${corpo}</div></section>`;
+}
+function toggleSec(n){
+  FORM.aberto[n]=!FORM.aberto[n];
+  const a=document.getElementById('acc'+n);
+  a.classList.toggle('closed',!FORM.aberto[n]);
+  a.querySelector('.acc-h').setAttribute('aria-expanded',FORM.aberto[n]);
+  rotuloTudo();
+}
+function marcar(id){ FORM.tocado[id]=true; }
+
+/** Expande ou recolhe as quatro de uma vez. */
+function alternarTudo(){
+  const abrir = [1,2,3,4].some(n=>!FORM.aberto[n]);
+  [1,2,3,4].forEach(n=>{ if(FORM.aberto[n]!==abrir) toggleSec(n); });
+  rotuloTudo();
+}
+function rotuloTudo(){
+  const b=document.getElementById('btnTudo'); if(!b)return;
+  b.textContent = [1,2,3,4].some(n=>!FORM.aberto[n]) ? 'Expandir tudo' : 'Recolher tudo';
+}
+
+function vNova(){
+  return head(`<button class="btn" id="btnTudo" onclick="alternarTudo()">Expandir tudo</button>
+    `)+
+
+  secao(1,'O que você vai comprar',`<div class="form">
+    <div class="f w2"><label>Mais usadas</label>
+      <div id="catChips">${CAT.filter(c=>['FR-PEC','FR-PNE','FR-OFI','CA-FRE','CA-MAN'].indexOf(c[0])>=0)
+        .map(c=>`<button class="btn sm" onclick="escolherCat('${c[0]}')">${c[2]}</button>`).join(' ')}</div>
+      <span class="hint">Cinco categorias respondem pela maior parte das compras da Salomé.</span></div>
+    ${campo('fCat','O que você vai comprar',true,
+      `<select id="fCat" onchange="marcar('fCat');mudouCat()" onblur="marcar('fCat');checar()">
+         <option value="">— selecione —</option>
+         ${Object.keys(BLOCOS).map(b=>`<optgroup label="${BLOCOS[b][0]} · ${BLOCOS[b][1]}">
+            ${CAT.filter(c=>c[1]===b).map(c=>`<option value="${c[0]}">${c[2]}</option>`).join('')}
+          </optgroup>`).join('')}
+       </select>`,
+      'Você escolhe em linguagem de operação. A conta contábil o sistema deduz sozinho.')}
+    <div class="f w2"><label for="fDesc">Descrição do item ou serviço</label>
+      <input id="fDesc" placeholder="Ex.: recapagem de 16 pneus 295/80 R22.5">
+      <span class="hint" id="fCatEx">Opcional — mas é o que o aprovador lê primeiro.</span></div>
+    <div class="f" id="wrapPlaca" style="display:none"><label for="fPlaca">Placa do veículo <span class="req">*</span></label>
+      <input id="fPlaca" placeholder="ABC1D23" oninput="checar()" onblur="marcar('fPlaca');checar()">
+      <span class="hint">Esta categoria é gasto de frota: sem placa não dá para apurar custo por veículo.</span></div>
+  </div>`)+
+
+  secao(2,'De quem, e para quem é o gasto',`<div class="form">
+    ${campo('fForn','Fornecedor',true,sel('fForn',[]),'A lista encurta sozinha depois que você escolhe a categoria.')}
+    <div class="f w2" id="fFornInfo"></div>
+    ${campo('fArea','Área solicitante',true,sel('fArea',AREAS_CAD.map(a=>({v:a.AREA_ID,t:a.NOME||a.AREA_ID}))))}
+    ${campo('fFil','Filial que emite a NF',true,sel('fFil',FILIAIS_CAD.map(f=>({v:f.FILIAL_ID,t:(f.CODIGO||f.FILIAL_ID)+' · '+(f.NOME||'')}))))}
+    ${campo('fCentro','Centro de custo',true,sel('fCentro',CENTROS.map(c=>({v:c[0],t:c[1]+' · '+c[2]}))),
+      'Filial é quem paga. Centro de custo é qual natureza consome. São eixos diferentes — e o rateio usa os dois.')}
+  </div>`)+
+
+  secao(3,'Valor e condições',`<div class="form">
+    ${campo('fVal','Valor bruto estimado (R$)',true,`<input id="fVal" inputmode="decimal" placeholder="0,00" oninput="checar()" onblur="normVal();marcar('fVal');checar()">`)}
+    ${campo('fCond','Condição de pagamento',false,sel('fCond',CONDICOES_CAD.map(c=>({v:c.CONDICAO_ID,t:c.NOME||c.CONDICAO_ID})),'— usar a padrão da categoria —'))}
+    ${campo('fForma','Forma de pagamento',false,sel('fForma',FORMAS_CAD.map(f=>({v:f.FORMA_ID,t:f.NOME||f.FORMA_ID}))))}
+    ${campo('fDt','Data prevista de pagamento',true,`<input id="fDt" type="date" onchange="marcar('fDt');checar()" onblur="marcar('fDt');checar()">`)}
+    <div class="f w2" id="fRet"></div>
+  </div>`)+
+
+  secao(4,'Validação e impacto no caixa',`<div class="form">
+    ${calcField('fCod','Conta contábil deduzida')}${calcField('fGrp','Grupo DRE')}
+    ${calcField('fAntM','Antecedência mínima')}${calcField('fAntP','Antecedência praticada')}
+    ${calcField('fAlc','Alçada requerida')}${calcField('fApr','Aprovador')}
+    ${calcField('fSem','Semana do pagamento')}${calcField('fSaldo','Saldo projetado da semana')}
+  </div><div id="fVerdict" style="margin-top:14px"></div>`)+
+  `<div class="form-foot">
+     <div class="prog"><div class="t" id="progT">—</div><div class="bar"><i id="progB" style="width:0"></i></div></div>
+     <div class="foot-acts">
+       <button class="btn" onclick="salvarRascunho()">Salvar rascunho</button>
+       <button class="btn pri" id="btnEnviar" onclick="enviar()">${svg(I.check)}Enviar para aprovação</button>
+     </div>
+   </div>`;
+}
+
+function escolherCat(id){
+  const e=document.getElementById('fCat'); if(!e)return;
+  e.value=id; FORM.tocado.fCat=true; mudouCat();
+  if(!FORM.aberto[2]) toggleSec(2);
+}
+
+/** Trocar a categoria remonta a lista de fornecedores e liga/desliga a placa. */
+function mudouCat(){
+  const id=val('fCat'), c=CAT_MAP[id];
+  const sf=document.getElementById('fForn');
+  if(sf){
+    const anterior=sf.value;
+    const lista=id?fornDaCategoria(id):FORN;
+    sf.innerHTML='<option value="">— selecione —</option>'+
+      lista.map(f=>`<option value="${f[0]}">${f[1]}${f[2]==='PF'?' · pessoa física':''}</option>`).join('');
+    if(lista.some(f=>f[0]===anterior)) sf.value=anterior; else sf.value='';
+  }
+  const ex=document.getElementById('fCatEx');
+  if(ex) ex.textContent = c ? 'Ex.: '+c.ex : 'Opcional — mas é o que o aprovador lê primeiro.';
+  const w=document.getElementById('wrapPlaca');
+  if(w) w.style.display = (c&&c.placa) ? '' : 'none';
+  const sc=document.getElementById('fCentro');
+  if(sc && c && !sc.value){ sc.value=c.centro; }
+  checar();
+}
+
+/** Recalcula estado das seções, campos, barra de progresso e o veredito. */
+/**
+ * Ao sair do campo, o valor é reescrito no formato brasileiro.
+ *
+ * Não é enfeite: é o único jeito de a pessoa CONFERIR o que o sistema entendeu. Quem
+ * digita "4200.50" vê "4.200,50" e segue; se visse o campo como digitou, só descobriria
+ * o mal-entendido depois de aprovado.
+ */
+function normVal(){
+  const e = document.getElementById('fVal');
+  if (!e || !e.value.trim()) return;
+  e.value = money(numBR(e.value));
+}
+function checar(){
+  let completas=0, primeiraIncompleta=null, faltaGeral=[];
+  const cSel=CAT_MAP[val('fCat')];
+  const exigidos = n => (n===1 && cSel && cSel.placa) ? REQ[1].concat(['fPlaca']) : REQ[n];
+  [1,2,3].forEach(n=>{
+    const faltam=exigidos(n).filter(id=>!val(id));
+    faltam.forEach(id=>faltaGeral.push(ROTULO[id]));
+    exigidos(n).forEach(id=>{
+      const el=document.getElementById(id); if(!el)return;
+      el.classList.toggle('falta', Boolean(!val(id) && (FORM.tentou || FORM.tocado[id])));
+    });
+    const acc=document.getElementById('acc'+n), st=document.getElementById('st'+n);
+    if(!acc)return;
+    acc.classList.toggle('ok',faltam.length===0);
+    acc.classList.toggle('pend',faltam.length>0);
+    st.className='acc-s '+(faltam.length===0?'st-ok':'st-pend');
+    st.innerHTML=faltam.length===0
+      ? svg(I.check)+'Completo'
+      : faltam.length+(faltam.length===1?' campo pendente':' campos pendentes');
+    if(faltam.length===0)completas++; else if(primeiraIncompleta===null)primeiraIncompleta=n;
+  });
+
+  const pct=Math.round(completas/3*100);
+  document.getElementById('progB').style.width=pct+'%';
+  const resumo = faltaGeral.length<=2
+      ? 'falta ' + faltaGeral.join(' e ').toLowerCase()
+      : faltaGeral.length + ' campos obrigatórios pendentes';
+  document.getElementById('progT').textContent=
+    completas===3 ? 'Pronta para enviar' : `${completas} de 3 seções completas · ${resumo}`;
+
+  calc();
+  return {completas:completas, primeira:primeiraIncompleta, faltam:faltaGeral};
+}
+
+/** Seção 4 — só calcula o que já dá para calcular. */
+function calc(){
+  const set=(id,v)=>{const e=document.getElementById(id); if(e)e.value=v;};
+  const cls = val('fCat') ? classificar(val('fCat'), val('fForn')) : null;
+
+  // Ficha do fornecedor: é o Simples que decide a retenção.
+  const fi=document.getElementById('fFornInfo'), f=FORN_MAP[val('fForn')];
+  if(fi) fi.innerHTML = !f ? '' :
+    `<div class="note">${f.nome} · ${f.tipo==='PF'?'pessoa física':'pessoa jurídica'} ·
+     ${f.simples==='SIM'?'<b>optante do Simples</b>':'não optante do Simples'} ·
+     CNPJ ainda não cadastrado.</div>`;
+
+  if(cls&&cls.erro){
+    ['fCod','fGrp','fAntM','fAntP','fAlc','fApr','fSem','fSaldo'].forEach(id=>set(id,''));
+    const v=document.getElementById('fVerdict');
+    if(v)v.innerHTML=`<div class="verdict cr"><div style="flex:none">${svg('M12 8v5M12 16.5h.01M10.3 3.9 2.4 17.4A1.9 1.9 0 0 0 4 20.3h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z')}</div>
+      <div><b>Combinação inválida</b><p>${cls.erro}</p></div></div>`;
+    const a4=document.getElementById('acc4'), s4=document.getElementById('st4');
+    if(a4){a4.classList.remove('ok','pend');a4.classList.add('cr');}
+    if(s4){s4.className='acc-s st-cr';s4.textContent='CORRIGIR';}
+    return;
+  }
+
+  set('fCod', cls?cls.cod+' · '+cls.desc:'');
+  set('fGrp', cls?cls.grupo:'');
+  set('fAntM', cls?cls.ant+' dias':'');
+
+  const valor=numBR(val('fVal'));
+  const rw=document.getElementById('fRet');
+  if(rw) rw.innerHTML = (!cls||!cls.aliq) ? (cls&&cls.ret!=='NENHUMA'
+      ? `<div class="note">Retenção: ${RET_TXT[cls.ret]}. Neste fornecedor, nada a reter.</div>` : '')
+    : `<div class="note"><b>Retenção estimada ${cls.aliq.toFixed(2).replace('.',',')}%</b> — ${RET_TXT[cls.ret]}.
+       ${valor?`Bruto ${money(valor)} · retido ${money(valor*cls.aliq/100)} · líquido ${money(valor-valor*cls.aliq/100)}.`:''}
+       O compromisso no fluxo é o bruto; o que sai do caixa é o líquido. Estimativa — o valor oficial é o da nota.</div>`;
+
+  const acc4=document.getElementById('acc4'), st4=document.getElementById('st4');
+  const dtTxt=val('fDt');
+
+  if(!cls||!dtTxt||!valor){
+    ['fAntP','fAlc','fApr','fSem','fSaldo'].forEach(id=>set(id,''));
+    if(acc4){acc4.classList.remove('ok','pend','cr');}
+    if(st4){st4.className='acc-s st-mu';st4.textContent='Aguardando os campos acima';}
+    const v=document.getElementById('fVerdict');
+    if(v)v.innerHTML=`<div class="verdict" style="background:var(--surface-2);color:var(--ink-3)">
+      <div style="flex:none">${svg('M12 8v5M12 16.5h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18')}</div>
+      <div><b>Nada a validar ainda</b><p>Escolha a categoria, o valor e a data prevista — a regra e o saldo aparecem aqui na hora.</p></div></div>`;
+    return;
+  }
+
+  const dt=new Date(dtTxt+'T00:00:00'), hoje=new Date(); hoje.setHours(0,0,0,0);
+  const dias=Math.round((dt-hoje)/864e5);
+  set('fAntP',dias+' dias');
+  const a=ALC.find(x=>valor<=x[0]);
+  set('fAlc',a[1]); set('fApr',a[2]);
+
+  let wi=-1;
+  for(let i=WDATE.length-1;i>=0;i--){const [d,m]=WDATE[i].split('/');
+    if(new Date(2026,+m-1,+d)<=dt){wi=i;break}}
+  const saldo=wi>=0?FLOW.saldoAcu[wi]:null;
+  set('fSem',wi>=0?WEEKS[wi]+' · '+WDATE[wi]:'fora do horizonte');
+  set('fSaldo',saldo!==null?'R$ '+m0(saldo):'—');
+
+  let k,t,d;
+  if(saldo===null){k='wa';t='SEM PROJEÇÃO DE CAIXA';d='A data está fora das 12 semanas do fluxo.';}
+  else if(saldo<0){k='cr';t='REPROGRAMAR';d='A semana fecha com caixa negativo.';}
+  else if(saldo<150000){k='wa';t='AVALIAR NA REUNIÃO';d='Saldo abaixo do mínimo de segurança (R$ 150.000).';}
+  else if(dias<cls.ant){k='wa';t='AVALIAR — fora do prazo';
+    d=`"${cls.nome}" pede ${cls.ant} dias de antecedência; foram pedidos ${dias}.`;}
+  else {k='ok';t='LIBERAR';d='Há caixa na semana e a regra de antecedência foi cumprida.';}
+
+  if(acc4){acc4.classList.toggle('ok',k==='ok');acc4.classList.toggle('pend',k==='wa');
+           acc4.classList.toggle('cr',k==='cr');}
+  if(st4){st4.className='acc-s '+(k==='ok'?'st-ok':k==='cr'?'st-cr':'st-pend');st4.textContent=t;}
+  document.getElementById('fVerdict').innerHTML=`<div class="verdict ${k}">
+    <div style="flex:none">${svg(k==='ok'?I.check:'M12 8v5M12 16.5h.01M10.3 3.9 2.4 17.4A1.9 1.9 0 0 0 4 20.3h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z')}</div>
+    <div><b>${t}</b><p>${d}</p></div></div>`;
+}
+
+/** Não bloqueia o botão: deixa clicar e diz exatamente o que falta. */
+function enviar(){
+  FORM.tentou=true;
+  const r=checar();
+  if(r.completas<3){
+    if(!FORM.aberto[r.primeira])toggleSec(r.primeira);
+    const alvo=(r.primeira===1&&CAT_MAP[val('fCat')]&&CAT_MAP[val('fCat')].placa?REQ[1].concat(['fPlaca']):REQ[r.primeira]).find(id=>!val(id));
+    const el=document.getElementById(alvo);
+    el.scrollIntoView({block:'center',behavior:'smooth'}); el.focus();
+    toast(r.faltam.length===1 ? 'Falta preencher: '+r.faltam[0]+'.'
+                              : 'Faltam '+r.faltam.length+' campos. Comece por '+r.faltam[0]+'.');
+    return;
+  }
+  enviarAoServidor();
+}
+
+async function salvarRascunho(){
+  const num=v=>numBR(v);
+  try{
+    await API.chamar('sol.salvar',{enviar:false,
+      categoriaId:val('fCat'), fornecedorId:val('fForn'), areaId:val('fArea'),
+      filialEmissao:val('fFil'), centroCusto:val('fCentro'), placa:val('fPlaca'),
+      descricao:val('fDesc'), valorBruto:num(val('fVal')), condicaoId:val('fCond'),
+      formaId:val('fForma'), dataPrevista:val('fDt')});
+    await recarregar('Rascunho salvo. Ele aparece em Minhas solicitações.');
+  }catch(e){ toast('Não consegui salvar: '+e.message,'cr'); }
+}
+
+async function enviarAoServidor(){
+  const btn=document.getElementById('btnEnviar');
+  const antes=btn.innerHTML; btn.disabled=true; btn.textContent='Enviando…';
+  const num=v=>numBR(v);
+  try{
+    const r=await API.chamar('sol.salvar',{
+      enviar:true,
+      categoriaId:val('fCat'), fornecedorId:val('fForn'),
+      areaId:val('fArea'), filialEmissao:val('fFil'), centroCusto:val('fCentro'),
+      placa:val('fPlaca'), descricao:val('fDesc'),
+      valorBruto:num(val('fVal')), condicaoId:val('fCond'), formaId:val('fForma'),
+      dataPrevista:val('fDt')
+    });
+    const id=(r&&(r.id||(r.registro&&r.registro.SOLICITACAO_ID)))||'';
+    FORM={aberto:{1:false,2:false,3:false,4:false},tocado:{},tentou:false};
+    await recarregar(id? id+' enviada para aprovação. Registrada no log.' : 'Solicitação enviada.');
+    go('minhas');
+  }catch(e){
+    toast('Não consegui enviar: '+e.message,'cr');
+  }finally{ btn.disabled=false; btn.innerHTML=antes; }
+}
+
+function preencherExemplo(){
+  const cat='FR-PNE';
+  const fc=document.getElementById('fCat'); if(fc){fc.value=cat;FORM.tocado.fCat=true;}
+  mudouCat();
+  const alvo=fornDaCategoria(cat)[0];
+  const p={fForn:alvo?alvo[0]:'',fArea:'Manutenção / Frota',fFil:'RP',fCentro:'OPE',
+           fPlaca:'FGH7E41',fDesc:'Recapagem de 16 pneus 295/80 R22.5',
+           fVal:'12600',fCond:'30/60 dias',fForma:'Boleto bancário',fDt:'2026-10-16'};
+  Object.keys(p).forEach(id=>{const e=document.getElementById(id);if(e)e.value=p[id];FORM.tocado[id]=true;});
+  checar();
+  if(!FORM.aberto[4]) toggleSec(4);
+  toast('Exemplo preenchido — a conta contábil foi deduzida da categoria, não digitada.');
+}
+
+/**
+ * Autorizações — o passo que faltava entre aprovar e receber.
+ *
+ * Aprovar é dizer "pode comprar". Autorizar é mandar a capa ao fornecedor e anotar o
+ * número que ele devolve. Enquanto os dois eram o mesmo clique, a etapa não pedia nada
+ * de ninguém e o pedido nunca chegava ao fornecedor — que é o ponto do sistema.
+ *
+ * A tela tem duas filas de propósito: emitir e aguardar resposta. São trabalhos
+ * diferentes, de dias diferentes, e misturá-los esconde quem está esperando o quê.
+ */
+/** Emitir capa e registrar pedido é de quem opera o fluxo, não de quem só acompanha. */
+function podeAut(){ return can('alterar','SOLICITACAO')||can('alterar','*'); }
+function vAutorizacoes(){
+  const emitir  = AUTORIZ.filter(a=>!a.chave);
+  const aguarda = AUTORIZ.filter(a=>a.chave && !a.pedido);
+  const prontas = AUTORIZ.filter(a=>a.chave && a.pedido);
+  const som = l => l.reduce((a,x)=>a+x.valor,0);
+
+  if(!AUTORIZ.length){
+    return head()+semDados('Nenhuma compra aguardando autorização',
+      'Aqui entram as solicitações aprovadas que ainda não foram ao fornecedor. ' +
+      'Assim que a reunião de caixa aprovar a primeira, ela aparece nesta fila.',
+      '<b>Por que é um passo separado:</b> aprovar é dizer "pode comprar"; autorizar é ' +
+      'mandar a capa ao fornecedor e registrar o pedido que ele devolve. Quem aprova o ' +
+      'dinheiro não é necessariamente quem fala com o fornecedor.');
+  }
+
+  const tabela = (lista, vazio, acao) => lista.length ? `<div class="tw"><table><thead><tr>
+      <th>Nº</th><th>Fornecedor</th><th>Item</th><th>Filial</th><th>Prev. pgto</th>
+      <th style="text-align:right">Valor</th><th></th></tr></thead><tbody>
+      ${lista.map(a=>`<tr>
+        <td class="id">${a.id.slice(-5)}</td>
+        <td>${a.fornecedor}${a.chave?`<div class="mono" style="font-size:11px;color:var(--ink-3)">${a.chave}</div>`:''}</td>
+        <td>${a.descricao||'—'}</td><td>${a.filial}</td><td class="n">${a.previsto}</td>
+        <td class="n">${money(a.valor)}</td>
+        <td style="text-align:right;white-space:nowrap">${acao(a)}</td></tr>`).join('')}
+    </tbody></table></div>` : `<div class="empty">${vazio}</div>`;
+
+  return head()+`
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card kpi b"><div class="l">A emitir</div><div class="v">${emitir.length}</div><div class="d">${m0(som(emitir))} aprovados sem capa</div></div>
+    <div class="card kpi d2"><div class="l">Aguardando o fornecedor</div><div class="v">${aguarda.length}</div><div class="d">${m0(som(aguarda))} com capa enviada</div></div>
+    <div class="card kpi c"><div class="l">Com pedido confirmado</div><div class="v">${prontas.length}</div><div class="d">${m0(som(prontas))} prontos para a NF</div></div>
+    <div class="card kpi a"><div class="l">Total autorizado</div><div class="v">${m0(som(AUTORIZ))}</div><div class="d">${AUTORIZ.length} compras</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-h"><h3>Emitir a capa</h3><div class="r" style="font-size:12px;color:var(--ink-3)">aprovadas, ainda sem autorização</div></div>
+    ${tabela(emitir,'Nada a emitir — tudo que foi aprovado já tem capa.',
+      a=>podeAut()?`<button class="btn sm pri" onclick="autEmitir('${a.id}')">Gerar autorização</button>`
+                 :`<span class="lock">sem permissão</span>`)}
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-h"><h3>Aguardando o número do pedido</h3><div class="r" style="font-size:12px;color:var(--ink-3)">capa enviada, fornecedor ainda não respondeu</div></div>
+    ${tabela(aguarda,'Ninguém esperando resposta de fornecedor.',
+      a=>podeAut()?`<button class="btn sm" onclick="autVerCapa('${a.id}')">Ver a capa</button>
+          <button class="btn sm pri" onclick="autPedido('${a.id}')">Registrar pedido</button>`
+                 :`<span class="lock">sem permissão</span>`)}
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>Prontas para receber a nota</h3></div>
+    ${tabela(prontas,'Nenhuma ainda.',
+      a=>`<span class="mono" style="font-size:11.5px">${a.pedido}</span>`)}
+    <div class="note" style="margin:0 16px 16px"><b>A nota fiscal só é aceita com o número do pedido.</b>
+    É ele que amarra o que o fornecedor faturou ao que a Salomé autorizou — e é por isso que
+    a chave da autorização e o pedido dele são dois campos, nunca um.</div>
+  </div>`;
+}
+
+async function autEmitir(id){
+  const r = await API.chamar('aut.emitir',{id:id}).catch(e=>{toast('Não consegui emitir: '+e.message,'cr');});
+  if(!r) return;
+  autMostrarCapa(id, r.capa, r.chave, r.reemissao);
+  await recarregar(r.mensagem);
+}
+async function autVerCapa(id){
+  const r = await API.chamar('aut.emitir',{id:id}).catch(e=>{toast('Não consegui abrir: '+e.message,'cr');});
+  if(r) autMostrarCapa(id, r.capa, r.chave, true);
+}
+/* A capa em texto, pronta para colar no e-mail. O PDF vem quando o Files.gs existir —
+   até lá o processo não pode ficar parado esperando o documento bonito. */
+function autMostrarCapa(id, capa, chave, reemissao){
+  openDrawer(`Autorização ${chave}`, `Solicitação ${id.slice(-5)}${reemissao?' · reemissão, mesma chave':''}`,
+    `<div class="note" style="margin-bottom:12px">Copie o texto abaixo e mande ao fornecedor.
+     Quando ele responder com o número do pedido, registre aqui — a nota fiscal só é aceita com ele.</div>
+     <textarea id="capa-${id}" readonly style="width:100%;min-height:300px;font-family:var(--mono);
+       font-size:12px;line-height:1.6;padding:14px;border:1px solid var(--line);border-radius:8px;
+       background:var(--surface-2);color:var(--ink)">${capa}</textarea>
+     <div class="acts" style="margin-top:12px">
+       <button class="btn pri" onclick="autCopiar('${id}')">Copiar o texto</button>
+       <button class="btn" onclick="closeDrawer();autPedido('${id}')">Registrar o pedido do fornecedor</button>
+     </div>`);
+}
+function autCopiar(id){
+  const e = document.getElementById('capa-'+id);
+  if(!e) return;
+  e.select();
+  try{ document.execCommand('copy'); toast('Capa copiada. Cole no e-mail ao fornecedor.'); }
+  catch(x){ toast('Selecione o texto e copie com Ctrl+C.'); }
+}
+async function autPedido(id){
+  const num = prompt('Número do pedido que o fornecedor devolveu:');
+  if(num===null) return;
+  if(!String(num).trim()){ toast('Sem o número não dá para registrar.','cr'); return; }
+  try{
+    const r = await API.chamar('aut.pedido',{id:id, pedido:num});
+    await recarregar(r.mensagem);
+  }catch(e){ toast('Não consegui gravar: '+e.message,'cr'); }
+}
+
+function vAprov(){
+  return head(`<button class="btn" onclick="openPhone()">${svg(I.phone)}Ver no celular</button>
+    <button class="btn pri" onclick="toast('Selecione as linhas para aprovar em lote.')">${svg(I.check)}Aprovar em lote</button>`)+
+  `<div class="note" style="margin-bottom:14px"><b>Regra da reunião:</b> sem caixa a solicitação é <b>reprogramada</b>, não reprovada — ela volta à fila da próxima janela com saldo. Seu perfil aprova até
+   ${PERMS[ROLE].limite?'R$ '+m0(PERMS[ROLE].limite):'—'}.</div>
+  <div class="card">
+    <div class="tw"><table><thead><tr>
+      <th style="width:34px"></th><th>Nº</th><th>Solicitante</th><th>Fornecedor</th><th>Classificação</th>
+      <th style="text-align:right">Valor</th><th>Prev.</th><th>Sem.</th><th style="text-align:right">Saldo proj.</th>
+      <th>Recomendação</th><th>Alçada</th><th style="text-align:right">Decisão</th></tr></thead><tbody>
+      ${PEND.map(s=>{const ok=podeAprovar(s.val);return `<tr>
+        <td onclick="event.stopPropagation()"><input type="checkbox" ${ok?'':'disabled'}></td>
+        <td class="id" onclick="openSol('${s.id}')">${s.id.slice(-5)}</td>
+        <td onclick="openSol('${s.id}')">${s.sol}</td>
+        <td onclick="openSol('${s.id}')">${s.forn}</td>
+        <td onclick="openSol('${s.id}')">${s.cls}</td>
+        <td class="n" onclick="openSol('${s.id}')">${money(s.val)}</td>
+        <td class="n" onclick="openSol('${s.id}')">${s.prev}</td>
+        <td class="n" onclick="openSol('${s.id}')">${s.sem}</td>
+        <td class="n ${s.saldo<150000?'neg':''}" onclick="openSol('${s.id}')">${m0(s.saldo)}</td>
+        <td onclick="openSol('${s.id}')"><span class="tag t-${RECMAP[s.rec]}">${s.rec}</span></td>
+        <td onclick="openSol('${s.id}')" style="font-size:11.5px;color:var(--ink-3)">${s.alc}</td>
+        <td style="text-align:right;white-space:nowrap" onclick="event.stopPropagation()">
+          ${ok?`<button class="btn sm ok" onclick="decide('${s.id}','Aprovada')">Aprovar</button>
+                <button class="btn sm cr" onclick="decide('${s.id}','Reprogramada')">Reprogramar</button>`
+              :`<span class="lock">${svg('M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z')} acima da sua alçada</span>`}
+        </td></tr>`}).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+async function decide(id,acao){
+  const mapa={'Aprovada':'APROVAR','Reprogramada':'REPROGRAMAR','Reprovada':'REPROVAR'};
+  let motivo='';
+  if(acao!=='Aprovada'){
+    motivo=prompt(acao==='Reprogramada'
+      ? 'Para qual data reprogramar, e por quê?'
+      : 'Motivo da reprovação:');
+    if(motivo===null) return;
+  }
+  try{
+    await API.chamar('sol.decidir',{id:id, decisao:mapa[acao], motivo:motivo});
+    await recarregar(id.slice(-5)+' '+acao.toLowerCase()+'. Decisão gravada e o solicitante avisado por e-mail.');
+  }catch(e){ toast('Não consegui gravar: '+e.message,'cr'); }
+}
+
+function vFluxo(){
+  const th=`<tr><th>Linha</th>${WEEKS.map((w,i)=>`<th style="text-align:right">${w}<div style="font-weight:400;font-size:9px;opacity:.75">${WDATE[i]}</div></th>`).join('')}<th style="text-align:right">Total</th></tr>`;
+  // O tipo viaja junto com o nome da linha: sem ele o detalhe não sabe se "Total de
+  // saídas" é uma classificação chamada assim ou a soma de todas elas.
+  const row=(nm,arr,cls='',tipo='saida')=>`<tr class="${cls}"><td>${nm}</td>${arr.map((v,i)=>`<td class="${v?'cell':''}" ${v?`onclick="drillCell('${tipo}','${String(nm).replace(/'/g,"\\'")}','${WEEKS[i]}',${v})"`:''}>${v?m0(v):'–'}</td>`).join('')}<td><b>${m0(arr.reduce((a,b)=>a+b,0))}</b></td></tr>`;
+  const sumCol=arrs=>WEEKS.map((_,i)=>arrs.reduce((a,r)=>a+r[1][i],0));
+  const totEnt=sumCol(FLOW.entradas), totSai=sumCol(FLOW.saidas);
+  return head(`<button class="btn" onclick="toast('Exportando as 12 semanas para XLSX…')">${svg('M12 3v12M7 10l5 5 5-5M4 21h16')}Exportar</button>`)+
+  `<div class="note" style="margin-bottom:14px">Clique em qualquer valor para abrir a lista de lançamentos que o compõem — <b>drill-down de qualquer célula</b>.</div>
+   <div class="card"><div class="tw"><table class="mtx"><thead>${th}</thead><tbody>
+    <tr class="sec"><td colspan="14">Entradas</td></tr>
+    ${FLOW.entradas.map(r=>row(r[0],r[1],'','entrada')).join('')}
+    ${row('Total de entradas',totEnt,'tot','entrada')}
+    <tr class="sec"><td colspan="14">Saídas por classificação</td></tr>
+    ${FLOW.saidas.map(r=>row(r[0],r[1],'','saida')).join('')}
+    ${row('Total de saídas',totSai,'tot','totalSaidas')}
+    <tr class="sec"><td colspan="14">Os três números</td></tr>
+    ${FLOW.tres.map(r=>row(r[0],r[1],'','tres')).join('')}
+    <tr class="sec"><td colspan="14">Posição de caixa</td></tr>
+    <tr><td>Saldo inicial</td>${FLOW.saldoIni.map(v=>`<td>${m0(v)}</td>`).join('')}<td></td></tr>
+    <tr class="tot"><td>Saldo acumulado projetado</td>${FLOW.saldoAcu.map(v=>`<td class="${v<0?'neg':''}">${m0(v)}</td>`).join('')}<td><b>${m0(FLOW.saldoAcu[11])}</b></td></tr>
+    <tr><td>Situação</td>${FLOW.sit.map(s=>`<td style="text-align:center"><span class="tag ${s==='OK'?'t-ok':s==='ATENÇÃO'?'t-wa':'t-cr'}">${s}</span></td>`).join('')}<td></td></tr>
+   </tbody></table></div></div>`;
+}
+
+async function drillCell(tipo,linha,sem,val){
+  openDrawer(`${linha} · ${sem}`,'carregando a composição…','<div class="empty">Um instante…</div>');
+  let d;
+  try{ d = await API.chamar('cash.detalhe',{tipo:tipo,linha:linha,coluna:sem}); }
+  catch(e){ openDrawer(`${linha} · ${sem}`,'',`<div class="empty">Não consegui abrir o detalhe: ${e.message}</div>`); return; }
+
+  if(!d.itens.length){
+    openDrawer(`${linha} · ${sem}`, d.periodo?`${d.periodo} · nada compõe esta célula`:'',
+      `<div class="empty">${d.explica||'Nenhum lançamento nesta linha e nesta semana.'}</div>`);
+    return;
+  }
+
+  /* A coluna "valor na célula" existe porque ela nem sempre é o valor bruto: quem já foi
+     pago entra pelo valor do pagamento, quem tem nota entra pelo valor comprometido.
+     Mostrar os dois lado a lado é o que evita a pergunta "por que não bate". */
+  const linhas = d.itens.map(x=>`<tr onclick="closeDrawer();openSol('${x.id}')">
+      <td class="id">${x.id.slice(-5)}</td>
+      <td>${x.fornecedor}<div style="font-size:11px;color:var(--ink-3)">${x.descricao||''}</div></td>
+      <td>${x.filial}</td>
+      <td><span class="tag t-mu">${x.estagio}</span></td>
+      <td class="n">${x.data}<div style="font-size:10.5px;color:var(--ink-3)">${x.origemData}</div></td>
+      <td class="n">${money(x.valorBruto)}</td>
+      <td class="n"><b>${money(x.valor)}</b><div style="font-size:10.5px;color:var(--ink-3)">${x.origemValor}</div></td>
+    </tr>`).join('');
+
+  const bate = d.confere
+    ? `<div class="note" style="margin-top:14px">A soma dos ${d.itens.length} lançamentos acima é
+       <b>${money(d.total)}</b> — exatamente o valor da célula. O detalhe e o total saem da mesma
+       conta no servidor, então bater é consequência, não coincidência.</div>`
+    : `<div class="note" style="margin-top:14px;border-color:var(--crit)"><b>Os números não batem.</b>
+       A célula mostra ${money(d.daMatriz)} e a composição soma ${money(d.total)}.
+       Avise o Kleber antes de usar este número.</div>`;
+
+  /* O valor que a pessoa clicou aparece no topo, ao lado do que a composição somou.
+     É o "check do que foi clicado": ela não precisa confiar na minha palavra de que bate,
+     vê os dois números juntos — e a diferença, que tem de ser zero. */
+  const dif = Math.abs(nnum(val) - d.total);
+  openDrawer(`${linha} · ${sem}`,
+    `${d.periodo} · ${d.itens.length} lançamento(s) · clicado ${money(val)} · composição ${money(d.total)}`,
+    `<div class="grid g4" style="margin-bottom:14px">
+       <div class="card kpi ${d.confere?'c':'d2'}"><div class="l">Valor da célula</div>
+         <div class="v">${m0(val)}</div><div class="d">o número que você clicou</div></div>
+       <div class="card kpi b"><div class="l">Soma da composição</div>
+         <div class="v">${m0(d.total)}</div><div class="d">${d.itens.length} lançamento(s) abaixo</div></div>
+       <div class="card kpi ${dif<0.005?'c':'d2'}"><div class="l">Diferença</div>
+         <div class="v">${m0(dif)}</div>
+         <div class="d">${dif<0.005?'fecha exatamente':'PRECISA DE CONFERÊNCIA'}</div></div>
+       <div class="card kpi a"><div class="l">Semana</div>
+         <div class="v" style="font-size:19px">${sem}</div><div class="d">${d.periodo}</div></div>
+     </div>
+     <div class="note" style="margin-bottom:12px">${d.explica}</div>
+     <div class="tw"><table><thead><tr>
+       <th>Nº</th><th>Fornecedor</th><th>Filial</th><th>Estágio</th><th>Data que conta</th>
+       <th style="text-align:right">Valor bruto</th><th style="text-align:right">Valor nesta célula</th>
+     </tr></thead><tbody>${linhas}
+     <tr class="tot"><td colspan="6"><b>Total da célula</b></td><td class="n"><b>${money(d.total)}</b></td></tr>
+     </tbody></table></div>${bate}`);
+}
+
+function vPagar(){
+  const list=SOL.filter(s=>['Comprometido','Pago','Aprovado'].includes(s.st));
+  return head(btnImport('TITULO'))+`
+  ${(()=>{const por=e=>SOL.filter(x=>x.st===e), som=l=>l.reduce((a,x)=>a+x.val,0);
+     const c=por('Comprometido'), g=por('Pago'), a=por('Aprovado');
+     const plu=(n,s1,s2)=>n+' '+(n===1?s1:s2);
+     return `<div class="grid g4" style="margin-bottom:16px">
+       <div class="card kpi b"><div class="l">Comprometido</div><div class="v">${m0(som(c))}</div><div class="d">${plu(c.length,'título','títulos')}</div></div>
+       <div class="card kpi c"><div class="l">Pago</div><div class="v">${m0(som(g))}</div><div class="d">${plu(g.length,'título','títulos')}</div></div>
+       <div class="card kpi a"><div class="l">Autorizado, ainda sem NF</div><div class="v">${m0(som(a))}</div><div class="d">${plu(a.length,'compra','compras')}</div></div>
+       <div class="card kpi d2"><div class="l">Divergência NF × aprovado</div><div class="v">—</div><div class="d">depende do recebimento da NF</div></div>
+     </div>`;})()}
+  <div class="note" style="margin-bottom:14px"><b>Aprovado ainda não é título.</b> Vira compromisso quando a nota
+  fiscal chega e o valor é confirmado — é a diferença entre previsto e comprometido.</div>
+  <div class="card">${tblSol(list,false)}</div>`;
+}
+function vReceber(){
+  return head()+semDados('Contas a receber ainda não está ligada à base',
+    'Os recebíveis vêm do CT-e e da baixa no ERP. A integração é da Onda 2 — até lá esta tela ' +
+    'não tem de onde ler, e mostrar número aqui seria inventar.',
+    '<b>O que já funciona hoje:</b> o fluxo de caixa projeta as saídas das solicitações. ' +
+    'As entradas entram quando a integração com o ERP existir.');
+}
+function vRateio(){
+  return head()+`<div class="note" style="margin-bottom:14px"><b>O rateio da Salomé tem dois eixos, e eles não são a mesma coisa.</b>
+  A <b>filial</b> diz qual unidade consome. O <b>centro de custo</b> diz qual natureza consome —
+  os "18% distribuição / 82% transferência" da reunião são centro, não filial.
+  Cada eixo tem de fechar 100% por conta própria.</div>`+
+  semDados('Nenhum rateio lançado ainda',
+    'Esta tela mostra a distribuição das solicitações que foram marcadas com rateio. ' +
+    'Assim que a primeira for lançada com rateio, os dois eixos aparecem aqui.',
+    '<b>Como se lança:</b> no formulário da solicitação, marque <b>Tem rateio</b> e distribua ' +
+    'os percentuais. A soma de cada eixo tem de fechar 100% — o sistema recusa o envio se não fechar.');
+}
+/**
+ * DRE gerencial montado da base, conta por conta.
+ *
+ * Os três estágios são os mesmos do fluxo de caixa e nunca se somam duas vezes: uma
+ * solicitação está em UM deles. "Orçado" fica em branco enquanto a aba ORCAMENTO não
+ * tiver linha — e branco é a resposta certa: inventar teto de gasto é pior que não ter.
+ */
+const EST_UI = {
+  'Rascunho':null, 'Cancelado':null, 'Reprovado':null,
+  'Em validação':'prev', 'Aguardando caixa':'prev', 'Aguardando Aprovação':'prev',
+  'Reprogramado':'prev', 'Aprovado':'prev',
+  'Comprometido':'comp', 'Pago':'real'
+};
+function gerencialLinhas(){
+  const por = {};
+  SOL.forEach(s=>{
+    const col = EST_UI[s.st];
+    if(!col) return;
+    const k = s.cod || '(sem conta)';
+    if(!por[k]) por[k] = {cod:k, cls:s.cls||'(sem classificação)', prev:0, comp:0, real:0, itens:0};
+    por[k][col] += s.val;
+    por[k].itens++;
+  });
+  return Object.keys(por).map(k=>por[k]).sort((a,b)=>(b.prev+b.comp+b.real)-(a.prev+a.comp+a.real));
+}
+function vGerencial(){
+  const G = gerencialLinhas();
+  const som = c => G.reduce((a,g)=>a+g[c],0);
+  if(!G.length){
+    return head()+semDados('Nada lançado ainda para consolidar',
+      'O painel soma as solicitações por conta contábil, separando previsto, comprometido e realizado. ' +
+      'Assim que a primeira sair do rascunho, ela aparece aqui.',
+      '<b>Orçado:</b> a coluna fica em branco até a aba <b>ORCAMENTO</b> da planilha ter linha. ' +
+      'Sem orçamento carregado a resposta é "não sei", nunca um número estimado.');
+  }
+  return head()+`
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card kpi a"><div class="l">Orçado</div><div class="v">—</div><div class="d">aba ORCAMENTO ainda vazia</div></div>
+    <div class="card kpi b"><div class="l">Previsto</div><div class="v">${m0(som('prev'))}</div><div class="d">ainda sem nota fiscal</div></div>
+    <div class="card kpi b"><div class="l">Comprometido</div><div class="v">${m0(som('comp'))}</div><div class="d">NF recebida</div></div>
+    <div class="card kpi c"><div class="l">Realizado</div><div class="v">${m0(som('real'))}</div><div class="d">pago</div></div>
+  </div>
+  <div class="note" style="margin-bottom:14px">Clique em qualquer linha para ver as solicitações que compõem o número — <b>conta por conta, uma a uma</b>.</div>`+`
+  <div class="card"><div class="card-h"><h3>DRE gerencial por conta contábil</h3></div><div class="tw"><table><thead><tr>
+    <th>Código</th><th>Classificação</th><th style="text-align:right">Orçado</th><th style="text-align:right">Previsto</th>
+    <th style="text-align:right">Comprometido</th><th style="text-align:right">Realizado</th><th style="text-align:right">Total</th>
+    <th style="text-align:right">Lançamentos</th></tr></thead><tbody>
+    ${G.map(g=>{const t=g.prev+g.comp+g.real;return `<tr onclick="drillConta('${g.cod}')">
+      <td class="id">${g.cod}</td><td>${g.cls}</td><td class="n" style="color:var(--ink-3)">—</td>
+      <td class="n">${g.prev?m0(g.prev):'–'}</td>
+      <td class="n">${g.comp?m0(g.comp):'–'}</td><td class="n">${g.real?m0(g.real):'–'}</td>
+      <td class="n"><b>${m0(t)}</b></td>
+      <td class="n" style="color:var(--ink-3)">${g.itens}</td></tr>`}).join('')}
+  </tbody></table></div></div>`;
+}
+
+/**
+ * O analítico de uma conta: cada solicitação que formou o número, com o estágio em que
+ * ela entrou. Os subtotais por estágio fecham o total da linha — se não fecharem, a tela
+ * avisa em vez de deixar passar.
+ */
+function drillConta(cod){
+  const list = SOL.filter(s=>(s.cod||'(sem conta)')===cod && EST_UI[s.st]);
+  if(!list.length){ toast('Nenhum lançamento nesta conta.'); return; }
+  const som = c => list.filter(s=>EST_UI[s.st]===c).reduce((a,s)=>a+s.val,0);
+  const tot = list.reduce((a,s)=>a+s.val,0);
+  const ROT = {prev:'Previsto', comp:'Comprometido', real:'Realizado'};
+  openDrawer(`Conta ${cod}`, `${list[0].cls} · ${list.length} lançamento(s) · ${money(tot)}`,
+    `<div class="grid g4" style="margin-bottom:14px">
+      ${['prev','comp','real'].map(c=>`<div class="card kpi"><div class="l">${ROT[c]}</div><div class="v">${m0(som(c))}</div></div>`).join('')}
+     </div>
+     <div class="tw"><table><thead><tr><th>Nº</th><th>Fornecedor</th><th>Área</th><th>Filial</th>
+       <th>Estágio</th><th>Prev. pgto</th><th style="text-align:right">Valor</th></tr></thead><tbody>
+     ${list.sort((a,b)=>b.val-a.val).map(s=>`<tr onclick="closeDrawer();openSol('${s.id}')">
+       <td class="id">${s.id.slice(-5)}</td>
+       <td>${s.forn}<div style="font-size:11px;color:var(--ink-3)">${s.desc||''}</div></td>
+       <td>${s.area}</td><td>${s.fil}</td>
+       <td><span class="tag ${STMAP[s.st]}">${s.st}</span></td>
+       <td class="n">${s.prev}</td><td class="n">${money(s.val)}</td></tr>`).join('')}
+     <tr class="tot"><td colspan="6"><b>Total da conta</b></td><td class="n"><b>${money(tot)}</b></td></tr>
+     </tbody></table></div>
+     <div class="note" style="margin-top:14px">Cada solicitação aparece em <b>um</b> estágio só —
+     é o que impede o mesmo dinheiro de ser contado duas vezes. Clique em qualquer linha para abrir a ficha.</div>`);
+}
+function vOrcamento(){
+  return head()+semDados('Nenhum orçamento carregado',
+    'O orçado é a trava do gerencial: é contra ele que previsto, comprometido e realizado são comparados. ' +
+    'Enquanto a aba <b>ORCAMENTO</b> da planilha estiver vazia, o painel mostra o gasto sem teto de comparação.',
+    '<b>Como carregar:</b> preencha a aba <b>ORCAMENTO</b> da planilha FC_DADOS com conta, mês e valor, ' +
+    'e use <b>FC Salomé → Recarregar no app</b>. Enquanto não houver orçamento, o painel responde ' +
+    '"não sei" em vez de estimar — estimativa de teto de gasto vira meta por engano.');
+}
+function vPlano(){
+  const usadas={}; CAT.forEach(c=>{[c[4],c[5]].filter(Boolean).forEach(k=>usadas[k]=(usadas[k]||[]).concat(c[2]))});
+  const lanc=PLANO.filter(p=>p[2]==='ANALITICA').length;
+  return head(btnImport('PLANO_CONTAS')+`<button class="btn" onclick="PC_F=(PC_F?'':'cat');go('plano')">${PC_F?'Ver todas':'Só as que o app usa'}</button>`)+`
+  <div class="imp" style="margin-bottom:14px">
+    ${svg(I.up)}<div><b>${PLANO.length} contas do plano oficial da Salomé</b> — ${lanc} analíticas (aceitam lançamento)
+    e ${PLANO.length-lanc} sintéticas (só agrupam). Destas, <b>${Object.keys(usadas).length}</b> estão ligadas a uma
+    categoria de compra: são as únicas que o solicitante consegue alcançar pelo formulário.
+    Folha, imposto e despesa financeira ficam de fora de propósito.</div>
+  </div>
+  <div class="card"><div class="tw"><table><thead><tr>
+    <th>Código</th><th>Descrição</th><th>Tipo</th><th>Grupo DRE</th><th>Natureza</th><th>Categorias que caem aqui</th><th></th></tr></thead><tbody>
+    ${PLANO.filter(p=>!PC_F||usadas[p[0]]).map(p=>`<tr onclick="openPC('${p[0]}')"><td class="id">${p[0]}</td>
+      <td>${p[1]}</td>
+      <td>${p[2]==='ANALITICA'?'Analítica':'<span style="color:var(--ink-3)">Sintética</span>'}</td>
+      <td>${p[3]}</td><td>${p[4]}</td>
+      <td>${(usadas[p[0]]||[]).map(n=>`<span class="tag t-ok" style="margin:0 4px 4px 0"><i class="dot"></i>${n}</span>`).join('')||'<span style="color:var(--ink-3)">—</span>'}</td>
+      <td style="text-align:right" onclick="event.stopPropagation()">
+        ${can('alterar','PLANO_CONTAS')||can('alterar','*')
+          ?`<button class="btn sm" onclick="editarTexto('${p[0]}')">Editar</button>`
+          :`<span class="lock">sem permissão</span>`}
+      </td></tr>`).join('')}
+  </tbody></table></div></div>
+  <div class="note" style="margin-top:14px"><b>Nunca excluir.</b> Todo registro é inativado com data, usuário e motivo.
+  Corrigir a descrição é alteração de campo: o código continua o mesmo e os lançamentos antigos seguem apontando para ele.</div>`;
+}
+let PC_F='';
+
+/** Ajuste de descrição na tela, com log — sem abrir planilha. */
+function editarTexto(cod){
+  const p=PLANO.find(x=>x[0]===cod);
+  openDrawer('Editar descrição',`<span class="mono">${cod}</span>`,`
+   <dl class="dl">
+     <dt>Descrição atual</dt><dd class="mono">${p[1]}</dd>
+     ${p[5]?`<dt>Descrição contábil</dt><dd>${p[5]}</dd>`:''}
+   </dl>
+   <div class="f w2" style="margin-top:16px"><label for="pcNovo">Nova descrição</label>
+     <input id="pcNovo" value="${p[1]}">
+     <span class="hint">Fica registrado no log com data e usuário.</span></div>
+   <div class="foot-acts" style="margin-top:16px">
+     <button class="btn pri" onclick="salvarTexto('${cod}')">Salvar</button>
+     <button class="btn" onclick="closeDrawer()">Cancelar</button>
+   </div>`);
+}
+async function salvarTexto(cod){
+  const e=document.getElementById('pcNovo');
+  if(!e||!e.value.trim()) return;
+  try{
+    await API.chamar('cad.salvar',{tabela:'PLANO_CONTAS',
+      registro:{CONTA_ID:'CT-'+cod, CODIGO:cod, DESCRICAO:e.value.trim()}});
+    const p=PLANO.find(x=>x[0]===cod); if(p) p[1]=e.value.trim();
+    recalcular(); closeDrawer(); go('plano');
+    toast(cod+': descrição alterada. Registrado no log.','ok');
+  }catch(err){ toast('Não consegui gravar: '+err.message,'cr'); }
+}
+
+function vFornecedores(){
+  const nome=c=>(CAT_MAP[c]||{}).nome||c;
+  const semCnpj=FORN.length;
+  return head(btnImport('FORNECEDOR'))+`
+  <div class="imp" style="margin-bottom:14px">
+    ${svg(I.up)}<div><b>${FORN.length} fornecedores carregados da planilha PEÇAS E SERVIÇOS.</b>
+    Todos os ${semCnpj} vieram <b>sem CNPJ</b> — entram assim e o CNPJ é preenchido depois, aqui ou por importação.
+    O que já veio é o que decide a retenção: pessoa física ou jurídica, e optante do Simples ou não.</div>
+  </div>
+  <div class="card"><div class="tw"><table><thead><tr>
+    <th>Código</th><th>Razão social</th><th>CNPJ</th><th>Tipo</th><th>Simples</th><th>Categorias</th><th>Status</th></tr></thead><tbody>
+    ${FORN.map(f=>`<tr onclick="toast('Ficha do fornecedor ${f[0]} — o CNPJ é preenchido aqui.')"><td class="id">${f[0]}</td><td>${f[1]}</td>
+      <td><span class="tag t-wa"><i class="dot"></i>a preencher</span></td>
+      <td>${f[2]==='PF'?'Pessoa física':'Pessoa jurídica'}</td>
+      <td>${f[3]==='SIM'?'<span class="tag t-ok"><i class="dot"></i>optante</span>':'<span class="tag t-mu"><i class="dot"></i>não</span>'}</td>
+      <td>${(f[4]||'').split('|').filter(Boolean).map(c=>`<span class="tag t-mu" style="margin:0 4px 4px 0">${nome(c)}</span>`).join('')||'—'}</td>
+      <td><span class="tag t-ok"><i class="dot"></i>ATIVO</span></td></tr>`).join('')}
+  </tbody></table></div></div>
+  <div class="note" style="margin-top:14px"><b>Por que o Simples importa:</b> prestador optante é dispensado de IRRF e CSRF.
+  Marcar errado significa reter imposto de quem não devia — ou deixar de reter de quem devia.</div>`;
+}
+function vFiliais(){
+  const F=[['RP','Rio Preto (Matriz)','SP','Matriz','OP-RP','ATIVO'],['CPQ','Campinas','SP','Filial','OP-CPQ','ATIVO'],
+   ['OSA','Osasco','SP','Filial','OP-OSA','ATIVO'],['SPO','São Paulo','SP','Filial','OP-SPO','ATIVO']];
+  return head(btnImport('FILIAL'))+`<div class="card"><div class="tw"><table><thead><tr>
+    <th>Código</th><th>Filial</th><th>UF</th><th>Tipo</th><th>Centro de custo padrão</th><th>Status</th></tr></thead><tbody>
+    ${F.map(f=>`<tr onclick="toast('Ficha da filial ${f[0]}')"><td class="id">${f[0]}</td><td>${f[1]}</td><td>${f[2]}</td><td>${f[3]}</td>
+      <td class="mono" style="font-size:12px">${f[4]}</td><td><span class="tag t-ok"><i class="dot"></i>${f[5]}</span></td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function vUsuarios(){
+  return head(btnImport('USUARIO'))+`<div class="card"><div class="tw"><table><thead><tr>
+    <th>ID</th><th>Nome</th><th>Usuário</th><th>E-mail (avisos)</th><th>Perfil</th><th>Escopo de filial</th>
+    <th style="text-align:right">Limite de alçada</th><th>Status</th><th>Último acesso</th><th></th></tr></thead><tbody>
+    ${USUARIOS.map(u=>`<tr onclick="openUser('${u[0]}')"><td class="id">${u[0]}</td><td>${u[1]}</td>
+      <td class="mono" style="font-size:12px"><b>${u[8]||'—'}</b></td>
+      <td class="mono" style="font-size:11.5px;color:var(--ink-3)">${u[2]||'—'}</td>
+      <td><span class="tag t-nv">${u[3]}</span></td><td>${u[4]}</td>
+      <td class="n">${u[5]}</td><td><span class="tag ${u[6]==='ATIVO'?'t-ok':'t-mu'}"><i class="dot"></i>${u[6]}</span></td>
+      <td class="mono" style="font-size:11.5px;color:var(--ink-3)">${u[7]}</td>
+      <td style="text-align:right;white-space:nowrap" onclick="event.stopPropagation()">
+        ${can('alterar','USUARIO')||can('alterar','*')
+          ?`<span class="lock" style="font-size:11px">edite na planilha</span>`
+          :`<span class="lock">${svg('M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z')} somente Administrador</span>`}
+      </td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function vPerfis(){
+  const P=['Solicitante','Financeiro','Diretoria','Administrador'];
+  const chk=(r,p,a)=>{
+    const map={'Solicitante':{Solicitação:['V','I','A'],Aprovação:['V']},
+      'Financeiro':{Solicitação:['V','I','A'],Aprovação:['V','A'],'Título a pagar':['V','I','A'],'Título a receber':['V','I','A'],
+        Rateio:['V','I','A'],Orçamento:['V'],'Plano de contas':['V'],Fornecedor:['V','I','A','X'],Filial:['V'],Log:['V']},
+      'Diretoria':{Solicitação:['V','A'],Aprovação:['V','A'],'Título a pagar':['V'],'Título a receber':['V'],Rateio:['V'],
+        Orçamento:['V','I','A'],'Plano de contas':['V'],Fornecedor:['V'],Filial:['V'],Log:['V']},
+      'Administrador':{Solicitação:['V'],Aprovação:['V'],'Título a pagar':['V'],'Título a receber':['V'],Rateio:['V'],
+        Orçamento:['V'],'Plano de contas':['V','I','A','X'],Fornecedor:['V','I','A','X'],Filial:['V','I','A','X'],
+        Usuário:['V','I','A','X'],Perfil:['V','I','A','X'],Log:['V','X']}};
+    return (map[p]?.[r]||[]).includes(a);
+  };
+  return head()+`
+  <div class="note" style="margin-bottom:14px"><b>V</b> ver · <b>I</b> incluir · <b>A</b> alterar · <b>X</b> inativar (nunca excluir) · <b>P</b> aprovar · <b>E</b> exportar. Além disso cada perfil tem <b>escopo de filial</b> e <b>limite de alçada</b>, e a aba <b>PERMISSOES_CAMPO</b> controla quais campos ficam editáveis em cada status do registro.</div>
+  <div class="card"><div class="tw"><table class="perm"><thead><tr><th rowspan="2">Recurso</th>
+    ${P.map(p=>`<th colspan="4" style="text-align:center;border-left:1px solid var(--line-2)">${p}</th>`).join('')}</tr>
+    <tr>${P.map(()=>`<th style="text-align:center;border-left:1px solid var(--line-2)">V</th><th style="text-align:center">I</th><th style="text-align:center">A</th><th style="text-align:center">X</th>`).join('')}</tr></thead><tbody>
+    ${RECURSOS.map(r=>`<tr>${'<td>'+r+'</td>'}${P.map(p=>['V','I','A','X'].map((a,i)=>
+      `<td ${i===0?'style="border-left:1px solid var(--line)"':''}><input type="checkbox" ${chk(r,p,a)?'checked':''} ${ROLE==='ADMIN'?'':'disabled'}></td>`).join('')).join('')}</tr>`).join('')}
+  </tbody></table></div></div>
+  ${ROLE!=='ADMIN'?`<div class="note" style="margin-top:14px">Somente o perfil <b>Administrador</b> edita esta matriz. Troque o perfil no topo para testar.</div>`:''}`;
+}
+function vImport(){
+  return head()+semDados('Importação por planilha ainda não está ligada',
+    'A tela existe e o desenho está de pé, mas o motor que lê o arquivo e mostra a prévia ' +
+    'de erros antes de gravar ainda não foi escrito.',
+    'Enquanto isso, carga em lote se faz pela planilha <b>FC_DADOS</b> e pelo ' +
+    '<b>conferirCadastros()</b>, que acusa chave repetida, campo obrigatório vazio e ' +
+    'referência para registro que não existe.');
+}
+function vLogs(){
+  return head()+`<div class="note" style="margin-bottom:14px"><b>Uma aba por semana.</b> O sistema cria
+  <span class="mono">LOG_ATIV_AAAA-Sww</span> e <span class="mono">LOG_ACESSO_AAAA-Sww</span> automaticamente
+  na primeira gravação da semana, e arquiva abas com mais de 12 semanas numa planilha separada.</div>`+
+  semDados('A trilha de auditoria está sendo gravada',
+    'Todo acesso e toda alteração de campo já vão para a planilha <b>FC_LOG</b>, com valor antes e ' +
+    'depois, autor, data e origem. O que ainda não existe é esta tela lendo de lá.',
+    'Para consultar hoje: abra a planilha <b>FC_LOG</b> e a aba da semana. É a mesma informação, ' +
+    'sem o filtro bonito.');
+}
+function vParams(){
+  return head()+semDados('Os parâmetros se editam na planilha',
+    'Saldo mínimo, horizonte do fluxo, dias de pagamento, alíquotas de retenção, duração da sessão — ' +
+    'tudo mora na aba <b>PARAMETROS</b> da planilha FC_DADOS.',
+    'Cadastro e parâmetro se mantêm direto na planilha <b>FC_DADOS</b>. Depois de editar, use o menu <b>FC Salomé → Recarregar no app</b> na própria planilha — senão o app leva até dez minutos para enxergar a mudança.');
+}
+
+/* ==========================================================================
+   KANBAN — o fluxo do processo em seis colunas que seguram card de verdade
+   --------------------------------------------------------------------------
+   "Validar" e "Consultar caixa" existem porque são ESPERA REAL: a primeira
+   segura o que está incompleto (sem anexo, sem rateio, sem placa), a segunda
+   segura o que depende da reunião de caixa. Coluna que nunca segura card é
+   decoração — estas seguram.
+
+   Reprovado e cancelado SAEM do quadro: vão para a gaveta no rodapé. Card
+   morto ocupando coluna vira ruído no dia a dia.
+   ========================================================================== */
+
+const ETAPAS = [
+  {k:'SOLICITAR', t:'Solicitar',       tip:'Rascunho. Ainda está com quem pediu — ninguém mais vê.'},
+  {k:'VALIDAR',   t:'Validar',         tip:'Falta alguma coisa: anexo, rateio, placa. O card fica travado aqui até completar.'},
+  {k:'CAIXA',     t:'Consultar caixa', tip:'Completo, esperando a reunião decidir se a semana comporta.'},
+  {k:'APROVAR',   t:'Aprovar',         tip:'Tem caixa. Esperando quem tem a alçada do valor.'},
+  {k:'AUTORIZAR', t:'Autorizar',       tip:'Aprovado. Falta virar pedido ao fornecedor e sair a autorização.'},
+  {k:'RECEBER',   t:'Receber',         tip:'Pedido feito. Esperando a nota fiscal para virar título a pagar.'}
+];
+const ETAPA_IX = {}; ETAPAS.forEach((e,i)=>ETAPA_IX[e.k]=i);
+
+/* Pré-requisitos de cada transição. É isto que o arrastar consulta. */
+const GATES = {
+  VALIDAR:   [],
+  CAIXA:     [['anexo','Orçamento anexado'],['rateio','Rateio fechando 100%'],['placa','Placa do veículo']],
+  APROVAR:   [['caixa','Semana com saldo, ou reprogramação combinada']],
+  AUTORIZAR: [['alcada','Alçada suficiente para o valor']],
+  RECEBER:   [['pedido','Número do pedido ao fornecedor']]
+};
+
+/* Quem move o quê. Mesma matriz do resto do app — o quadro não abre exceção. */
+const MOVE_PERFIL = {
+  SOLICITANTE: ['VALIDAR','CAIXA'],
+  FINANCEIRO:  ['VALIDAR','CAIXA','APROVAR','AUTORIZAR','RECEBER'],
+  DIRETORIA:   ['VALIDAR','CAIXA','APROVAR','AUTORIZAR','RECEBER'],
+  ADMIN:       []
+};
+
+let HOJE_KB = new Date(); HOJE_KB.setHours(0,0,0,0);
+
+let KB = {f:{q:'',area:'',fil:'',centro:'',bloco:'',per:'',vmin:''}, abertos:{},
+          recolhidas:{}, arrastando:null};
+
+/** Enriquece os dados do protótipo com o que o quadro precisa. */
+function kbDados(){
+  const MAP = {'Rascunho':'SOLICITAR','Aguardando Aprovação':'APROVAR','Reprogramado':'CAIXA',
+               'Aprovado':'AUTORIZAR','Comprometido':'RECEBER','Pago':'CONCLUIDO',
+               'Reprovado':'REPROVADO','Cancelado':'CANCELADO'};
+  return SOL.map(s=>{
+    const c = Object.assign({}, s);
+    if(!c.etapa) c.etapa = MAP[c.st] || 'APROVAR';
+    if(c.centro===undefined) c.centro = c.area==='Administrativo'||c.area==='TI'||c.area==='RH'||c.area==='Diretoria' ? 'ADM' : 'OPE';
+    if(c.bloco===undefined)  c.bloco  = /Pneus|Peças|Combust|Rastre|Oficina/i.test(c.cls) ? 'FROTA'
+                                      : /Frete|Armazen|Manuseio/i.test(c.cls) ? 'CARGA'
+                                      : /Benfeit|Equipamentos|Obras/i.test(c.cls) ? 'SERVICOS' : 'ESTRUTURA';
+    if(c.pre===undefined) c.pre = {anexo:true, rateio:true, placa:true, caixa:c.rec!=='REPROGRAMAR', alcada:true, pedido:c.etapa==='RECEBER'};
+    if(c.orc===undefined) c.orc = false;
+    return c;
+  });
+}
+
+function kbDias(prev){
+  const [d,m] = String(prev).split('/');
+  const dt = new Date(2026, Number(m)-1, Number(d));
+  return Math.round((dt - HOJE_KB)/864e5);
+}
+
+/** Um card tem UM estado visual dominante. Seis cores no mesmo quadro é ruído. */
+const PENDENCIA_DO_SOLICITANTE = ['anexo','rateio','placa'];
+function kbFaltam(c){ return PENDENCIA_DO_SOLICITANTE.filter(k=>!c.pre[k]); }
+
+function kbUrg(c){
+  if(c.etapa==='REPROVADO'||c.etapa==='CANCELADO') return {k:'no', t:'Reprovado', cls:''};
+  const d = kbDias(c.prev);
+  if(d < 0)  return {k:'cr', t:Math.abs(d)+' dias em atraso', cls:'cr'};
+  if(kbFaltam(c).length) return {k:'su', t:'Suspenso — falta informação', cls:''};
+  if(!c.pre.caixa)  return {k:'wa', t:'Sem caixa na semana', cls:'wa'};
+  if(d <= 3) return {k:'wa', t:d===0?'Vence hoje':'Vence em '+d+' dias', cls:'wa'};
+  return {k:'ok', t:'Vence em '+d+' dias', cls:'ok'};
+}
+
+function kbFiltra(lista){
+  const f = KB.f, q = f.q.toLowerCase();
+  return lista.filter(c=>{
+    if(q && !(c.id+' '+c.forn+' '+c.desc+' '+c.cls+' '+c.val).toLowerCase().includes(q)) return false;
+    if(f.area && c.area!==f.area) return false;
+    if(f.fil && c.fil!==f.fil) return false;
+    if(f.centro && c.centro!==f.centro) return false;
+    if(f.bloco && c.bloco!==f.bloco) return false;
+    if(f.vmin && c.val < Number(f.vmin)) return false;
+    if(f.per){ const d=kbDias(c.prev);
+      if(f.per==='atraso' && d>=0) return false;
+      if(f.per==='7' && (d<0||d>7)) return false;
+      if(f.per==='30' && (d<0||d>30)) return false;
+      if(f.per==='mes' && (d<0||d>Number(9))) return false; }
+    return true;
+  });
+}
+
+function kbLimpar(){ KB.f={q:'',area:'',fil:'',centro:'',bloco:'',per:'',vmin:''}; go('kanban'); }
+function kbSet(k,v){ KB.f[k]=v; go('kanban'); }
+
+function vKanban(){
+  const todos = kbDados();
+  const vis   = kbFiltra(todos);
+  const noQuadro = vis.filter(c=>ETAPA_IX[c.etapa]!==undefined);
+  const fora  = vis.filter(c=>['REPROVADO','CANCELADO','CONCLUIDO'].includes(c.etapa));
+  const total = noQuadro.reduce((a,c)=>a+c.val,0);
+  const atras = noQuadro.filter(c=>kbDias(c.prev)<0);
+  const susp  = noQuadro.filter(c=>kbFaltam(c).length);
+  const semCx = noQuadro.filter(c=>!c.pre.caixa && !kbFaltam(c).length);
+
+  const areas   = [...new Set(todos.map(c=>c.area))].sort();
+  const filiais = [...new Set(todos.map(c=>c.fil))].sort();
+  const sel = (k,rot,itens,tip)=>`<select data-tip="${tip}" onchange="kbSet('${k}',this.value)">
+      <option value="">${rot}</option>
+      ${itens.map(i=>`<option value="${i.v||i}" ${KB.f[k]===(i.v||i)?'selected':''}>${i.t||i}</option>`).join('')}
+    </select>`;
+
+  const ativos = Object.keys(KB.f).filter(k=>KB.f[k]);
+  const ROT={q:'Busca',area:'Área',fil:'Filial',centro:'Centro',bloco:'Tipo',per:'Prazo',vmin:'Valor ≥'};
+
+  const nRec = ETAPAS.filter(e=>KB.recolhidas[e.k]).length;
+  return head(`<button class="btn" onclick="kbTudo(true)" data-tip="Abre o detalhe de todos os cards de uma vez">Expandir cards</button>
+    <button class="btn" onclick="kbTudo(false)" data-tip="Volta todos os cards ao formato compacto">Recolher cards</button>
+    <button class="btn" onclick="kbColunas(${nRec?'false':'true'})"
+      data-tip="${nRec?'Abre todas as colunas de volta':'Recolhe as seis colunas para uma faixa estreita'}">
+      ${nRec?'Abrir colunas':'Recolher colunas'}</button>`)+`
+
+  <div class="kb-bar">
+    <input placeholder="Buscar nº, fornecedor, item…" value="${KB.f.q}" oninput="KB.f.q=this.value;kbRender()"
+           data-tip="Filtra por número, fornecedor, descrição ou valor. Vale para todas as colunas.">
+    ${sel('area','Todas as áreas',areas,'Quem pediu a compra')}
+    ${sel('fil','Todas as filiais',filiais,'Filial que emite a nota fiscal')}
+    ${sel('centro','Todos os centros',[{v:'ADM',t:'Administrativo'},{v:'OPE',t:'Operacional'},{v:'TRF',t:'Transferência'}],'Qual natureza consome o gasto — eixo diferente da filial')}
+    ${sel('bloco','Todo tipo de gasto',[{v:'FROTA',t:'Frota'},{v:'CARGA',t:'Carga e viagem'},{v:'ESTRUTURA',t:'Estrutura'},{v:'SERVICOS',t:'Serviços'}],'Bloco da categoria de compra')}
+    ${sel('per','Qualquer prazo',[{v:'atraso',t:'Em atraso'},{v:'7',t:'Próximos 7 dias'},{v:'30',t:'Próximos 30 dias'}],'Pela data prevista de pagamento')}
+    ${sel('vmin','Qualquer valor',[{v:'5000',t:'≥ R$ 5.000'},{v:'10000',t:'≥ R$ 10.000'},{v:'50000',t:'≥ R$ 50.000'}],'Esconde o miúdo e deixa só o que move o caixa')}
+    ${ativos.length?`<button class="btn sm" onclick="kbLimpar()">Limpar filtros</button>`:''}
+  </div>
+  ${ativos.length?`<div class="kb-chips">${ativos.map(k=>`<span class="kb-chip">${ROT[k]}: ${KB.f[k]}
+     <button onclick="kbSet('${k}','')" aria-label="Remover filtro">×</button></span>`).join('')}</div>`:''}
+
+  <div class="kb-tot">
+    <div data-tip="Cards visíveis no quadro, já considerando os filtros">No quadro<b>${noQuadro.length}</b></div>
+    <div data-tip="Soma dos valores brutos dos cards visíveis">Valor total<b>${m0(total)}</b></div>
+    <div data-tip="Data prevista de pagamento já passou">Em atraso<b style="color:var(--crit)">${atras.length}</b></div>
+    <div data-tip="Parados esperando anexo, rateio ou placa — quem resolve é o solicitante">Suspensos<b style="color:var(--warn)">${susp.length}</b></div>
+    <div data-tip="Completos, mas a semana não comporta — decisão da reunião de caixa">Sem caixa<b style="color:var(--warn)">${semCx.length}</b></div>
+    <div data-tip="Já saíram do fluxo: reprovados, cancelados e pagos">Fora do quadro<b style="color:var(--ink-3)">${fora.length}</b></div>
+  </div>
+
+  <div class="kb-board" id="kbBoard">${ETAPAS.map(e=>kbCol(e,noQuadro,total)).join('')}</div>
+
+  ${fora.length?`<details class="kb-gav">
+    <summary>Fora do quadro — ${fora.length} ${fora.length===1?'card':'cards'}
+      <span style="font-weight:400;color:var(--ink-3)">reprovados, cancelados e já pagos</span></summary>
+    <div class="in">${fora.map(c=>kbCard(c,true)).join('')}</div>
+  </details>`:''}
+
+  <div class="note" style="margin-top:14px"><b>Arraste para andar no fluxo.</b>
+  Ao soltar, o sistema confere os pré-requisitos e a sua alçada antes de aceitar. Se faltar alguma coisa,
+  o card volta e a tela diz exatamente o quê — nada muda de estado sem passar pela regra, e todo movimento
+  entra no log com data, usuário e motivo.</div>`;
+}
+
+function kbCol(e, cards, total){
+  const meus = cards.filter(c=>c.etapa===e.k);
+  const v = meus.reduce((a,c)=>a+c.val,0);
+  const pct = total ? (v/total*100) : 0;
+  const min = KB.recolhidas[e.k];
+  return `<section class="kb-col ${min?'min':''}" id="col-${e.k}"
+     ondragover="kbOver(event,'${e.k}')" ondragleave="kbLeave('${e.k}')" ondrop="kbDrop(event,'${e.k}')">
+    <header class="kb-h">
+      <button class="kb-min-btn" onclick="kbCol('${e.k}')"
+        data-tip="${min?'Abrir':'Recolher'} a coluna ${e.t}" aria-label="${min?'Abrir':'Recolher'}">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+             stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="${min?'M9 6l6 6-6 6':'M15 6l-6 6 6 6'}"/></svg>
+      </button>
+      <div class="t" data-tip="${e.tip}">${e.t}<span class="n">${meus.length}</span></div>
+      <div class="v" data-tip="Soma dos valores brutos parados nesta coluna">${v?'R$ '+m0(v):'—'}</div>
+      <div class="pct" data-tip="${pct.toFixed(0)}% do valor no quadro"><i style="width:${pct}%"></i></div>
+    </header>
+    <div class="kb-body">
+      ${meus.length?meus.map(c=>kbCard(c,false)).join(''):'<div class="kb-vazio">Nada parado aqui</div>'}
+    </div>
+  </section>`;
+}
+
+function kbCard(c, morto){
+  const u = kbUrg(c);
+  const aberto = KB.abertos[c.id];
+  const faltando = kbFaltam(c);
+  const NOMES = {anexo:'Orçamento anexado',rateio:'Rateio fechando 100%',placa:'Placa do veículo',
+                 caixa:'Semana com saldo',alcada:'Alçada suficiente',pedido:'Número do pedido'};
+  return `<article class="kb-card u-${u.k} ${aberto?'open':''}" id="kc-${c.id}"
+     ${morto?'':'draggable="true"'} ondragstart="kbStart(event,'${c.id}')" ondragend="kbEnd()"
+     data-tip="${c.desc.replace(/"/g,'&quot;')}">
+    <div class="kb-c1">
+      <b>${c.id.slice(-5)}</b>
+      ${c.orc?'<span class="kb-t cr" data-tip="Estourou o orçamento da conta no mês">estouro</span>':''}
+      <span class="val">${m0(c.val)}</span>
+      <button class="kb-exp" onclick="event.stopPropagation();kbTog('${c.id}')" aria-label="Detalhes"
+        data-tip="${aberto?'Recolher':'Abrir'} o detalhe deste card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+    </div>
+    <div class="kb-forn">${c.forn}</div>
+    <div class="kb-meta">
+      <span class="kb-t" data-tip="Filial que emite a NF · centro de custo que consome">${c.fil} · ${c.centro}</span>
+      <span class="kb-t ${u.cls}" data-tip="Data prevista de pagamento: ${c.prev}">${u.t}</span>
+      ${faltando.length?`<span class="kb-t wa" data-tip="Falta: ${faltando.map(k=>NOMES[k]).join(', ')}">${faltando.length} pendência${faltando.length>1?'s':''}</span>`:''}
+    </div>
+    <div class="kb-det">
+      <dl>
+        <dt>Item</dt><dd>${c.desc}</dd>
+        <dt>Classificação</dt><dd>${c.cls}</dd>
+        <dt>Área</dt><dd>${c.area}</dd>
+        <dt>Solicitante</dt><dd>${c.sol}</dd>
+        <dt>Condição</dt><dd>${c.cond}</dd>
+        <dt>Alçada</dt><dd>${c.alc}</dd>
+        <dt>Semana</dt><dd>${c.sem} · saldo ${m0(c.saldo)}</dd>
+      </dl>
+      <div class="kb-pre">
+        ${Object.keys(c.pre).map(k=>{
+          const ok=c.pre[k], agora=kbExigidoAgora(c,k);
+          const cl = ok?'y' : (agora?'n':'f');
+          return `<span class="${cl}" data-tip="${ok?'Já atendido':agora?'Trava o próximo passo':'Só vai ser exigido mais adiante no fluxo'}">${ok?'✓':agora?'✗':'○'} ${NOMES[k]}</span>`;
+        }).join('')}
+      </div>
+      ${c.obs?`<div class="note" style="margin-bottom:9px;font-size:11px">${c.obs}</div>`:''}
+      <div class="acts">
+        <button class="btn sm" onclick="event.stopPropagation();openSol('${c.id}')">Abrir ficha</button>
+        <button class="btn sm" onclick="event.stopPropagation();toast('Histórico de ${c.id} — todo movimento fica no log')">Histórico</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+/** Um pré-requisito só é cobrado quando chega a vez dele. Antes disso é aviso, não falha. */
+function kbExigidoAgora(c, chave){
+  const ix = ETAPA_IX[c.etapa];
+  if(ix===undefined) return false;
+  for(let i=1; i<=ix+1 && i<ETAPAS.length; i++){
+    if((GATES[ETAPAS[i].k]||[]).some(g=>g[0]===chave)) return true;
+  }
+  return false;
+}
+
+function kbTog(id){ KB.abertos[id]=!KB.abertos[id]; kbRender(); }
+
+/** Recolher uma coluna devolve a largura às outras. O card continua lá, só não ocupa tela. */
+function kbCol(k){ KB.recolhidas[k]=!KB.recolhidas[k]; kbRender(); }
+function kbColunas(recolher){
+  ETAPAS.forEach(e=>{ KB.recolhidas[e.k]=recolher; });
+  kbRender();
+}
+function kbTudo(abrir){
+  kbDados().forEach(c=>KB.abertos[c.id]=abrir);
+  kbRender();
+}
+function kbRender(){
+  const el=document.getElementById('view');
+  if(el){ el.innerHTML=vKanban(); ligarTips(); }
+}
+
+/* ---------- arrastar ---------- */
+function kbStart(ev,id){
+  KB.arrastando=id;
+  ev.dataTransfer.effectAllowed='move';
+  ev.dataTransfer.setData('text/plain',id);
+  const el=document.getElementById('kc-'+id); if(el) el.classList.add('dragging');
+}
+function kbEnd(){
+  const el=document.getElementById('kc-'+KB.arrastando); if(el) el.classList.remove('dragging');
+  ETAPAS.forEach(e=>{const c=document.getElementById('col-'+e.k); if(c) c.classList.remove('drop-ok','drop-no');});
+  KB.arrastando=null;
+}
+/** Arrastar sobre uma coluna recolhida abre ela — senão não há onde soltar. */
+function kbAbreSeRecolhida(k){
+  if(!KB.recolhidas[k]) return;
+  KB.recolhidas[k]=false;
+  kbRender();
+}
+function kbOver(ev,alvo){
+  kbAbreSeRecolhida(alvo);
+  if(!KB.arrastando) return;
+  ev.preventDefault();
+  const col=document.getElementById('col-'+alvo);
+  const v=kbPode(KB.arrastando,alvo);
+  col.classList.toggle('drop-ok', v.ok);
+  col.classList.toggle('drop-no', !v.ok);
+  ev.dataTransfer.dropEffect = v.ok?'move':'none';
+}
+function kbLeave(alvo){
+  const c=document.getElementById('col-'+alvo); if(c) c.classList.remove('drop-ok','drop-no');
+}
+
+/**
+ * A regra do movimento. Devolve {ok, motivo} — a tela nunca decide sozinha.
+ * Três camadas, na ordem: é um movimento possível? a pessoa pode? os pré-requisitos estão de pé?
+ */
+function kbPode(id, alvo){
+  const c = kbDados().find(x=>x.id===id);
+  if(!c) return {ok:false, motivo:'Card não encontrado.'};
+  if(c.etapa===alvo) return {ok:false, motivo:''};
+
+  const de = ETAPA_IX[c.etapa], para = ETAPA_IX[alvo];
+  if(para > de+1) return {ok:false,
+    motivo:'Não dá para pular etapa. De "'+ETAPAS[de].t+'" o próximo passo é "'+ETAPAS[de+1].t+'".'};
+
+  const podeMover = MOVE_PERFIL[ROLE]||[];
+  if(para > de && podeMover.indexOf(alvo)<0) return {ok:false,
+    motivo:'O perfil '+PERFIL_NOME[ROLE]+' não move card para "'+ETAPAS[para].t+'".'};
+  if(para < de && ROLE==='SOLICITANTE') return {ok:false,
+    motivo:'Só Financeiro e Diretoria devolvem card para uma etapa anterior.'};
+
+  if(para > de){
+    const NOMES={anexo:'o orçamento anexado',rateio:'o rateio fechando 100%',placa:'a placa do veículo',
+                 caixa:'caixa na semana — hoje a recomendação é reprogramar',alcada:'alçada suficiente',
+                 pedido:'o número do pedido ao fornecedor'};
+    const faltam=(GATES[alvo]||[]).filter(g=>!c.pre[g[0]]);
+    // 'pedido' é o único que se resolve no próprio movimento: em vez de recusar, o app pergunta.
+    const pedeAgora = faltam.length===1 && faltam[0][0]==='pedido';
+    if(pedeAgora) return {ok:true, motivo:'', pergunta:'pedido'};
+    if(faltam.length) return {ok:false,
+      motivo:'Para entrar em "'+ETAPAS[para].t+'" falta '+faltam.map(g=>NOMES[g[0]]).join(' e ')+'.'};
+    if(alvo==='AUTORIZAR' && !podeAprovarValor(c.val)) return {ok:false,
+      motivo:'R$ '+m0(c.val)+' exige '+nomeAlcada(c.alc)+'. Seu perfil não cobre esse valor.'};
+  }
+  return {ok:true, motivo:''};
+}
+
+function nomeAlcada(id){
+  const a=(ALC||[]).find(x=>x[1]&&String(x[1]).includes(id));
+  return a?a[1]:(id||'uma alçada maior');
+}
+function podeAprovarValor(v){
+  const p=PERMS[ROLE]||{};
+  const aprov=(p.acao&&p.acao.aprovar)||[];
+  // A permissão de aprovar pode vir marcada em SOLICITACAO ou em APROVACAO — as duas
+  // querem dizer a mesma coisa, e qual delas a planilha usa não é problema da tela.
+  if(!aprov.includes('SOLICITACAO') && !aprov.includes('APROVACAO')) return false;
+  return Number(v) <= Number(p.limite||0);
+}
+
+function kbDrop(ev,alvo){
+  ev.preventDefault();
+  const id = KB.arrastando || ev.dataTransfer.getData('text/plain');
+  kbLeave(alvo);
+  const v = kbPode(id, alvo);
+  if(!v.ok){
+    if(v.motivo) toast('Movimento recusado — '+v.motivo, 'cr');
+    const el=document.getElementById('kc-'+id);
+    if(el){ el.classList.add('nega'); setTimeout(()=>el.classList.remove('nega'),320); }
+    kbEnd(); return;
+  }
+  if(v.pergunta==='pedido'){
+    const sol = kbDados().find(x=>x.id===id);
+    kbEnd();
+    openDrawer('Autorizar compra', '<span class="mono">'+id+'</span> · '+sol.forn, `
+      <div class="note" style="margin-bottom:14px">Para o card entrar em <b>Receber</b>, o sistema precisa
+      do número do pedido feito ao fornecedor. É ele que amarra a nota fiscal ao compromisso — sem isso,
+      a NF chega e ninguém sabe a qual aprovação ela pertence.</div>
+      <div class="f w2"><label for="kbPed">Número do pedido</label>
+        <input id="kbPed" placeholder="Ex.: PC-2026-0481" autofocus>
+        <span class="hint">Fica registrado no log junto com quem autorizou.</span></div>
+      <div class="foot-acts" style="margin-top:16px">
+        <button class="btn pri" onclick="kbConfirmarPedido('${id}')">Confirmar e mover</button>
+        <button class="btn" onclick="closeDrawer()">Cancelar</button>
+      </div>`);
+    return;
+  }
+  moverNoServidor(id, alvo);
+  return;
+  /* eslint-disable no-unreachable */
+  const c = SOL.find(x=>x.id===id);
+  const antes = c.etapa || 'APROVAR';
+  c.etapa = alvo;
+  c.st = {SOLICITAR:'Rascunho',VALIDAR:'Em validação',CAIXA:'Aguardando caixa',
+          APROVAR:'Aguardando Aprovação',AUTORIZAR:'Aprovado',RECEBER:'Comprometido'}[alvo];
+  if(alvo==='RECEBER') c.pre.pedido=true;
+  kbEnd();
+  kbRender();
+  toast(id.slice(-5)+' · '+ETAPAS[ETAPA_IX[antes]].t+' → '+ETAPAS[ETAPA_IX[alvo]].t+
+        '. Status atualizado, '+USERS[ROLE][0]+' registrado no log.', 'ok');
+}
+
+function kbConfirmarPedido(id){
+  const e=document.getElementById('kbPed');
+  if(!e || !e.value.trim()){ toast('Informe o número do pedido para seguir.', 'cr'); return; }
+  const c=SOL.find(x=>x.id===id);
+  const pedido=e.value.trim();
+  closeDrawer();
+  moverNoServidor(id, 'RECEBER', pedido);
+}
+
+/* ---------- tooltips ---------- */
+function ligarTips(){
+  let el=document.getElementById('tip');
+  if(!el){ el=document.createElement('div'); el.id='tip'; document.body.appendChild(el); }
+  document.querySelectorAll('[data-tip]').forEach(n=>{
+    if(n.__tip) return; n.__tip=true;
+    n.addEventListener('mouseenter',()=>{
+      const t=n.getAttribute('data-tip'); if(!t) return;
+      el.innerHTML=t; el.classList.add('on');
+      const r=n.getBoundingClientRect();
+      const w=el.offsetWidth, h=el.offsetHeight;
+      let x=r.left+r.width/2-w/2, y=r.top-h-8;
+      if(y<8) y=r.bottom+8;
+      el.style.left=Math.max(8,Math.min(x,innerWidth-w-8))+'px';
+      el.style.top=y+'px';
+    });
+    n.addEventListener('mouseleave',()=>el.classList.remove('on'));
+  });
+}
+
+const VIEWS={inicio:vInicio,minhas:vMinhas,nova:vNova,kanban:vKanban,aprovacoes:vAprov,autorizacoes:vAutorizacoes,fluxo:vFluxo,pagar:vPagar,receber:vReceber,
+ rateio:vRateio,gerencial:vGerencial,orcamento:vOrcamento,plano:vPlano,fornecedores:vFornecedores,filiais:vFiliais,
+ usuarios:vUsuarios,perfis:vPerfis,import:vImport,logs:vLogs,params:vParams};
+function render(){
+  document.getElementById('view').innerHTML=(VIEWS[VIEW]||vInicio)();
+  if(VIEW==='nova')checar();
+  ligarTips();
+}
+
+/* ============================================================
+   DRAWER / DRILL-DOWN
+   ============================================================ */
+function openDrawer(t,m,html){
+  document.getElementById('drTitle').textContent=t;
+  document.getElementById('drMeta').innerHTML=m;
+  document.getElementById('drBody').innerHTML=html;
+  document.getElementById('drawer').classList.add('on');
+  document.getElementById('drawer').setAttribute('aria-hidden','false');
+  document.getElementById('scrim').classList.add('on');
+}
+function closeDrawer(){document.getElementById('drawer').classList.remove('on');
+  document.getElementById('drawer').setAttribute('aria-hidden','true');
+  document.getElementById('scrim').classList.remove('on')}
+
+const STEPS=['Solicitar','Validar regra','Consultar caixa','Aprovar','Autorizar','Receber NF','Pagar'];
+function stepIdx(st){return {'Aguardando Aprovação':3,'Reprogramado':3,'Aprovado':4,'Comprometido':5,'Pago':7}[st]??3}
+function openSol(id){
+  const s=SOL.find(x=>x.id===id); if(!s)return;
+  const cur=stepIdx(s.st), blk=s.st==='Reprogramado';
+  const steps=STEPS.map((t,i)=>{
+    const cls=i<cur?'done':(i===cur?(blk?'blk':'now'):'');
+    const ic=i<cur?'✓':(i===cur&&blk?'!':i+1);
+    return `<div class="step ${cls}" role="button" onclick="toast('Etapa: ${t}')"><span class="ic">${ic}</span>${t}</div>`;
+  }).join('');
+  const ok=podeAprovar(s.val);
+  const acoes=['Aguardando Aprovação','Reprogramado'].includes(s.st)
+    ? (ok?`<div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn ok" onclick="decide('${s.id}','Aprovada')">${svg(I.check)}Aprovar</button>
+        <button class="btn wa" onclick="decide('${s.id}','Reprogramada')">Reprogramar</button>
+        <button class="btn cr" onclick="decide('${s.id}','Reprovada')">Reprovar</button></div>`
+      :`<div class="note" style="margin-top:14px">Valor de R$ ${money(s.val)} exige <b>${s.alc}</b>. Seu perfil não tem essa alçada.</div>`)
+    : '';
+  const body=`
+  <div class="steps">${steps}</div>
+  <div class="verdict ${RECMAP[s.rec]==='mu'?'ok':RECMAP[s.rec]}" style="margin-bottom:16px">
+    <div style="flex:none">${svg(s.rec==='LIBERAR'?I.check:'M12 8v5M12 16.5h.01M10.3 3.9 2.4 17.4A1.9 1.9 0 0 0 4 20.3h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z')}</div>
+    <div><b>${s.rec==='—'?'Sem pendência de decisão':s.rec}</b>
+    <p>Semana ${s.sem} · saldo projetado R$ ${m0(s.saldo)}${s.obs?' · '+s.obs:''}</p></div></div>
+  <div class="tabs">
+    <button class="tab on" onclick="drTab(this,0)">Dados</button>
+    <button class="tab" onclick="drTab(this,1)">Rateio</button>
+    <button class="tab" onclick="drTab(this,2)">Anexos</button>
+    <button class="tab" onclick="drTab(this,3)">Histórico</button></div>
+  <div id="drt0">
+    <dl class="dl">
+      <dt>Solicitante</dt><dd>${s.sol} · ${s.area}</dd>
+      <dt>Fornecedor</dt><dd>${s.forn}</dd>
+      <dt>Descrição</dt><dd>${s.desc}</dd>
+      <dt>Classificação</dt><dd><span class="mono">${s.cod}</span> · ${s.cls}</dd>
+      <dt>Filial de emissão</dt><dd>${s.fil}</dd>
+      <dt>Valor bruto</dt><dd class="mono">R$ ${money(s.val)}</dd>
+      <dt>Condição / forma</dt><dd>${s.cond} · ${s.forma}</dd>
+      <dt>Data prevista</dt><dd>${s.prev}/2026</dd>
+      <dt>Antecedência</dt><dd>${s.ant==='OK'?'<span class="tag t-ok">Dentro do prazo</span>':'<span class="tag t-cr">Fora do prazo mínimo</span>'}</dd>
+      <dt>Alçada requerida</dt><dd>${s.alc}</dd>
+      <dt>Status</dt><dd><span class="tag ${STMAP[s.st]}">${s.st}</span></dd>
+    </dl>${acoes}</div>
+  <div id="drt1" hidden>
+    <table><thead><tr><th>Filial destino</th><th style="text-align:right">%</th><th style="text-align:right">Valor</th></tr></thead><tbody>
+      ${[['RP',45],['CPQ',20],['OSA',20],['SPO',15]].map(r=>`<tr><td>${r[0]}</td><td class="n">${r[1]},0%</td>
+      <td class="n">${money(s.val*r[1]/100)}</td></tr>`).join('')}
+      <tr class="tot"><td><b>Total</b></td><td class="n"><b>100,0%</b></td><td class="n"><b>${money(s.val)}</b></td></tr>
+    </tbody></table>
+    <div class="note" style="margin-top:14px">A soma precisa fechar em 100% — o sistema bloqueia a gravação caso contrário.</div></div>
+  <div id="drt2" hidden>
+    <div class="note">O anexo de orçamento ainda não está ligado ao Drive — é a parte que falta
+      para a categoria que exige cotação travar de verdade. Até lá, guarde os arquivos na pasta
+      <span class="mono">/FC Salomé/Anexos/</span> e cite o número ${s.id} no nome.</div></div>
+  <div id="drt3" hidden><div id="hist-${s.id}"><div class="empty">Carregando o histórico…</div></div>
+    <div class="note" style="margin-top:14px">Este histórico é a leitura da aba <span class="mono">LOG_ATIV</span>
+    filtrada por este registro — uma linha por campo alterado, com valor antes e depois.</div></div>`;
+  openDrawer(s.id,`${s.forn} · R$ ${money(s.val)} · previsto para ${s.prev}`,body);
+  carregarHistorico(s.id);
+}
+/**
+ * O histórico vem do log de verdade, não de uma lista escrita à mão.
+ *
+ * Perfil sem permissão de LOG recebe a recusa do servidor — e o certo é dizer isso, não
+ * mostrar um histórico vazio como se nada tivesse acontecido com o registro.
+ */
+async function carregarHistorico(id){
+  const alvo = document.getElementById('hist-'+id);
+  if(!alvo) return;
+  let l;
+  try{ l = await API.chamar('log.historico',{registroId:id}); }
+  catch(e){
+    alvo.innerHTML = `<div class="empty">${/PERMISSAO/i.test(e.message)
+      ? 'Seu perfil não tem permissão para ler o log. Financeiro, Diretoria e Administrador têm.'
+      : 'Não consegui ler o histórico: '+e.message}</div>`;
+    return;
+  }
+  if(!l || !l.length){
+    alvo.innerHTML = '<div class="empty">Nenhuma alteração registrada além da criação.</div>';
+    return;
+  }
+  alvo.innerHTML = '<ul class="tl">'+l.map(x=>`<li><time>${x.QUANDO||x.DATA||''}</time>
+    <div><b>${x.ACAO||''}</b> <span>— ${x.CAMPO?x.CAMPO+': ':''}${x.VALOR_ANTES||'—'} → ${x.VALOR_DEPOIS||'—'}
+    ${x.USUARIO_EMAIL?' · '+x.USUARIO_EMAIL:''}${x.MOTIVO?' · '+x.MOTIVO:''}</span></div></li>`).join('')+'</ul>';
+}
+
+function drTab(btn,i){
+  [...btn.parentElement.children].forEach((b,j)=>b.classList.toggle('on',j===i));
+  for(let j=0;j<4;j++){const e=document.getElementById('drt'+j);if(e)e.hidden=(j!==i)}
+}
+function openPC(cod){
+  const p=PLANO.find(x=>x[0]===cod);
+  const usadaPor=CAT.filter(c=>c[4]===cod||c[5]===cod).map(c=>c[2]);
+  openDrawer(p[1],`<span class="mono">${p[0]}</span> · ${p[3]}`,`
+   <dl class="dl">
+     <dt>Tipo</dt><dd>${p[2]==='ANALITICA'?'Analítica — aceita lançamento':'Sintética — só agrupa, não aceita lançamento'}</dd>
+     <dt>Natureza</dt><dd>${p[4]}</dd>
+     ${p[5]?`<dt>Descrição contábil</dt><dd>${p[5]}</dd>`:''}
+   </dl>
+   <h3 style="font-size:14px;margin:20px 0 10px">Categorias que caem nesta conta</h3>
+   ${usadaPor.length?`<div>${usadaPor.map(n=>`<span class="tag t-ok" style="margin:0 6px 6px 0"><i class="dot"></i>${n}</span>`).join('')}</div>`
+     :`<div class="note">Nenhuma categoria aponta para esta conta — ninguém consegue lançar nela pelo app.
+       É assim de propósito: folha, imposto e despesa financeira não passam por solicitação de compra.</div>`}
+   <h3 style="font-size:14px;margin:20px 0 10px">Lançamentos que usam esta conta</h3>
+   ${tblSol(SOL.filter(s=>s.cod===cod),false)}`);
+}
+function openUser(id){
+  const u=USUARIOS.find(x=>x[0]===id);
+  openDrawer(u[1],`${u[8]?'login '+u[8]:'(sem login)'} · ${u[3]}`,`
+   <dl class="dl">
+     <dt>Usuário (login)</dt><dd class="mono"><b>${u[8]||'—'}</b></dd>
+     <dt>ID</dt><dd class="mono">${u[0]}</dd><dt>Perfil</dt><dd>${u[3]}</dd>
+     <dt>Escopo de filial</dt><dd>${u[4]}</dd><dt>Limite de alçada</dt><dd>${u[5]}</dd>
+     <dt>Status</dt><dd><span class="tag ${u[6]==='ATIVO'?'t-ok':'t-mu'}">${u[6]}</span></dd>
+     <dt>Último acesso</dt><dd class="mono">${u[7]}</dd>
+     <dt>Senha</dt><dd>Hash SHA-256 + salt por usuário. Nunca visível, nem para o Administrador.</dd>
+   </dl>
+   <div class="note" style="margin-top:18px">Os acessos desta pessoa estão na planilha <b>FC_LOG</b>,
+   na aba <span class="mono">LOG_ACESSO</span> da semana — com data, origem e o motivo de cada falha.</div>`);
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+let mSel=new Set();
+function openPhone(){
+  document.getElementById('mPend').textContent=PEND.length;
+  document.getElementById('mVal').textContent='R$ '+m0(PEND.reduce((a,s)=>a+s.val,0));
+  document.getElementById('mCx').textContent='R$ 108k';
+  document.getElementById('phBody').innerHTML=PEND.map(s=>{
+    const k=RECMAP[s.rec], ok=podeAprovar(s.val);
+    return `<div class="mc">
+      <div class="r"><span class="who2">${s.forn}</span><span class="vl">${m0(s.val)}</span></div>
+      <div class="ln">${s.cls} · ${s.sol}</div>
+      <div class="ln">Prev. ${s.prev} · semana ${s.sem} · saldo R$ ${m0(s.saldo)}</div>
+      <div class="why v-${k}">
+        ${svg(s.rec==='LIBERAR'?I.check:'M12 8v5M12 16.5h.01M10.3 3.9 2.4 17.4A1.9 1.9 0 0 0 4 20.3h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z')}
+${s.rec}${s.ant!=='OK'?' · fora do prazo':''}</div>
+      ${ok?`<div class="bt">
+        <button style="border-color:var(--crit);color:var(--crit);background:var(--crit-soft)" onclick="mAct('${s.id}','Reprogramada')">Reprogramar</button>
+        <button style="border-color:var(--ok);color:var(--ok);background:var(--ok-soft)" onclick="mAct('${s.id}','Aprovada')">Aprovar</button>
+      </div>`:`<div class="ln" style="margin-top:9px;color:var(--crit)">Acima da sua alçada — ${s.alc}</div>`}
+    </div>`}).join('');
+  document.getElementById('phoneWrap').classList.add('on');
+}
+function mAct(id,a){toast(`${id} ${a.toLowerCase()} pelo celular. Log com origem MOBILE.`)}
+function mBulk(a){toast(`${a} em lote — selecione os cards primeiro.`)}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function closeLogin(){}
+function toast(m,tom){const t=document.getElementById('toast');t.textContent=m;
+  t.className='toast on'+(tom?' t-'+tom:'');
+  clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('on'),tom==='cr'?5200:3600)}
+document.getElementById('colBtn').onclick=()=>{
+  const r=document.getElementById('rail'); r.classList.toggle('min');
+  document.getElementById('colIcon').innerHTML=`<path d="${r.classList.contains('min')?'M9 6l6 6-6 6':'M15 6l-6 6 6 6'}"/>`;
+};
+document.getElementById('mobBtn').onclick=()=>document.getElementById('rail').classList.toggle('mob');
+document.getElementById('drClose').onclick=closeDrawer;
+document.getElementById('scrim').onclick=closeDrawer;
+document.getElementById('phoneX').onclick=()=>document.getElementById('phoneWrap').classList.remove('on');
+document.getElementById('sairBtn').onclick=sair;
+document.getElementById('themeBtn').onclick=()=>{
+  const r=document.documentElement;
+  const cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+  r.setAttribute('data-theme',cur==='dark'?'light':'dark');
+};
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeDrawer();closeLogin();document.getElementById('phoneWrap').classList.remove('on')}
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('gsearch').focus()}
+});
+document.getElementById('gsearch').oninput=e=>{
+  const q=e.target.value.trim().toLowerCase(); if(q.length<2)return;
+  const hit=SOL.find(s=>s.id.toLowerCase().includes(q)||s.forn.toLowerCase().includes(q)||String(s.val).includes(q));
+  if(hit&&q.length>3){toast('Encontrado: '+hit.id+' — Enter para abrir');
+    document.getElementById('gsearch').onkeydown=k=>{if(k.key==='Enter')openSol(hit.id)}}
+};
+
+/**
+ * Tela que ainda não lê a base. Dizer isso é melhor que inventar número.
+ */
+function semDados(titulo, texto, onde){
+  return `<div class="card" style="padding:38px 28px;text-align:center">
+    <div style="font-size:15px;font-weight:600;margin-bottom:8px">${titulo}</div>
+    <div style="font-size:13px;color:var(--ink-2);max-width:560px;margin:0 auto;line-height:1.6">${texto}</div>
+    ${onde?`<div class="note" style="margin:18px auto 0;max-width:560px;text-align:left">${onde}</div>`:''}
+  </div>`;
+}
+
+/* ==========================================================================
+   PONTE COM O SERVIDOR
+   --------------------------------------------------------------------------
+   Uma função só chega ao servidor: api(acao, payload, token). O roteador do
+   Code.gs resolve sessão → permissão → execução → log. Nenhuma outra função
+   do backend fica exposta ao navegador.
+
+   google.script.run não devolve Promise, então embrulhamos. E ele só existe
+   dentro de uma página servida pelo HtmlService — por isso este app nunca
+   roda abrindo o HTML direto do GitHub Pages.
+   ========================================================================== */
+const API = {
+  token: null,
+
+  chamar(acao, payload) {
+    return new Promise((ok, falhou) => {
+      if (typeof google === 'undefined' || !google.script || !google.script.run) {
+        falhou(new Error('Esta página precisa ser aberta pela URL do app (…/exec). ' +
+          'Abrindo o arquivo direto, não existe ponte com o servidor.'));
+        return;
+      }
+      google.script.run
+        .withSuccessHandler(r => {
+          if (!r) { falhou(new Error('O servidor não respondeu.')); return; }
+          if (r.ok) { ok(r.dados); return; }
+          const e = new Error(r.mensagem || 'Falha no servidor.');
+          e.codigo = r.codigo;
+          falhou(e);
+        })
+        .withFailureHandler(e => falhou(new Error(e && e.message ? e.message : String(e))))
+        .api(acao, payload || {}, API.token);
+    });
+  },
+
+  /** Guarda o token entre recarregamentos da aba. Falha silenciosa é aceitável:
+      sem ele a pessoa só faz login de novo. */
+  guardar(t) {
+    API.token = t;
+    try { sessionStorage.setItem('fc_token', t || ''); } catch (e) { /* aba privada */ }
+  },
+  recuperar() {
+    try { API.token = sessionStorage.getItem('fc_token') || null; } catch (e) { API.token = null; }
+    return API.token;
+  },
+  esquecer() {
+    API.token = null;
+    try { sessionStorage.removeItem('fc_token'); } catch (e) { /* ok */ }
+  }
+};
+
+/* ---------- carregando ---------- */
+function carregando(on, texto) {
+  const el = document.getElementById('lgLoad');
+  if (!el) return;
+  el.classList.toggle('off', !on);
+  if (texto) document.getElementById('lgLoadTxt').textContent = texto;
+}
+
+/* ---------- login ---------- */
+function erroLogin(msg) {
+  const e = document.getElementById('lgErro');
+  e.style.display = msg ? 'flex' : 'none';
+  e.innerHTML = msg ? `<div><b>Não foi possível entrar</b><p>${msg}</p></div>` : '';
+}
+
+async function entrar() {
+  const btn = document.getElementById('lgBtn');
+  const usuario = document.getElementById('lgMail').value.trim();
+  const senha = document.getElementById('lgSenha').value;
+  if (!usuario || !senha) { erroLogin('Informe usuário e senha.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Entrando…'; erroLogin('');
+  try {
+    const r = await API.chamar('auth.login', { usuario, senha, origem: 'WEB', userAgent: navigator.userAgent });
+    API.guardar(r.token);
+    document.getElementById('lgSenha').value = '';
+    if (r.trocarSenha) {
+      document.getElementById('loginWrap').classList.remove('on');
+      document.getElementById('trocaWrap').classList.add('on');
+      return;
+    }
+    await carregarTudo();
+  } catch (e) {
+    erroLogin(e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+}
+
+async function salvarSenha() {
+  const atual = document.getElementById('tcAtual').value;
+  const nova = document.getElementById('tcNova').value;
+  const conf = document.getElementById('tcConf').value;
+  const err = document.getElementById('tcErro');
+  const mostrar = m => { err.style.display = m ? 'flex' : 'none';
+    err.innerHTML = m ? `<div><b>Não deu</b><p>${m}</p></div>` : ''; };
+
+  if (nova !== conf) { mostrar('As duas senhas novas não são iguais.'); return; }
+  if (nova.length < 8) { mostrar('A nova senha precisa de pelo menos 8 caracteres.'); return; }
+  try {
+    await API.chamar('auth.trocarSenha', { atual, nova });
+    document.getElementById('trocaWrap').classList.remove('on');
+    await carregarTudo();
+  } catch (e) { mostrar(e.message); }
+}
+
+async function sair() {
+  try { await API.chamar('auth.logout', {}); } catch (e) { /* segue assim mesmo */ }
+  API.esquecer();
+  location.reload();
+}
+
+/* ---------- abertura ---------- */
+
+/** Uma chamada traz tudo. No Apps Script o custo é a ida e volta, não o tamanho. */
+async function carregarTudo() {
+  carregando(true, 'Carregando a base…');
+  try {
+    const d = await API.chamar('vista.abrir', {});
+    aplicar(d);
+    document.getElementById('loginWrap').classList.remove('on');
+    document.getElementById('trocaWrap').classList.remove('on');
+    carregando(false);
+    renderMenu(); render();
+  } catch (e) {
+    carregando(false);
+    if (e.codigo === 'SESSAO_INVALIDA' || e.codigo === 'SESSAO_EXPIRADA') {
+      API.esquecer();
+      document.getElementById('loginWrap').classList.add('on');
+      erroLogin('Sua sessão expirou. Entre de novo.');
+      return;
+    }
+    document.getElementById('loginWrap').classList.add('on');
+    erroLogin(e.message);
+  }
+}
+
+/** Joga os dados do servidor nas variáveis que as telas já desenham. */
+function aplicar(d) {
+  EU = d.usuario;
+  ROLE = d.usuario.perfil;
+  PERMS[ROLE] = normalizarPermissoes(d.permissoes);
+
+  const c = d.cadastros || {};
+  PLANO = (c.contas || []).map(x => [x.CODIGO, x.DESCRICAO, x.TIPO, x.GRUPO_DRE, x.NATUREZA, x.DESCRICAO_CONTABIL || '']);
+  FORN  = (c.fornecedores || []).map(x => [x.FORNECEDOR_ID, x.RAZAO_SOCIAL, x.TIPO || 'PJ', x.OPTANTE_SIMPLES || '', x.CATEGORIAS || '']);
+  CAT   = (c.categorias || []).map(x => [x.CATEGORIA_ID, x.BLOCO, x.NOME, x.EXEMPLOS, x.CONTA_PJ, x.CONTA_PF,
+                                          x.CENTRO_PADRAO, x.EXIGE_PLACA, x.EXIGE_ANEXO, x.RETENCAO, x.ANTECEDENCIA_MIN_DIAS]);
+  CENTROS = (c.centros || []).map(x => [x.CENTRO_ID, x.NOME, x.DESCRICAO]);
+  USUARIOS = (c.usuarios || []).map(x => [x.USUARIO_ID, x.NOME, x.EMAIL, x.PERFIL_ID,
+                                          x.FILIAIS || x.ESCOPO_FILIAL || 'Todas', x.LIMITE_ALCADA || '—',
+                                          x.STATUS, x.ULTIMO_ACESSO || '—', x.LOGIN || '']);
+  FILIAIS_CAD = c.filiais || [];
+  AREAS_CAD   = c.areas || [];
+  CONDICOES_CAD = c.condicoes || [];
+  FORMAS_CAD  = c.formas || [];
+
+  SOL = d.solicitacoes || [];
+  AUTORIZ = d.autorizacoes || [];
+  ALC = d.alcadas || [];
+  FLUXO_SRV = d.fluxo || {};
+  WEEKS = FLUXO_SRV.semanas || [];
+  WDATE = FLUXO_SRV.datas || [];
+  FLOW  = FLUXO_SRV;
+  SALDO_MINIMO = (d.parametros && d.parametros.saldoMinimo) || 0;
+  VERSAO_APP = d.versao || '';
+
+  recalcular();
+
+  document.getElementById('uname').textContent = EU.nome;
+  document.getElementById('uperfil').textContent = PERFIL_NOME[ROLE] || ROLE;
+  document.getElementById('avatar').textContent = EU.iniciais;
+}
+
+let FILIAIS_CAD = [], AREAS_CAD = [], CONDICOES_CAD = [], FORMAS_CAD = [], FLUXO_SRV = {};
+let SALDO_MINIMO = 0, VERSAO_APP = '';
+
+function recalcular() {
+  PEND = SOL.filter(s => ['Aguardando Aprovação', 'Reprogramado', 'Aguardando caixa'].includes(s.st));
+  PC_MAP = {}; PLANO.forEach(p => PC_MAP[p[0]] = { desc:p[1], tipo:p[2], g:p[3], n:p[4], contabil:p[5] });
+  CAT_MAP = {}; CAT.forEach(c => CAT_MAP[c[0]] = { bloco:c[1], nome:c[2], ex:c[3], pj:c[4], pf:c[5],
+    centro:c[6], placa:c[7]==='SIM', anexo:c[8]==='SIM', ret:c[9], ant:c[10] });
+  FORN_MAP = {}; FORN.forEach(f => FORN_MAP[f[0]] = { nome:f[1], tipo:f[2], simples:f[3], cats:f[4] });
+}
+
+/** O servidor devolve a matriz por recurso; a tela pensa por tela e por ação. */
+function normalizarPermissoes(p) {
+  const base = { ver: [], acao: { incluir: [], alterar: [], inativar: [], aprovar: [] },
+                 limite: 0, escopo: 'PROPRIO' };
+  if (!p) return base;
+  if (p.limite !== undefined) base.limite = Number(p.limite) || 0;
+
+  const TELA = {
+    SOLICITACAO:['inicio','minhas','nova','kanban'], APROVACAO:['aprovacoes','autorizacoes'],
+    TITULO_PAGAR:['pagar'], TITULO_RECEBER:['receber'], RATEIO:['rateio'],
+    ORCAMENTO:['orcamento','gerencial'], PLANO_CONTAS:['plano'], CATEGORIA:['plano'],
+    CENTRO_CUSTO:['filiais'], FORNECEDOR:['fornecedores'], FILIAL:['filiais'], AREA:['filiais'],
+    USUARIO:['usuarios'], PERFIL:['perfis'], PARAMETRO:['params'], LOG:['logs'], IMPORTACAO:['import']
+  };
+  const recursos = p.recursos || p;
+  Object.keys(recursos).forEach(r => {
+    const a = recursos[r] || {};
+    if (a.VER || a.ver) (TELA[r] || []).forEach(t => { if (base.ver.indexOf(t) < 0) base.ver.push(t); });
+    ['INCLUIR','ALTERAR','INATIVAR','APROVAR'].forEach(k => {
+      if (a[k] || a[k.toLowerCase()]) base.acao[k.toLowerCase()].push(r);
+    });
+  });
+  if (base.ver.indexOf('inicio') < 0) base.ver.push('inicio');
+  // O escopo mora no recurso SOLICITACAO: é ele que diz se a pessoa vê só o que lançou.
+  const sol = recursos.SOLICITACAO || {};
+  base.escopo = sol.escopo || sol.ESCOPO || p.escopo || 'PROPRIO';
+  return base;
+}
+
+/* ---------- ações que vão ao servidor ---------- */
+
+/** Recarrega só o que muda. Não refaz cadastro — cadastro não muda a cada minuto. */
+async function recarregar(msg) {
+  try {
+    const d = await API.chamar('vista.atualizar', {});
+    SOL = d.solicitacoes || SOL;
+    if (d.autorizacoes) AUTORIZ = d.autorizacoes;
+    if (d.fluxo) { FLUXO_SRV = d.fluxo; FLOW = d.fluxo; WEEKS = d.fluxo.semanas; WDATE = d.fluxo.datas; }
+    recalcular();
+    render();
+    if (msg) toast(msg, 'ok');
+  } catch (e) { toast('Não consegui recarregar: ' + e.message, 'cr'); }
+}
+
+/** Mover card no quadro. A regra que vale é a do servidor — a da tela é só resposta rápida. */
+async function moverNoServidor(id, etapa, pedido) {
+  try {
+    const r = await API.chamar('fluxo.mover', { id, etapa, pedido });
+    await recarregar(r.mensagem);
+    return true;
+  } catch (e) {
+    toast('Movimento recusado — ' + e.message, 'cr');
+    const el = document.getElementById('kc-' + id);
+    if (el) { el.classList.add('nega'); setTimeout(() => el.classList.remove('nega'), 320); }
+    return false;
+  }
+}
+
+/* ---------- abertura da página ---------- */
+async function abrirApp() {
+  renderMenu();
+  if (API.recuperar()) { await carregarTudo(); return; }
+  carregando(false);
+  document.getElementById('loginWrap').classList.add('on');
+}
+
+function fitMob(){document.getElementById('mobBtn').style.display=innerWidth<=860?'grid':'none'}
+addEventListener('resize',fitMob);fitMob();
+abrirApp();
+</script>
 </body>
 </html>
