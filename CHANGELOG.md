@@ -1,3 +1,15 @@
+## Protótipo (index.html) 11.0 — 2026-10-20 · Visão em faixas no Fluxo
+
+- Botão **Visão em faixas** no Fluxo do processo: uma faixa por card, com as seis etapas lado a lado.
+- Cores: verde = já passou (tempo real quando o log tem); âmbar = etapa atual; vermelho = etapa atual
+  com mais de 1,5× a média; cinza tracejado = previsão pela média.
+- Cabeçalho com o nome de cada etapa e a média de tempo; linhas verticais separam as colunas.
+- Coluna final com a conclusão prevista. Clicar numa faixa abre o painel do card.
+- Médias calculadas pelo histórico de passagens da base de teste. Sem histórico, usa estimativa padrão.
+- Versão do rodapé: 11.0.
+- Pendente: com dados reais, o servidor precisa devolver o histórico de passagens de todos os cards
+  (hoje a média só existe no protótipo). Etapa RECEBER ainda sem amostras.
+
 ## Backend (Apps Script) — correções pós-10.0 — 2026-10-20
 
 - `Code.gs` — `obs.salvar` deixou de gravar log duplicado: a `api()` ignora a rota com
