@@ -6,7 +6,8 @@
 - Cabeçalho com o nome de cada etapa e a média de tempo; linhas verticais separam as colunas.
 - Coluna final com a conclusão prevista. Clicar numa faixa abre o painel do card.
 - Médias calculadas pelo histórico de passagens da base de teste. Sem histórico, usa estimativa padrão.
-- Versão do rodapé: 11.0.
+- Versão do rodapé: 11.0. A versão aparece também no celular (antes sumia junto com o nome do app).
+- app.html regenerado a partir do index (v11.0).
 - Pendente: com dados reais, o servidor precisa devolver o histórico de passagens de todos os cards
   (hoje a média só existe no protótipo). Etapa RECEBER ainda sem amostras.
 
