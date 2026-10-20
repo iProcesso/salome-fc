@@ -1,3 +1,15 @@
+## Versão 11.02 — 2026-10-20 · Cadastros entregues conforme a matriz de permissões
+
+- `bootstrap` deixa de entregar todos os cadastros a qualquer perfil. Cada lista só vai para quem
+  tem VER no recurso (filiais, áreas, fornecedores, plano de contas). Condições, formas e alçadas
+  vão para quem tem VER em PARAMETRO ou pode incluir solicitação (o formulário usa a alçada para
+  mostrar quem aprova).
+- Hoje todos os perfis padrão já têm essas permissões, então a tela não muda para ninguém.
+  A regra passa a valer no servidor para perfis futuros.
+- Em aberto: a matriz diz que CATEGORIA e CENTRO_CUSTO não têm VER para ninguém, mas o formulário de
+  solicitação precisa delas. Mantido como estava até decisão.
+- **Para ativar:** colar `Code.gs` no Apps Script e publicar nova versão.
+
 ## Versão 11.01 — 2026-10-20 · Segurança: Fluxo de caixa protegido no servidor
 
 - **Corrigido:** `cash.fluxo` e `cash.detalhe` só exigiam VER em Solicitação. Qualquer perfil
