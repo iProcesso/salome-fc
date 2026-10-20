@@ -247,6 +247,16 @@ function recursoDaTabela(tabela) {
   return r;
 }
 
+/**
+ * Devolve a tabela só se o perfil tem VER no recurso. Com `quemLanca`, quem pode incluir
+ * solicitação também recebe, porque o formulário precisa dessa lista para lançar.
+ */
+function cadastroSe(ses, recurso, tabela, quemLanca) {
+  const ve = Perm.pode(ses, recurso, 'VER');
+  const lanca = quemLanca && Perm.pode(ses, 'SOLICITACAO', 'INCLUIR');
+  return (ve || lanca) ? Repo.listar(tabela) : [];
+}
+
 /** Um round-trip só: tudo que a tela precisa para montar. */
 function bootstrap(ses) {
   return {
@@ -258,19 +268,24 @@ function bootstrap(ses) {
       saldoMinimo: Cfg.param('SALDO_MINIMO_SEGURANCA', 0),
       horizonte: Cfg.param('HORIZONTE_SEMANAS', 12)
     },
+    // Cada cadastro só vai para quem tem a permissão dele na matriz (VER no recurso).
+    // Condições, formas e alçadas também chegam a quem lança solicitação, porque o
+    // formulário usa a alçada para mostrar quem aprova.
     cadastros: {
-      filiais:    Repo.listar('FILIAIS'),
-      areas:      Repo.listar('AREAS'),
-      centros:    Repo.listar('CENTROS_CUSTO'),
+      filiais:    cadastroSe(ses, 'FILIAL', 'FILIAIS'),
+      areas:      cadastroSe(ses, 'AREA', 'AREAS'),
+      centros:    cadastroSe(ses, 'CENTRO_CUSTO', 'CENTROS_CUSTO'),
       categorias: Catalogo.listar(),
       etapas:     Fluxo.ETAPAS.map(function (e) { return { k: e, t: Fluxo.ROTULO[e] }; }),
       blocos:     Catalogo.BLOCOS,
       // Só conta analítica entra na lista: sintética é agrupamento e não aceita lançamento.
-      contas:     Repo.listar('PLANO_CONTAS').filter(function (c) { return c.TIPO !== 'SINTETICA'; }),
-      fornecedores: Repo.listar('FORNECEDORES'),
-      condicoes:  Repo.listar('CONDICOES_PGTO'),
-      formas:     Repo.listar('FORMAS_PGTO'),
-      alcadas:    Repo.listar('ALCADAS')
+      contas:     ses && Perm.pode(ses, 'PLANO_CONTAS', 'VER')
+                    ? Repo.listar('PLANO_CONTAS').filter(function (c) { return c.TIPO !== 'SINTETICA'; })
+                    : [],
+      fornecedores: cadastroSe(ses, 'FORNECEDOR', 'FORNECEDORES'),
+      condicoes:  cadastroSe(ses, 'PARAMETRO', 'CONDICOES_PGTO', true),
+      formas:     cadastroSe(ses, 'PARAMETRO', 'FORMAS_PGTO', true),
+      alcadas:    cadastroSe(ses, 'PARAMETRO', 'ALCADAS', true)
     }
   };
 }
