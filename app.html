@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<title>FC Salomé · Protótipo</title>
+<title>FC Salomé</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 :root{
@@ -85,6 +85,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .appname{font-size:12px;color:rgba(215,231,242,.72);border-left:1px solid var(--topbar-line);
   padding-left:14px;margin-left:2px;white-space:nowrap}
 .appname b{color:#fff;font-size:13px;font-weight:600}
+.appver{margin-left:6px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;opacity:.85;border:1px solid var(--topbar-line);border-radius:4px;padding:0 5px}
 .spacer{flex:1}
 .search{display:flex;align-items:center;gap:8px;background:var(--topbar-2);border:1px solid var(--topbar-line);
   border-radius:6px;padding:6px 10px;width:280px;color:rgba(215,231,242,.7);font-size:13px}
@@ -429,9 +430,27 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
 .kb-tot b{display:block;font-family:"IBM Plex Mono",monospace;font-size:17px;color:var(--ink);
   letter-spacing:-.01em;font-variant-numeric:tabular-nums;text-transform:none}
 
-.kb-board{display:flex;gap:9px;overflow-x:auto;padding-bottom:10px;align-items:flex-start}
-.kb-col{flex:1 1 0;min-width:198px;background:var(--surface-2);border:1px solid var(--line);
-  border-radius:9px;display:flex;flex-direction:column;max-height:calc(100vh - 290px)}
+/* As seis colunas cabem na tela, sem rolagem lateral.
+   min-width:0 é o que permite o flex encolher: sem isso o conteúdo do card impõe uma
+   largura mínima e o quadro estoura para a direita, que era o que acontecia antes. */
+.kb-board{display:flex;gap:8px;padding-bottom:10px;align-items:stretch;width:100%}
+.kb-col{flex:1 1 0;min-width:0;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:9px;display:flex;flex-direction:column;max-height:calc(100vh - 290px);
+  transition:flex-grow .18s ease,flex-basis .18s ease}
+/* Coluna recolhida vira uma faixa estreita com o nome de pé: some da largura útil e
+   devolve o espaço às outras, sem sair do quadro nem esconder que existe. */
+.kb-col.min{flex:0 0 46px;min-width:46px}
+.kb-col.min .kb-body,.kb-col.min .kb-h .v,.kb-col.min .kb-h .pct{display:none}
+.kb-col.min .kb-h{border-bottom:0;height:100%;border-radius:9px;padding:10px 6px}
+.kb-col.min .kb-h .t{writing-mode:vertical-rl;transform:rotate(180deg);justify-content:flex-start;
+  gap:9px;height:100%;white-space:nowrap}
+.kb-min-btn{background:none;border:0;cursor:pointer;color:var(--ink-3);padding:2px;
+  border-radius:5px;line-height:0;flex:none}
+.kb-min-btn:hover{background:var(--line);color:var(--ink)}
+.kb-col.min .kb-min-btn{margin:0 auto 6px}
+/* Em tela estreita o quadro volta a rolar: espremer seis colunas num celular não é
+   caber, é ilegível. */
+@media(max-width:1180px){.kb-board{overflow-x:auto}.kb-col{flex:0 0 210px;min-width:210px}}
 .kb-col.drop-ok{border-color:var(--ok);background:var(--ok-soft);box-shadow:inset 0 0 0 1px var(--ok)}
 .kb-col.drop-no{border-color:var(--crit);background:var(--crit-soft)}
 .kb-h{padding:10px 11px 9px;border-bottom:1px solid var(--line);position:sticky;top:0;
@@ -477,6 +496,32 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
 .kb-t.wa{background:var(--warn-soft);color:var(--warn)}
 .kb-t.ok{background:var(--ok-soft);color:var(--ok)}
 .kb-t.nv{background:var(--navy-soft);color:var(--navy)}
+.kb-ico{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.kb-ic{font-size:11px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);border-radius:999px;padding:2px 8px;cursor:pointer;line-height:1.5}
+.kb-ic.wa{color:var(--warn);border-color:var(--warn)}
+.kb-ic:hover{background:var(--surface)}
+.kb-lista{list-style:none;margin:0;padding:0;font-size:13.5px}
+.kb-lista li{padding:6px 0;border-bottom:1px solid var(--line)}
+.kb-lista .n{color:var(--crit);font-weight:700;margin-right:4px}
+.kb-dl{margin:0;font-size:13px}
+.kb-dl dt{color:var(--ink-3);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;margin-top:9px}
+.kb-dl dt:first-child{margin-top:0}
+.kb-dl dd{margin:2px 0 0;color:var(--ink-2)}
+.tl2{list-style:none;margin:0;padding:0 0 0 16px;border-left:2px solid var(--line)}
+.tl2 li{position:relative;padding:0 0 14px 4px}
+.tl2 li::before{content:'';position:absolute;left:-22px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--ink-3)}
+.tl2 .tl2-done::before{background:var(--ok)}
+.tl2 .tl2-now::before{background:var(--warn)}
+.tl2 .tl2-slow::before{background:var(--crit)}
+.tl2-h{font-size:13.5px}
+.tl2-h span{color:var(--ink-3);font-size:12px;margin-left:6px}
+.tl2-s{font-size:12px;color:var(--ink-2);margin-top:2px}
+.obs-l{list-style:none;margin:0 0 12px;padding:0}
+.obs-l li{padding:9px 0;border-bottom:1px solid var(--line)}
+.obs-h{font-size:12px;color:var(--ink-3)}
+.obs-h b{color:var(--ink-2);margin-right:6px}
+.obs-t{font-size:13.5px;margin-top:3px;white-space:pre-wrap}
+.obs-f textarea{width:100%;font:inherit;font-size:13px;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
 .kb-exp{margin-left:auto;background:none;border:0;color:var(--ink-3);padding:2px;line-height:0;border-radius:4px}
 .kb-exp:hover{background:var(--surface-2);color:var(--ink)}
 .kb-exp svg{width:14px;height:14px;transition:transform .15s}
@@ -530,20 +575,25 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
   <div class="login-card">
     <div class="lg-brand">
       <div class="logo-plate" style="padding:6px 12px"><img src="data:image/png;base64,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" alt="Expresso Salomé" style="height:30px"></div>
-      <div><div style="font-size:11.5px;color:var(--ink-3)">FC · Apontamento Financeiro de Compras</div></div>
+      <div><div style="font-size:11.5px;color:var(--ink-3)">FC · Apontamento Financeiro de Compras · <b>v10.0</b></div></div>
     </div>
     <form id="lgForm" onsubmit="event.preventDefault();entrar()">
-      <div class="f"><label for="lgMail">E-mail</label>
-        <input id="lgMail" type="email" autocomplete="username" required autofocus></div>
+      <div class="f"><label for="lgMail">Usuário</label>
+        <input id="lgMail" type="text" autocomplete="username" autocapitalize="none"
+               spellcheck="false" placeholder="seu usuário" required autofocus></div>
       <div class="f" style="margin-top:12px"><label for="lgSenha">Senha</label>
-        <input id="lgSenha" type="password" autocomplete="current-password" required></div>
+        <div style="position:relative">
+          <input id="lgSenha" type="password" autocomplete="current-password" required
+                 style="padding-right:44px">
+          <button type="button" class="olho" aria-label="Mostrar senha" onclick="olhoSenha('lgSenha', this)" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:var(--ink-3);cursor:pointer;padding:4px;display:grid;place-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div></div>
       <div id="lgErro" class="verdict cr" style="display:none;margin-top:14px"></div>
       <button class="btn pri" id="lgBtn" type="submit"
         style="justify-content:center;padding:10px;width:100%;margin-top:16px">Entrar</button>
     </form>
     <div style="font-size:11.5px;color:var(--ink-3);line-height:1.5;border-top:1px solid var(--line);padding-top:12px;margin-top:16px">
-      Senha guardada como <b>hash SHA-256 com salt por usuário</b> — nunca em texto.
-      Bloqueio após tentativas seguidas e toda tentativa registrada no log de acesso.
+Entre com o <b>usuário</b>, não com o e-mail. Use a senha que a administração informou.
+      Após tentativas seguidas o acesso é bloqueado, e toda tentativa fica registrada no log de acesso.
     </div>
   </div>
 </div>
@@ -555,12 +605,12 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
       A senha atual é provisória ou expirou. Escolha uma nova antes de entrar.</p>
     <form onsubmit="event.preventDefault();salvarSenha()">
       <div class="f"><label for="tcAtual">Senha atual</label>
-        <input id="tcAtual" type="password" autocomplete="current-password" required></div>
+        <div style="position:relative"><input id="tcAtual" type="password" autocomplete="current-password" required style="padding-right:44px"><button type="button" class="olho" aria-label="Mostrar senha" onclick="olhoSenha('tcAtual', this)" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:var(--ink-3);cursor:pointer;padding:4px;display:grid;place-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
       <div class="f" style="margin-top:12px"><label for="tcNova">Nova senha</label>
-        <input id="tcNova" type="password" autocomplete="new-password" minlength="8" required>
+        <div style="position:relative"><input id="tcNova" type="password" autocomplete="new-password" minlength="8" required style="padding-right:44px"><button type="button" class="olho" aria-label="Mostrar senha" onclick="olhoSenha('tcNova', this)" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:var(--ink-3);cursor:pointer;padding:4px;display:grid;place-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
         <span class="hint">Mínimo de 8 caracteres.</span></div>
       <div class="f" style="margin-top:12px"><label for="tcConf">Repita a nova senha</label>
-        <input id="tcConf" type="password" autocomplete="new-password" minlength="8" required></div>
+        <div style="position:relative"><input id="tcConf" type="password" autocomplete="new-password" minlength="8" required style="padding-right:44px"><button type="button" class="olho" aria-label="Mostrar senha" onclick="olhoSenha('tcConf', this)" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:var(--ink-3);cursor:pointer;padding:4px;display:grid;place-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
       <div id="tcErro" class="verdict cr" style="display:none;margin-top:14px"></div>
       <button class="btn pri" type="submit" style="justify-content:center;padding:10px;width:100%;margin-top:16px">
         Salvar e entrar</button>
@@ -586,7 +636,7 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKYAAAAsCAYAAADvo8PJAAAVc0lEQVR42u1ce5RdZXX/7b2/c++dRyaEJCQDIREkkZcVGlDRYkLFFaj10dYZ2oJiI5VSpKDYWtHVyfhslaaYqhUfKK0Knaltba3yqCRpi7BsUqAGEBBogpiQd+Z17znn23v3j3tuuLmZySRIra33t9Zdk7lzzj77299+7+8EaKONNtpoo402flbgDlo7gOBri88QxAFqS6aN/x2FBMiHIFP+/RB/a6ON54JpvZ0PQagfCgCbvzFzVimrnp/ndrITcmHZcNz30rtoEOYOxiqABmFtsbbxP6aYPgAePg3U3w/dsAFJ75OlK5zw+x0VWgA4CISoQK7YwPDB3l/NvlGEewFgRPBDpwVOh2EYTkTe3qa2YsIdtG4V5LxBRADYcmt5BQs+XCnT0vEUMPeMACcCHJBKyYMwQQ1fM/c/OvaN2UOtnvbHy2tdAICItL1dP6OK2axMj99SWpJU5INk6HcAaYaM2JkIJHXFJGIHHAYCerqQZLlPOHy1SP7xOb+EEXdQXacODu/uPi9N05nlctnqaeyBmJiYqHV2du4korS4nomonSb8jCkm+QCIBmH33z6vq2ds37sS93fPqqAnrdY9J5MzwY2YrOoUUidnQgRBiEBEroAnM7uIstx/wMyrjrqg9hUA6Ovrk+HhYW1WsBjj7SJyvqqqiCStjJlaDYQfMvPGGOONSZKsbSvnz5BiNto9BPiDQ5WLZouvOrqCk7eMEh6xUv5IlsiOGrs5rKOCZEG342TNcUIpoqvTMF4DiDwjcoHDiaClkpcrZcDNv/3AtnnXveLiH353qK9P+oeHtUkx14rIco06TkRPg2BwAAQGwO5+jIj0NBhV1ctCCF9wd2mH9f//CMND4LlzQY/t6Ljx+C5b+fhEwB9v6cpuGynLU1SSGrEREVOZk3y7P45t+DKefOSvdp6Lcq0848oksd/orPissQnLwSBmBDWPY1X43Bnx1cz2naP73/vOi4Y++ud9fX3SFLbzori5h4VXAGAAVnhxBjBLVS8g0GoWng1gtbt/nYh2uju1i6L/3+D+fujx2ztXnzQbKz+5tSs97/E58Ya9M8JmLlOZyeYmFOYmiPOjXve7J8gZeO8jq/xG7+m8xMfnv3b0ylDqOSPN+eYZXZwEcRDciZ2DuOwaC/lZvVvx0kXb1vir/+yivx0e1ss/+9lGMcMAiAlahGcjIiMiJaKciLaHEP6SwX8MACLSE2M8t+Bbpqr03T24O7d8x4dTZBUfarlXCpqHPUiY6p4mevRcaDwXflrXVdAgd+fD5WXt2rXhx6XRtDeTyTg0itz9ofyxoco5PUJ3X/fMzPiFPZ3cGYg6mQDAuCRBQNuIw69uvWrTPQ5g19iuFUd3HX2bxnSkuuu+JTPmn/MMQNhzR8dlwvoZVXcnJyaQOuHozkw/fd/Z4cpvvmHrxSc9c8qX16wZJSKPUe8S4fNM7Q4WvqBQtub8sf57hp8zsQ0sTFBcQ4HWuHsgovh8WefheuDDue75yIOfr1z6pyWyHIF89687zA+08oN7Z9AXdnVhdtnqjozIRJiYeC+brHj6qk3/eekXL63c/Nab0xl5ZReAEeLwZPe8xdWhoT7pO/EJprM2fn7nbZWsu8NvTnPkgIsQAIOcfcxTyl107PDOOctuIfrHgo39xkFE7nXurcmajIi0VqtNBA8ZgIpCS4foiWL79u1dc+bMeTeAZXA/xhzETBNm9kgIYSURpa1Caggjz/11zPYrcF/iwOwinRghoifc/a4nnnjiS5PdP5lgsyw7V0TeDOBkd59TpCc5gFER2ZPn+UdKpdJ3JlPAJhrLROSSgsZsAEJEIwCecPc7ReSmhhAn46fBZ4zxIiL6FXc/EaBOwM3dM2YeB7AvTdOrOjs7N08iF2rQjjGuJKLXwvECh1cKB1IDMAFgr9Rqv0Pd3VunWE9jf8uqehkRnefuJ8DRBcCIaQeAR83sb4jo9v00PvyZeXd3/8mJPutPTsznfvwknf+nS/TY1Uvy4z91qi9cfeqbAAA3Lj2gat66dWtX6wJ8AxIA2Htn+Qa/N/GRb4ds9K6g2Xro09/sSo+65I8Mb/jwtQ1/HaPe5e4eY7ytKeRQ06fx+2kxxqy49tri2tC6mQCQ5/ktXkBjzFV1n6pmeZ7/V4PnljDCAJBl2YA3IcY4oVFHWr77trt3FOGLpuq3xjR9S/N9GmPUqGOqOubu+9w9pmn6linWUacR46UtNMY0xgP4yfP81oIXnoqXLMt+/1kamscYd2mMe2KMe1V1RFUn0jQ9o1kWrTTyPP9okwxSVd2lMe7VGPep6miMcdS9tngKGo1w36la3++mNY3GGKsHyDiL7208m1fv7gqVICiLoMSMAGipEoLk+Pst73robzCwLODyjXnTw8qzZ88+3dP0JQdY2VJEd/BMO+p941VsKZcoMMMIhFIwKokRiJo8nu/vVxUbdODnKZQKa+0t2kkOYM8UnsHGxsbmE9HrAETArmeRBcy8iEdH54UQTuvt7R1v9i4Ny6zVaqeIyKqiRXUncpwlIsez8EIAJ5jZR80sisgvqupvFx5BJvHYtnv37plguR4AzOx7McYVLLKQhRfs27fvOAALAMwulUpfKXiJrTTcfSaAjxX83A3gbBY5nkdlYa1WOwGGj5mZhhAuijGeX0QZaZGHPvroo2VmvhKAwewvWPg4EVnIIseJSC8z927btm1OqVR6oODFWmm4+wwiehsANbPrReRYZl60fceO47bv2HEsM88TkblElcdaaTTSMSIy1fytzHyemUUz+zCAF4zI6PEicjyAl5rZnfU6gj5UrVZPIiINIuSBCaSAEDkRMyuUxD4IgHDa+gM2Mk3TReVy+V7V+CMBFgGI+931WgiteGZ8Yl1pTanDr7cxWBDnXAlpRvXg2IjTQGOkkxYb1Joz5u5OZnYlAAUgZvYAAAwPD3tLL9ZDCDMBlACELItfKpfLz0xX+AGwEMJrmBmmuo9FLqVAW5uu2QvgOlV9OYBlAH4ZwJqWXLje5iXSPM/PliBzASgrXykl+dcjKUQLGi8PIRxjqhmLXEFE32vh5z0xxgsBnMbMKwDcMdkEb/Hixd2q2gmAwXwTEW1394SI8sPsbzuAowB0AJAsyz7T0dGxy91Db2/v4eb3hZz4DcW/14rI+1uu2enubzGzB5n56CRJLgDwyVAWMWau92iYjEuceGr3Pn7N9/8DA2AcPFasZ46g6kFsrIM5QJght2QTcRURusCwZyZm+GjegSC527NawYXCn+jRL1OoFHkYARCB9JrZCiY+p+hjrk2S5L7CQA7qY5bLZagqF5bb6e60bt06Wb58uU6VhxXfnwR3ALifiLa6e1IYAgAkAHJVvRPAeQAWbig2tyUna+RjJwJwVd0hifxn4cm8dbI1BS8NGkuK67cAeLjFMwciikJ0N4AXw7EILQl7E8YBpIW3+2UAGxpKWUQoL/L4ye51ANizZ89IT09PCqAjSZI3AvjThpcv5GRT0WhEsg2+ISGjhUVv+o4i3IfmvSaibar6AIDlRLQYAIIwQYRABAiRccJQ828BwDIs4/VYby0K4HXrPthKaRDmA2BaWv1Rbb1sLFd4GQD7j229sKyMSrmK2rNXc9EGOh3A52SSDhCD4e5w89tEZGUhsElbE2maUpB6ypYkiTcVVFNVg43vZ4EIcN9ahFMv+qvu7lYMA3YWStO1FKgUQp0Mswr+dgMYK8LhkVbGRxU0xgEkhQI0+AruHs2sxoCBMAMHV5JeDCFqqvpVAH/AzAOq+lJmvhnA7US0txEF3f0gY2misU9VhwBcISLXu/ovgPFlAHcQ0WhTXjnl+pZiaae5NfjcUaQeDWX2Rk2hqnuKdc4CgMAECsT1/iOcxAEiuR8AjjntmIMemCKlMsqFk5kEy8EYhJHgPiS+DBn865tPI4QAMDdpRZ2CqT4Joq8XobWheApgzN2fNrP7SqXSd5utcLLHlstl13hEA6GGgtfzXuZasSEHeTQRyQo3wDjEiSgzK4sICIjPdTpFRJVirS9S1afpQEuqmxAwo5BXz/4J3oEGYIXCvM/Mqsz8O8x8IYALTfVpV70VzLcS0YbWgrB5OQWNd5rZXgC/zcxvBPBGU9usqsNcp7FxuiGOw5O6HJFO1k0hItdY3zyuRymEhMUDE1wdIGJEh4C2A8AwhidxTQDKAAG0ERun3CQ1ecqSHI/+aD7dsfkU5yRDZs2Kud/KHhSRd07XBztUOC48JpKQeLMHGR4ePiTZ1vMC9XRk3UHXqCqJCKZze8zccD/PvYdo8CIXVwBbUVfEYmxMBjiKkMwAvjtZKG94oyLUrhodHf10d3f3683sYhZZDuBaANeq6peKAqnaym8TjRTAdWNjY2u6urreZGZ9LPwqAO8uaHyOma8qaoTm9hUB8JGREXR1de2vhQ51XqNu3PU0KgjVzRBSH8NQvbVd9xAPHmIviLAUS6f8s6rkLBnef8/5Xsu6kHQqPGOeRDHKRc7DkxQVKMLq4Xgfchxo+X19fYejGOOF8nc1hfIDjULR2TRGjdPRQj38yjTXTi431zEGg4ifkCA/d5he1g41+SGi7QA+D+Dz7n6GmV0O4LeY+a1m9rSIvL+YvhyUjxcyYSLaBuCTAD7p7kthdgWAS5n57ar6SAhhdcvgw4uWVdbV2ZkWBt41RauNTLVS/FoFAJbALkwITGCGS0KQIDPgTn2n9R2s4WVMv9kDzt2zq7P++ftn4mvffxlCRwalAICttV5DfQQZUQ9/k30OLySW4YS6QPM8pxZrnDKUm9kOAE7AIiLyjRs3ctOILBCRG9kLint2NwQ3hTfcXZcz5gHoabTBmsaCMt0Ij5l3FgHl6MJYgrsnLT/DVP3UyXqRxfXloiq/X0SuAHATAHX3ZU0DDZ+ie7GfxqZNm0pEtJFELjPgqwCUiF7dsqv7MWfOnHEi2lPIbGHxjMTdw8aNG0NjwALQAgAOxvYixyRirmeYzGShI0DHRxeAyO/7xFWhqUIt9r98SMXsXzfANEjxHxafseSKf78EVHFyFwcxIM2u3AwQFGc2f3ykgAc/YlpE9HA9StLp7r60JWdSdy+b2WuLTsTjTYWBtnp/EXnY3UmCzILidRTo5iOZ3BWG8rCIEBPNB3AeEX3juYqkhcfYorSbG1Vx8/NblfNQNAA81UIDkxRQqqqPATgdjte7+weIDuzouPurzHBKkStvqismU2QmgBhExGypZXLO1Qs/9NhdP7iatmJgbcBDO7yRr6VpyuVy2YpqjgBg1SoQhoYYDz7ow4ODWe87PvfKS/7VLqxFVkmqbLkomB38bMhhFgUQCc/rO0LxUBXiQVHTncbHx2+rVCpjItJtZkMxizcIySMxwAIw11TfziKn1gVot06VGRbe6z5VfSiEcKqRXR9jPNbdHwBQCyFYjBEApFarbZoxY8YzkxQsBGCDqT7MIqeY2o0xxutF5MEYY2yiwSGELUT0g6lyWXevxBjPAcABwSIi17s0EUTUS0QrixbOk01nE1qVtyPG+LLmcwwhhIbxL4LZJYVHfaK5NzxJVLqFmX+NhV9iqt+KMX5RRJ6JMQoRnaqq7xKRsqruFZE73J0CMx6WhM+16E6AuKqG8vjZ6Nn0by/4xPeu+K+rX3wHAPQNOWHI5YfjY8kLy2XO1Xo+8d0fCfqG5AODz1rVvGu+fGUW7ePC3tHBqWZeppxTMndi4cfs2ap8FoAAwszn66SUiJSbTx8dqvgpLJq7u7u3pmm6kog+y8wngrEGRaOtIFqfnZjdkCTJ1ybrozZoEVGWZdnbzOyvmXkhgI8cUJ6G0OggXF006vcrAxH50NCQ9Pf3p1mWXQ6iIRY+FsDq5nsbP/M8/2sAv96qUE3z6pNCCHftf/b+FYXmLsKjqvrBxtTpIBoZTg6lsPYQ1R5M7cEs54+10mhMtgpaX1PV1cz8ThY5H8D5zWspkoAd7n4ZEe1yd6azbjrjFcz4N4JHJxCRENO476muCtX0ZYDvHSKWT81O8ns2Xn5WHuojmaUAJoowiJMGvtlTTWsrPNerncIrtTbuZrlFdYqqmpmJZhM7ejrTF+2+8T0jROS1LPu9ROTFqnp/qVT61HOtYhv37dmz56ju7u5r6usNa4pJx2GfBhofH19QLpdfQ0SLzWwWMzPMxjiELQDWE9H909FrOrBwlKq+XkRONrOjCuXJAexz9z15nv9dR0fH49Mcepirqq8lohfBbCaYxcwiM4+4+z4z+5fJDoI03d+d5/lvMmMmwGUiSsxMmBn1AxzxMSDcRkRjkx3gKGj0qOpvAJhF7hUwS8MLuvuEu38/hPAtIqpOc7iFiMhTT3++hNK5ZrYIQGdjzOzuj9Vqtdu66wdBiIjqOdnLv3jmDcmscHU+mteIOBDXOMtPte27V7F0lhhpCuT5wx7ze02zh7bsrG5OOE96u5PFMH2J5/nZFJIFmkfE2kTupuxmpBpVNecoiWh19OLal676KvqGBMP9P1Un0A/nmNnhHkX7aTr29pM6Gvd8HQdsvob6hvoEAJ7KHv9s6OSViI489zQk42HfyNto78ibNPBuJq4IXMCmYFe4RsSYw2MGq00AluceI6kqu6mZRXdIEvOaaTp+zchNV/55s1IWFSMdQTtoWuE0JeF6pMIumslTHSi2I1GUFl4mzW8PYyOno2HTtIkOef+6deuwfPlynS4CTMPDocaaRyrjA3hpfrfbX3HLmRdB6ANc4SVWjS6kcfuu98jYxDkQ3mMwGEV3qAIWAY2A5mSqDDd2i255VBBKRgRNx9drNvGHuz/z9nvR1ycoXkhro43pIPsVdAD81FXbNh2/4oSbOcScgpwlFeroSO5RzXu9mi1h4oyZVeqzRaq/NFa3AAZc4cTU0RVM082utWu333Dx1dUN//jDuqccbCtlG0esmMB6eN9Qn9z+5ttrW4a3rnvhrx37t+ahVyo4vWfm3YxYjdXxJWSYWX8thyM5OTnBwXAudyVmmpmmn6BRffO2Nf3fQTE1wKff0X7lto0j68FOkjXQslXLZP3g+ggAr/q7l7/OOR8sd1bPrO5egL27L8jGxs4k1dnuxiQhTwgZNE3/ydOJ9z39oQseAAAMDQn6+9teso3nSTEbGAAPrAIGCbb0xqVJx7zkHYHG/0Aq+fyYz0aevRC16nGY2LfooYl9J6/a8t7l9abhkAv6YUD79do2/icUs0DfUJ8M99eLlmVfWTYH3foa95ElgUZzTkbvf+WFO/95kJBhYKBebQ0OtsN2Gz85BW60lQ4G18N2G238JD3mQfnnumX7lfCYHcf4cP/wpP8pVhtttNFGG2200UYbbbTRRhtttNFGG/8X8d/8bp3LuN1jJQAAAABJRU5ErkJggg==" alt="iProcesso">
     </div>
   </div>
-  <div class="appname"><b>FC</b> · Apontamento Financeiro</div>
+  <div class="appname"><b>FC</b> · Apontamento Financeiro <span class="appver">v10.0</span></div>
   <div class="spacer"></div>
   <div class="search">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -693,9 +743,9 @@ const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
    ============================================================ */
 const PERMS = {
   SOLICITANTE:{ver:['inicio','minhas','nova','kanban'],acao:{incluir:['SOLICITACAO'],alterar:['SOLICITACAO'],inativar:[],aprovar:[]},limite:0,escopo:'PROPRIO'},
-  FINANCEIRO :{ver:['inicio','minhas','nova','kanban','aprovacoes','fluxo','pagar','receber','rateio','gerencial','orcamento','plano','fornecedores','filiais','import'],
+  FINANCEIRO :{ver:['inicio','minhas','nova','kanban','aprovacoes','fluxo','pagar','receber','rateio','gerencial','dmr','orcamento','plano','fornecedores','filiais','import'],
                acao:{incluir:['SOLICITACAO','TITULO','FORNECEDOR'],alterar:['SOLICITACAO','TITULO','FORNECEDOR','RATEIO'],inativar:['FORNECEDOR'],aprovar:['SOLICITACAO']},limite:10000,escopo:'TODAS'},
-  DIRETORIA  :{ver:['inicio','minhas','nova','kanban','aprovacoes','fluxo','pagar','receber','rateio','gerencial','orcamento','plano','fornecedores','filiais'],
+  DIRETORIA  :{ver:['inicio','minhas','nova','kanban','aprovacoes','fluxo','pagar','receber','rateio','gerencial','dmr','orcamento','plano','fornecedores','filiais'],
                acao:{incluir:['SOLICITACAO'],alterar:['SOLICITACAO','ORCAMENTO'],inativar:[],aprovar:['SOLICITACAO']},limite:9999999,escopo:'TODAS'},
   ADMIN      :{ver:'*',acao:{incluir:['*'],alterar:['*'],inativar:['*'],aprovar:[]},limite:0,escopo:'TODAS'}
 };
@@ -711,12 +761,64 @@ const USERS=new Proxy({},{get:()=>[EU.nome, EU.iniciais]});
 /* ============================================================
    DADOS FICTÍCIOS
    ============================================================ */
-const money = n => n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const m0 = n => n.toLocaleString('pt-BR',{maximumFractionDigits:0});
+/* ---------- formatação, num lugar só ----------
+   Tudo aqui aceita lixo e devolve algo legível. `money(undefined)` estourava
+   "toLocaleString of undefined" e derrubava a tela inteira — uma célula vazia não pode
+   levar o relatório junto. */
+const nnum = v => {
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  if (v === null || v === undefined || v === '') return 0;
+  const n = Number(v);
+  return isFinite(n) ? n : 0;
+};
+/** 1.234,56 — valores em reais, sempre com dois decimais. */
+const money = n => nnum(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+/** 1.235 — número redondo, para KPI e coluna de matriz, onde centavo é ruído. */
+const m0 = n => nnum(n).toLocaleString('pt-BR',{maximumFractionDigits:0});
+/** 12,5% — percentual já em escala de 0 a 100. */
+const pct1 = n => nnum(n).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+
+/**
+ * O valor que a pessoa digitou, em número.
+ *
+ * Aceita as duas escritas que aparecem na prática: "4.200,50" (brasileira) e "4200.50"
+ * (a que sai de planilha e de sistema em inglês). A versão antiga apagava TODO ponto
+ * antes de trocar a vírgula, então "4200.50" virava 420050 — cem vezes o valor, sem
+ * nenhum aviso, e a alçada era calculada em cima disso.
+ *
+ * A regra: o último separador que aparecer é o decimal; o resto é milhar.
+ */
+function numBR(v){
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  let t = String(v == null ? '' : v).trim().replace(/[R$\s ]/g,'');
+  if (!t) return 0;
+  const neg = /^-/.test(t) || /\(.*\)/.test(t);
+  t = t.replace(/[^0-9.,]/g,'');
+  const ult = Math.max(t.lastIndexOf(','), t.lastIndexOf('.'));
+  if (ult >= 0) {
+    const casas = t.length - ult - 1;
+    // 3 casas depois do último separador é milhar, não decimal: "1.234" são mil e duzentos.
+    if (casas === 3 && !/[.,]\d{1,2}([.,]|$)/.test(t.slice(0, ult))) {
+      t = t.replace(/[.,]/g,'');
+    } else {
+      t = t.slice(0, ult).replace(/[.,]/g,'') + '.' + t.slice(ult + 1);
+    }
+  }
+  const n = Number(t);
+  return isFinite(n) ? (neg ? -n : n) : 0;
+}
+
+/** dd/mm/aaaa a partir de aaaa-mm-dd, sem passar por Date — fuso não muda dia aqui. */
+function dataBR(iso){
+  const m = String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? m[3]+'/'+m[2]+'/'+m[1] : (iso||'');
+}
 let SOL = [];
-const STMAP={'Aguardando Aprovação':'t-wa','Aprovado':'t-nv','Reprogramado':'t-cr','Comprometido':'t-in','Pago':'t-ok','Reprovado':'t-mu'};
+const STMAP={'Rascunho':'t-mu','Aguardando caixa':'t-wa','Aguardando Aprovação':'t-wa','Aprovado':'t-nv','Reprogramado':'t-cr','Comprometido':'t-in','Pago':'t-ok','Reprovado':'t-mu','Cancelado':'t-mu'};
 const RECMAP={'LIBERAR':'ok','AVALIAR':'wa','REPROGRAMAR':'cr','—':'mu'};
 let PEND = [];
+/* Aprovado e ainda não foi ao fornecedor. No app oficial esta lista vem do servidor. */
+let AUTORIZ = [];   /* vem do servidor em vista.abrir e vista.atualizar */
 
 let WEEKS=[];
 let WDATE=[];
@@ -765,22 +867,6 @@ function fornDaCategoria(catId){
 
 let USUARIOS = [];
 const RECURSOS=['Solicitação','Aprovação','Título a pagar','Título a receber','Rateio','Orçamento','Plano de contas','Fornecedor','Filial','Usuário','Perfil','Log'];
-const LOGATIV=[
- ['21/09 08:47:12','carlos@salome.com.br','Diretoria','SOLICITACAO','APROVAR','SOL-2026-00030','STATUS','Aguardando Aprovação','Aprovado','MOBILE'],
- ['21/09 08:46:55','carlos@salome.com.br','Diretoria','SESSAO','LOGIN_OK','—','—','—','—','MOBILE'],
- ['21/09 08:12:04','anapaula@salome.com.br','Financeiro','SOLICITACAO','ALTERAR','SOL-2026-00020','VALOR_COMPROMETIDO','26.000,00','26.400,00','WEB'],
- ['21/09 08:11:30','anapaula@salome.com.br','Financeiro','SOLICITACAO','ALTERAR','SOL-2026-00020','STATUS','Aprovado','Comprometido','WEB'],
- ['20/09 17:22:41','kleber@iprocesso.com','Administrador','PLANO_CONTAS','INATIVAR','3.03.009','STATUS','ATIVO','INATIVO','WEB'],
- ['20/09 16:41:09','celso@salome.com.br','Solicitante','SOLICITACAO','INCLUIR','SOL-2026-00032','—','—','—','WEB'],
- ['20/09 16:39:58','celso@salome.com.br','Solicitante','SESSAO','LOGIN_FALHA','—','—','—','—','WEB'],
- ['20/09 11:03:17','kleber@iprocesso.com','Administrador','USUARIO','ALTERAR','USR-008','STATUS','ATIVO','INATIVO','WEB']
-];
-const IMPORTS=[
- ['IMP-2026-0014','20/09/2026 10:12','Plano de contas','plano_contas_v3.csv',22,22,0,'CONCLUIDA','kleber@iprocesso.com'],
- ['IMP-2026-0013','18/09/2026 15:40','Fornecedores','fornecedores_set.csv',15,13,2,'CONCLUIDA COM ERROS','anapaula@salome.com.br'],
- ['IMP-2026-0012','12/09/2026 09:05','Filiais','filiais.csv',4,4,0,'CONCLUIDA','kleber@iprocesso.com'],
- ['IMP-2026-0011','11/09/2026 17:31','Orçamento 2026','orcamento_2026.csv',110,0,110,'REJEITADA','anapaula@salome.com.br']
-];
 
 /* ============================================================
    MENU
@@ -793,12 +879,13 @@ const MENU=[
    {k:'kanban',t:'Fluxo do processo',i:I.split}]},
  {g:'Financeiro',itens:[
    {k:'aprovacoes',t:'Aprovações',i:I.check,badge:()=>PEND.length},
+   {k:'autorizacoes',t:'Autorizações',i:I.doc,badge:()=>AUTORIZ.filter(a=>!a.chave).length},
    {k:'fluxo',t:'Fluxo de caixa',i:I.flow},
    {k:'pagar',t:'Contas a pagar',i:I.pay},
-   {k:'receber',t:'Contas a receber',i:I.rec},
-   {k:'rateio',t:'Rateio',i:I.split}]},
+   {k:'receber',t:'Contas a receber',i:I.rec}]},
  {g:'Gestão',itens:[
    {k:'gerencial',t:'Painel gerencial',i:I.chart},
+   {k:'dmr',t:'Análise DMR',i:I.chart},
    {k:'orcamento',t:'Orçamento',i:I.budget}]},
  {g:'Cadastros',itens:[
    {k:'plano',t:'Plano de contas',i:I.book},
@@ -811,8 +898,8 @@ const MENU=[
    {k:'logs',t:'Logs e auditoria',i:I.log},
    {k:'params',t:'Parâmetros',i:I.cog}]}
 ];
-const TITLES={inicio:'Início',minhas:'Minhas solicitações',nova:'Nova solicitação',
- kanban:'Fluxo do processo',aprovacoes:'Aprovações',
+const TITLES={dmr:'Análise DMR',inicio:'Início',minhas:'Minhas solicitações',nova:'Nova solicitação',
+ kanban:'Fluxo do processo',aprovacoes:'Aprovações',autorizacoes:'Autorizações',
  fluxo:'Fluxo de caixa',pagar:'Contas a pagar',receber:'Contas a receber',rateio:'Rateio',
  gerencial:'Painel gerencial',orcamento:'Orçamento',plano:'Plano de contas',fornecedores:'Fornecedores',
  filiais:'Filiais e centros de custo',usuarios:'Usuários',perfis:'Perfis e permissões',
@@ -822,27 +909,6 @@ const CRUMB={inicio:'',minhas:'',nova:'',kanban:'',aprovacoes:'Financeiro',fluxo
  fornecedores:'Cadastros',filiais:'Cadastros',usuarios:'Administração',perfis:'Administração',
  import:'Administração',logs:'Administração',params:'Administração'};
 
-const NAVTIP={
-  inicio:'Sua posição de hoje: o que espera você, o saldo da semana e as semanas em atenção.',
-  minhas:'Tudo que você lançou, em qualquer estágio do fluxo.',
-  nova:'O formulário em quatro passos. A regra e o impacto no caixa aparecem enquanto você preenche.',
-  kanban:'O processo inteiro em seis colunas. Arraste o card para andar no fluxo.',
-  aprovacoes:'A fila da reunião. Aprovar, reprogramar ou devolver.',
-  fluxo:'Doze semanas com previsto, comprometido e realizado.',
-  pagar:'Títulos já comprometidos e os pagos.',
-  receber:'CT-e previsto, recebível confirmado e recebido.',
-  rateio:'Distribuição por filial e por centro de custo — os dois eixos.',
-  gerencial:'Gasto por conta, área e filial contra o orçado.',
-  orcamento:'O orçado por conta e mês. Só a Diretoria edita.',
-  plano:'As 212 contas oficiais e quais categorias caem em cada uma.',
-  fornecedores:'Os 109 fornecedores, o optante do Simples e as categorias de cada um.',
-  filiais:'Unidades e os três centros de custo.',
-  usuarios:'Quem entra, com qual perfil e qual limite de alçada.',
-  perfis:'A matriz de permissão: recurso × ação × campo.',
-  import:'Importar cadastro por planilha, com prévia e validação linha a linha.',
-  logs:'Log de acesso e trilha de auditoria, semana a semana.',
-  params:'Parâmetros que mudam o comportamento do sistema.'
-};
 let VIEW='inicio';
 function renderMenu(){
   const el=document.getElementById('menu'); let h='';
@@ -852,7 +918,7 @@ function renderMenu(){
     if(gr.g)h+=`<div class="grp">${gr.g}</div>`;
     vis.forEach(it=>{
       const b=it.badge?it.badge():0;
-      h+=`<button class="nav ${VIEW===it.k?'on':''}" onclick="go('${it.k}')" data-tip="${NAVTIP[it.k]||it.t}">
+      h+=`<button class="nav ${VIEW===it.k?'on':''}" onclick="go('${it.k}')">
             ${svg(it.i)}<span class="lb">${it.t}</span>${b?`<span class="bdg">${b}</span>`:''}</button>`;
     });
   });
@@ -1083,8 +1149,10 @@ function rotuloTudo(){
 }
 
 function vNova(){
-  return head(`<button class="btn" id="btnTudo" onclick="alternarTudo()">Expandir tudo</button>
+  return head(`<button class="btn" onclick="abrirExemplo()">Ver exemplo preenchido</button>
+    <button class="btn" id="btnTudo" onclick="alternarTudo()">Expandir tudo</button>
     `)+
+  `<div class="note" style="margin-bottom:14px"><b>Só três respostas:</b> 1) o que comprou; 2) de quem; 3) quanto e até quando pagar. Conta, centro, filial, retenção e alçada o sistema preenche sozinho. Na dúvida, veja o exemplo.</div>`+
 
   secao(1,'O que você vai comprar',`<div class="form">
     <div class="f w2"><label>Mais usadas</label>
@@ -1117,7 +1185,7 @@ function vNova(){
   </div>`)+
 
   secao(3,'Valor e condições',`<div class="form">
-    ${campo('fVal','Valor bruto estimado (R$)',true,`<input id="fVal" inputmode="decimal" placeholder="0,00" oninput="checar()" onblur="marcar('fVal');checar()">`)}
+    ${campo('fVal','Valor bruto estimado (R$)',true,`<input id="fVal" inputmode="decimal" placeholder="0,00" oninput="checar()" onblur="normVal();marcar('fVal');checar()">`)}
     ${campo('fCond','Condição de pagamento',false,sel('fCond',CONDICOES_CAD.map(c=>({v:c.CONDICAO_ID,t:c.NOME||c.CONDICAO_ID})),'— usar a padrão da categoria —'))}
     ${campo('fForma','Forma de pagamento',false,sel('fForma',FORMAS_CAD.map(f=>({v:f.FORMA_ID,t:f.NOME||f.FORMA_ID}))))}
     ${campo('fDt','Data prevista de pagamento',true,`<input id="fDt" type="date" onchange="marcar('fDt');checar()" onblur="marcar('fDt');checar()">`)}
@@ -1148,6 +1216,8 @@ function escolherCat(id){
 /** Trocar a categoria remonta a lista de fornecedores e liga/desliga a placa. */
 function mudouCat(){
   const id=val('fCat'), c=CAT_MAP[id];
+  const ce=document.getElementById('fCentro');
+  if(ce && c && c.centro){ ce.value=c.centro; }
   const sf=document.getElementById('fForn');
   if(sf){
     const anterior=sf.value;
@@ -1166,6 +1236,18 @@ function mudouCat(){
 }
 
 /** Recalcula estado das seções, campos, barra de progresso e o veredito. */
+/**
+ * Ao sair do campo, o valor é reescrito no formato brasileiro.
+ *
+ * Não é enfeite: é o único jeito de a pessoa CONFERIR o que o sistema entendeu. Quem
+ * digita "4200.50" vê "4.200,50" e segue; se visse o campo como digitou, só descobriria
+ * o mal-entendido depois de aprovado.
+ */
+function normVal(){
+  const e = document.getElementById('fVal');
+  if (!e || !e.value.trim()) return;
+  e.value = money(numBR(e.value));
+}
 function checar(){
   let completas=0, primeiraIncompleta=null, faltaGeral=[];
   const cSel=CAT_MAP[val('fCat')];
@@ -1227,7 +1309,7 @@ function calc(){
   set('fGrp', cls?cls.grupo:'');
   set('fAntM', cls?cls.ant+' dias':'');
 
-  const valor=Number(String(val('fVal')).replace(/\./g,'').replace(',','.'))||0;
+  const valor=numBR(val('fVal'));
   const rw=document.getElementById('fRet');
   if(rw) rw.innerHTML = (!cls||!cls.aliq) ? (cls&&cls.ret!=='NENHUMA'
       ? `<div class="note">Retenção: ${RET_TXT[cls.ret]}. Neste fornecedor, nada a reter.</div>` : '')
@@ -1295,7 +1377,7 @@ function enviar(){
 }
 
 async function salvarRascunho(){
-  const num=v=>Number(String(v).replace(/\./g,'').replace(',','.'))||0;
+  const num=v=>numBR(v);
   try{
     await API.chamar('sol.salvar',{enviar:false,
       categoriaId:val('fCat'), fornecedorId:val('fForn'), areaId:val('fArea'),
@@ -1309,7 +1391,7 @@ async function salvarRascunho(){
 async function enviarAoServidor(){
   const btn=document.getElementById('btnEnviar');
   const antes=btn.innerHTML; btn.disabled=true; btn.textContent='Enviando…';
-  const num=v=>Number(String(v).replace(/\./g,'').replace(',','.'))||0;
+  const num=v=>numBR(v);
   try{
     const r=await API.chamar('sol.salvar',{
       enviar:true,
@@ -1340,6 +1422,118 @@ function preencherExemplo(){
   checar();
   if(!FORM.aberto[4]) toggleSec(4);
   toast('Exemplo preenchido — a conta contábil foi deduzida da categoria, não digitada.');
+}
+
+/**
+ * Autorizações — o passo que faltava entre aprovar e receber.
+ *
+ * Aprovar é dizer "pode comprar". Autorizar é mandar a capa ao fornecedor e anotar o
+ * número que ele devolve. Enquanto os dois eram o mesmo clique, a etapa não pedia nada
+ * de ninguém e o pedido nunca chegava ao fornecedor — que é o ponto do sistema.
+ *
+ * A tela tem duas filas de propósito: emitir e aguardar resposta. São trabalhos
+ * diferentes, de dias diferentes, e misturá-los esconde quem está esperando o quê.
+ */
+/** Emitir capa e registrar pedido é de quem opera o fluxo, não de quem só acompanha. */
+function podeAut(){ return can('alterar','SOLICITACAO')||can('alterar','*'); }
+function vAutorizacoes(){
+  const emitir  = AUTORIZ.filter(a=>!a.chave);
+  const aguarda = AUTORIZ.filter(a=>a.chave && !a.pedido);
+  const prontas = AUTORIZ.filter(a=>a.chave && a.pedido);
+  const som = l => l.reduce((a,x)=>a+x.valor,0);
+
+  if(!AUTORIZ.length){
+    return head()+semDados('Nenhuma compra aguardando autorização',
+      'Aqui entram as solicitações aprovadas que ainda não foram ao fornecedor. ' +
+      'Assim que a reunião de caixa aprovar a primeira, ela aparece nesta fila.',
+      '<b>Por que é um passo separado:</b> aprovar é dizer "pode comprar"; autorizar é ' +
+      'mandar a capa ao fornecedor e registrar o pedido que ele devolve. Quem aprova o ' +
+      'dinheiro não é necessariamente quem fala com o fornecedor.');
+  }
+
+  const tabela = (lista, vazio, acao) => lista.length ? `<div class="tw"><table><thead><tr>
+      <th>Nº</th><th>Fornecedor</th><th>Item</th><th>Filial</th><th>Prev. pgto</th>
+      <th style="text-align:right">Valor</th><th></th></tr></thead><tbody>
+      ${lista.map(a=>`<tr>
+        <td class="id">${a.id.slice(-5)}</td>
+        <td>${a.fornecedor}${a.chave?`<div class="mono" style="font-size:11px;color:var(--ink-3)">${a.chave}</div>`:''}</td>
+        <td>${a.descricao||'—'}</td><td>${a.filial}</td><td class="n">${a.previsto}</td>
+        <td class="n">${money(a.valor)}</td>
+        <td style="text-align:right;white-space:nowrap">${acao(a)}</td></tr>`).join('')}
+    </tbody></table></div>` : `<div class="empty">${vazio}</div>`;
+
+  return head()+`
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card kpi b"><div class="l">A emitir</div><div class="v">${emitir.length}</div><div class="d">${m0(som(emitir))} aprovados sem capa</div></div>
+    <div class="card kpi d2"><div class="l">Aguardando o fornecedor</div><div class="v">${aguarda.length}</div><div class="d">${m0(som(aguarda))} com capa enviada</div></div>
+    <div class="card kpi c"><div class="l">Com pedido confirmado</div><div class="v">${prontas.length}</div><div class="d">${m0(som(prontas))} prontos para a NF</div></div>
+    <div class="card kpi a"><div class="l">Total autorizado</div><div class="v">${m0(som(AUTORIZ))}</div><div class="d">${AUTORIZ.length} compras</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-h"><h3>Emitir a capa</h3><div class="r" style="font-size:12px;color:var(--ink-3)">aprovadas, ainda sem autorização</div></div>
+    ${tabela(emitir,'Nada a emitir — tudo que foi aprovado já tem capa.',
+      a=>podeAut()?`<button class="btn sm pri" onclick="autEmitir('${a.id}')">Gerar autorização</button>`
+                 :`<span class="lock">sem permissão</span>`)}
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-h"><h3>Aguardando o número do pedido</h3><div class="r" style="font-size:12px;color:var(--ink-3)">capa enviada, fornecedor ainda não respondeu</div></div>
+    ${tabela(aguarda,'Ninguém esperando resposta de fornecedor.',
+      a=>podeAut()?`<button class="btn sm" onclick="autVerCapa('${a.id}')">Ver a capa</button>
+          <button class="btn sm pri" onclick="autPedido('${a.id}')">Registrar pedido</button>`
+                 :`<span class="lock">sem permissão</span>`)}
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>Prontas para receber a nota</h3></div>
+    ${tabela(prontas,'Nenhuma ainda.',
+      a=>`<span class="mono" style="font-size:11.5px">${a.pedido}</span>`)}
+    <div class="note" style="margin:0 16px 16px"><b>A nota fiscal só é aceita com o número do pedido.</b>
+    É ele que amarra o que o fornecedor faturou ao que a Salomé autorizou — e é por isso que
+    a chave da autorização e o pedido dele são dois campos, nunca um.</div>
+  </div>`;
+}
+
+async function autEmitir(id){
+  const r = await API.chamar('aut.emitir',{id:id}).catch(e=>{toast('Não consegui emitir: '+e.message,'cr');});
+  if(!r) return;
+  autMostrarCapa(id, r.capa, r.chave, r.reemissao);
+  await recarregar(r.mensagem);
+}
+async function autVerCapa(id){
+  const r = await API.chamar('aut.emitir',{id:id}).catch(e=>{toast('Não consegui abrir: '+e.message,'cr');});
+  if(r) autMostrarCapa(id, r.capa, r.chave, true);
+}
+/* A capa em texto, pronta para colar no e-mail. O PDF vem quando o Files.gs existir —
+   até lá o processo não pode ficar parado esperando o documento bonito. */
+function autMostrarCapa(id, capa, chave, reemissao){
+  openDrawer(`Autorização ${chave}`, `Solicitação ${id.slice(-5)}${reemissao?' · reemissão, mesma chave':''}`,
+    `<div class="note" style="margin-bottom:12px">Copie o texto abaixo e mande ao fornecedor.
+     Quando ele responder com o número do pedido, registre aqui — a nota fiscal só é aceita com ele.</div>
+     <textarea id="capa-${id}" readonly style="width:100%;min-height:300px;font-family:var(--mono);
+       font-size:12px;line-height:1.6;padding:14px;border:1px solid var(--line);border-radius:8px;
+       background:var(--surface-2);color:var(--ink)">${capa}</textarea>
+     <div class="acts" style="margin-top:12px">
+       <button class="btn pri" onclick="autCopiar('${id}')">Copiar o texto</button>
+       <button class="btn" onclick="closeDrawer();autPedido('${id}')">Registrar o pedido do fornecedor</button>
+     </div>`);
+}
+function autCopiar(id){
+  const e = document.getElementById('capa-'+id);
+  if(!e) return;
+  e.select();
+  try{ document.execCommand('copy'); toast('Capa copiada. Cole no e-mail ao fornecedor.'); }
+  catch(x){ toast('Selecione o texto e copie com Ctrl+C.'); }
+}
+async function autPedido(id){
+  const num = prompt('Número do pedido que o fornecedor devolveu:');
+  if(num===null) return;
+  if(!String(num).trim()){ toast('Sem o número não dá para registrar.','cr'); return; }
+  try{
+    const r = await API.chamar('aut.pedido',{id:id, pedido:num});
+    await recarregar(r.mensagem);
+  }catch(e){ toast('Não consegui gravar: '+e.message,'cr'); }
 }
 
 function vAprov(){
@@ -1389,123 +1583,213 @@ async function decide(id,acao){
 
 function vFluxo(){
   const th=`<tr><th>Linha</th>${WEEKS.map((w,i)=>`<th style="text-align:right">${w}<div style="font-weight:400;font-size:9px;opacity:.75">${WDATE[i]}</div></th>`).join('')}<th style="text-align:right">Total</th></tr>`;
-  const row=(nm,arr,cls='')=>`<tr class="${cls}"><td>${nm}</td>${arr.map((v,i)=>`<td class="${v?'cell':''}" ${v?`onclick="drillCell('${nm}','${WEEKS[i]}',${v})"`:''}>${v?m0(v):'–'}</td>`).join('')}<td><b>${m0(arr.reduce((a,b)=>a+b,0))}</b></td></tr>`;
+  // O tipo viaja junto com o nome da linha: sem ele o detalhe não sabe se "Total de
+  // saídas" é uma classificação chamada assim ou a soma de todas elas.
+  const row=(nm,arr,cls='',tipo='saida')=>`<tr class="${cls}"><td>${nm}</td>${arr.map((v,i)=>`<td class="${v?'cell':''}" ${v?`onclick="drillCell('${tipo}','${String(nm).replace(/'/g,"\\'")}','${WEEKS[i]}',${v})"`:''}>${v?m0(v):'–'}</td>`).join('')}<td><b>${m0(arr.reduce((a,b)=>a+b,0))}</b></td></tr>`;
   const sumCol=arrs=>WEEKS.map((_,i)=>arrs.reduce((a,r)=>a+r[1][i],0));
   const totEnt=sumCol(FLOW.entradas), totSai=sumCol(FLOW.saidas);
   return head(`<button class="btn" onclick="toast('Exportando as 12 semanas para XLSX…')">${svg('M12 3v12M7 10l5 5 5-5M4 21h16')}Exportar</button>`)+
   `<div class="note" style="margin-bottom:14px">Clique em qualquer valor para abrir a lista de lançamentos que o compõem — <b>drill-down de qualquer célula</b>.</div>
    <div class="card"><div class="tw"><table class="mtx"><thead>${th}</thead><tbody>
     <tr class="sec"><td colspan="14">Entradas</td></tr>
-    ${FLOW.entradas.map(r=>row(r[0],r[1])).join('')}
-    ${row('Total de entradas',totEnt,'tot')}
+    ${FLOW.entradas.map(r=>row(r[0],r[1],'','entrada')).join('')}
+    ${row('Total de entradas',totEnt,'tot','entrada')}
     <tr class="sec"><td colspan="14">Saídas por classificação</td></tr>
-    ${FLOW.saidas.map(r=>row(r[0],r[1])).join('')}
-    ${row('Total de saídas',totSai,'tot')}
+    ${FLOW.saidas.map(r=>row(r[0],r[1],'','saida')).join('')}
+    ${row('Total de saídas',totSai,'tot','totalSaidas')}
     <tr class="sec"><td colspan="14">Os três números</td></tr>
-    ${FLOW.tres.map(r=>row(r[0],r[1])).join('')}
+    ${FLOW.tres.map(r=>row(r[0],r[1],'','tres')).join('')}
     <tr class="sec"><td colspan="14">Posição de caixa</td></tr>
     <tr><td>Saldo inicial</td>${FLOW.saldoIni.map(v=>`<td>${m0(v)}</td>`).join('')}<td></td></tr>
     <tr class="tot"><td>Saldo acumulado projetado</td>${FLOW.saldoAcu.map(v=>`<td class="${v<0?'neg':''}">${m0(v)}</td>`).join('')}<td><b>${m0(FLOW.saldoAcu[11])}</b></td></tr>
     <tr><td>Situação</td>${FLOW.sit.map(s=>`<td style="text-align:center"><span class="tag ${s==='OK'?'t-ok':s==='ATENÇÃO'?'t-wa':'t-cr'}">${s}</span></td>`).join('')}<td></td></tr>
    </tbody></table></div></div>`;
 }
-function drillCell(linha,sem,val){
-  const list=SOL.filter(s=>s.sem===sem);
-  openDrawer(`${linha} · ${sem}`,`R$ ${m0(val)} · ${list.length} lançamento(s) na semana`,
-    tblSol(list,false)+`<div class="note" style="margin-top:14px">O drill-down mantém o contexto: fechar volta ao fluxo de caixa na mesma posição.</div>`);
+
+async function drillCell(tipo,linha,sem,val){
+  openDrawer(`${linha} · ${sem}`,'carregando a composição…','<div class="empty">Um instante…</div>');
+  let d;
+  try{ d = await API.chamar('cash.detalhe',{tipo:tipo,linha:linha,coluna:sem}); }
+  catch(e){ openDrawer(`${linha} · ${sem}`,'',`<div class="empty">Não consegui abrir o detalhe: ${e.message}</div>`); return; }
+
+  if(!d.itens.length){
+    openDrawer(`${linha} · ${sem}`, d.periodo?`${d.periodo} · nada compõe esta célula`:'',
+      `<div class="empty">${d.explica||'Nenhum lançamento nesta linha e nesta semana.'}</div>`);
+    return;
+  }
+
+  /* A coluna "valor na célula" existe porque ela nem sempre é o valor bruto: quem já foi
+     pago entra pelo valor do pagamento, quem tem nota entra pelo valor comprometido.
+     Mostrar os dois lado a lado é o que evita a pergunta "por que não bate". */
+  const linhas = d.itens.map(x=>`<tr onclick="closeDrawer();openSol('${x.id}')">
+      <td class="id">${x.id.slice(-5)}</td>
+      <td>${x.fornecedor}<div style="font-size:11px;color:var(--ink-3)">${x.descricao||''}</div></td>
+      <td>${x.filial}</td>
+      <td><span class="tag t-mu">${x.estagio}</span></td>
+      <td class="n">${x.data}<div style="font-size:10.5px;color:var(--ink-3)">${x.origemData}</div></td>
+      <td class="n">${money(x.valorBruto)}</td>
+      <td class="n"><b>${money(x.valor)}</b><div style="font-size:10.5px;color:var(--ink-3)">${x.origemValor}</div></td>
+    </tr>`).join('');
+
+  const bate = d.confere
+    ? `<div class="note" style="margin-top:14px">A soma dos ${d.itens.length} lançamentos acima é
+       <b>${money(d.total)}</b> — exatamente o valor da célula. O detalhe e o total saem da mesma
+       conta no servidor, então bater é consequência, não coincidência.</div>`
+    : `<div class="note" style="margin-top:14px;border-color:var(--crit)"><b>Os números não batem.</b>
+       A célula mostra ${money(d.daMatriz)} e a composição soma ${money(d.total)}.
+       Avise o Kleber antes de usar este número.</div>`;
+
+  /* O valor que a pessoa clicou aparece no topo, ao lado do que a composição somou.
+     É o "check do que foi clicado": ela não precisa confiar na minha palavra de que bate,
+     vê os dois números juntos — e a diferença, que tem de ser zero. */
+  const dif = Math.abs(nnum(val) - d.total);
+  openDrawer(`${linha} · ${sem}`,
+    `${d.periodo} · ${d.itens.length} lançamento(s) · clicado ${money(val)} · composição ${money(d.total)}`,
+    `<div class="grid g4" style="margin-bottom:14px">
+       <div class="card kpi ${d.confere?'c':'d2'}"><div class="l">Valor da célula</div>
+         <div class="v">${m0(val)}</div><div class="d">o número que você clicou</div></div>
+       <div class="card kpi b"><div class="l">Soma da composição</div>
+         <div class="v">${m0(d.total)}</div><div class="d">${d.itens.length} lançamento(s) abaixo</div></div>
+       <div class="card kpi ${dif<0.005?'c':'d2'}"><div class="l">Diferença</div>
+         <div class="v">${m0(dif)}</div>
+         <div class="d">${dif<0.005?'fecha exatamente':'PRECISA DE CONFERÊNCIA'}</div></div>
+       <div class="card kpi a"><div class="l">Semana</div>
+         <div class="v" style="font-size:19px">${sem}</div><div class="d">${d.periodo}</div></div>
+     </div>
+     <div class="note" style="margin-bottom:12px">${d.explica}</div>
+     <div class="tw"><table><thead><tr>
+       <th>Nº</th><th>Fornecedor</th><th>Filial</th><th>Estágio</th><th>Data que conta</th>
+       <th style="text-align:right">Valor bruto</th><th style="text-align:right">Valor nesta célula</th>
+     </tr></thead><tbody>${linhas}
+     <tr class="tot"><td colspan="6"><b>Total da célula</b></td><td class="n"><b>${money(d.total)}</b></td></tr>
+     </tbody></table></div>${bate}`);
 }
 
 function vPagar(){
   const list=SOL.filter(s=>['Comprometido','Pago','Aprovado'].includes(s.st));
   return head(btnImport('TITULO'))+`
-  <div class="grid g4" style="margin-bottom:16px">
-    <div class="card kpi b"><div class="l">Comprometido</div><div class="v">39.900</div><div class="d">2 títulos</div></div>
-    <div class="card kpi c"><div class="l">Pago no mês</div><div class="v">717.020</div><div class="d">12 títulos</div></div>
-    <div class="card kpi d2"><div class="l">Divergência NF × aprovado</div><div class="v">670</div><div class="d">2 títulos precisam de reaprovação</div></div>
-    <div class="card kpi a"><div class="l">Vence nos próximos 7 dias</div><div class="v">23.580</div><div class="d">3 títulos</div></div>
-  </div>
+  ${(()=>{const por=e=>SOL.filter(x=>x.st===e), som=l=>l.reduce((a,x)=>a+x.val,0);
+     const c=por('Comprometido'), g=por('Pago'), a=por('Aprovado');
+     const plu=(n,s1,s2)=>n+' '+(n===1?s1:s2);
+     return `<div class="grid g4" style="margin-bottom:16px">
+       <div class="card kpi b"><div class="l">Comprometido</div><div class="v">${m0(som(c))}</div><div class="d">${plu(c.length,'título','títulos')}</div></div>
+       <div class="card kpi c"><div class="l">Pago</div><div class="v">${m0(som(g))}</div><div class="d">${plu(g.length,'título','títulos')}</div></div>
+       <div class="card kpi a"><div class="l">Autorizado, ainda sem NF</div><div class="v">${m0(som(a))}</div><div class="d">${plu(a.length,'compra','compras')}</div></div>
+       <div class="card kpi d2"><div class="l">Divergência NF × aprovado</div><div class="v">—</div><div class="d">depende do recebimento da NF</div></div>
+     </div>`;})()}
+  <div class="note" style="margin-bottom:14px"><b>Aprovado ainda não é título.</b> Vira compromisso quando a nota
+  fiscal chega e o valor é confirmado — é a diferença entre previsto e comprometido.</div>
   <div class="card">${tblSol(list,false)}</div>`;
 }
 function vReceber(){
-  const R=[['REC-2026-0041','21/09','CT-e Previsto','Axo Distribuidora S/A','OSA',68000],
-           ['REC-2026-0042','23/09','CT-e Previsto','Beta Alimentos Ltda','CPQ',52000],
-           ['REC-2026-0043','25/09','CT-e Previsto','Xerox do Brasil','SPO',52000],
-           ['REC-2026-0038','18/09','Recebível Confirmado','Rede Supermercados União','RP',48000],
-           ['REC-2026-0031','31/08','Recebido','Axo Distribuidora S/A','RP',60000]];
-  const TM={'CT-e Previsto':'t-nv','Recebível Confirmado':'t-in','Recebido':'t-ok'};
-  return head(btnImport('TITULO'))+`<div class="card"><div class="tw"><table><thead><tr>
-    <th>Nº</th><th>Data prevista</th><th>Tipo</th><th>Cliente</th><th>Filial</th><th style="text-align:right">Valor</th></tr></thead><tbody>
-    ${R.map(r=>`<tr onclick="toast('Ficha do recebível ${r[0]}')"><td class="id">${r[0].slice(-4)}</td><td class="n">${r[1]}</td>
-      <td><span class="tag ${TM[r[2]]}">${r[2]}</span></td><td>${r[3]}</td><td>${r[4]}</td><td class="n">${money(r[5])}</td></tr>`).join('')}
-  </tbody></table></div></div>`;
+  return head()+semDados('Contas a receber ainda não está ligada à base',
+    'Os recebíveis vêm do CT-e e da baixa no ERP. A integração é da Onda 2 — até lá esta tela ' +
+    'não tem de onde ler, e mostrar número aqui seria inventar.',
+    '<b>O que já funciona hoje:</b> o fluxo de caixa projeta as saídas das solicitações. ' +
+    'As entradas entram quando a integração com o ERP existir.');
 }
 function vRateio(){
-  // Dois eixos: FILIAL diz quem consome, CENTRO diz qual natureza consome.
-  const R=[['SOL-2026-00028','Combustível / Diesel','RP','RP','OPE',45,17505],
-           ['SOL-2026-00028','Combustível / Diesel','RP','CPQ','OPE',20,7780],
-           ['SOL-2026-00028','Combustível / Diesel','RP','OSA','TRF',20,7780],
-           ['SOL-2026-00028','Combustível / Diesel','RP','SPO','TRF',15,5835],
-           ['SOL-2026-00021','Energia Elétrica','RP','RP','ADM',55,8305],
-           ['SOL-2026-00021','Energia Elétrica','RP','CPQ','ADM',15,2265],
-           ['SOL-2026-00021','Energia Elétrica','RP','OSA','ADM',20,3020],
-           ['SOL-2026-00021','Energia Elétrica','RP','SPO','ADM',10,1510]];
-  const soma=(ix)=>{const o={};R.forEach(r=>o[r[ix]]=(o[r[ix]]||0)+r[6]);return o;};
-  const pf=soma(3), pc=soma(4), tot=R.reduce((a,r)=>a+r[6],0);
-  const barra=(o,rot)=>`<div class="card" style="padding:16px"><b style="font-size:13px">${rot}</b>
-    <table style="margin-top:10px"><tbody>${Object.keys(o).sort((a,b)=>o[b]-o[a]).map(k=>`<tr>
-      <td style="width:120px">${rot.indexOf('centro')>=0?(CENTROS.find(c=>c[0]===k)||[k,k])[1]:k}</td>
-      <td><div class="bar" style="height:8px"><i style="width:${(o[k]/tot*100).toFixed(1)}%"></i></div></td>
-      <td class="n" style="width:110px">${money(o[k])}</td>
-      <td class="n" style="width:70px">${(o[k]/tot*100).toFixed(1)}%</td></tr>`).join('')}</tbody></table></div>`;
-
-  return head()+`
-  <div class="note" style="margin-bottom:14px"><b>O rateio da Salomé tem dois eixos, e eles não são a mesma coisa.</b>
+  return head()+`<div class="note" style="margin-bottom:14px"><b>O rateio da Salomé tem dois eixos, e eles não são a mesma coisa.</b>
   A <b>filial</b> diz qual unidade consome. O <b>centro de custo</b> diz qual natureza consome —
   os "18% distribuição / 82% transferência" da reunião são centro, não filial.
-  Cada eixo tem de fechar 100% por conta própria.</div>
-  <div class="grid2" style="margin-bottom:14px">${barra(pf,'Por filial de destino')}${barra(pc,'Por centro de custo')}</div>
-  <div class="card"><div class="tw"><table><thead><tr>
-    <th>Nº solicitação</th><th>Classificação</th><th>Filial emissão</th><th>Filial destino</th><th>Centro de custo</th>
-    <th style="text-align:right">% rateio</th><th style="text-align:right">Valor rateado</th><th>Consistência</th></tr></thead><tbody>
-    ${R.map(r=>`<tr onclick="openSol('${r[0]}')"><td class="id">${r[0].slice(-5)}</td><td>${r[1]}</td><td>${r[2]}</td>
-      <td><b>${r[3]}</b></td><td>${(CENTROS.find(c=>c[0]===r[4])||[r[4],r[4]])[1]}</td>
-      <td class="n">${r[5]},0%</td><td class="n">${money(r[6])}</td>
-      <td><span class="tag t-ok"><i class="dot"></i>Soma 100%</span></td></tr>`).join('')}
-  </tbody></table></div></div>
-  <div class="note" style="margin-top:14px"><b>Regra:</b> não grava rateio cuja soma seja diferente de 100%,
-  nem linha sem filial ou sem centro, nem a mesma dupla filial+centro repetida — isso é sempre erro de digitação.</div>`;
+  Cada eixo tem de fechar 100% por conta própria.</div>`+
+  semDados('Nenhum rateio lançado ainda',
+    'Esta tela mostra a distribuição das solicitações que foram marcadas com rateio. ' +
+    'Assim que a primeira for lançada com rateio, os dois eixos aparecem aqui.',
+    '<b>Como se lança:</b> no formulário da solicitação, marque <b>Tem rateio</b> e distribua ' +
+    'os percentuais. A soma de cada eixo tem de fechar 100% — o sistema recusa o envio se não fechar.');
+}
+/**
+ * DRE gerencial montado da base, conta por conta.
+ *
+ * Os três estágios são os mesmos do fluxo de caixa e nunca se somam duas vezes: uma
+ * solicitação está em UM deles. "Orçado" fica em branco enquanto a aba ORCAMENTO não
+ * tiver linha — e branco é a resposta certa: inventar teto de gasto é pior que não ter.
+ */
+const EST_UI = {
+  'Rascunho':null, 'Cancelado':null, 'Reprovado':null,
+  'Em validação':'prev', 'Aguardando caixa':'prev', 'Aguardando Aprovação':'prev',
+  'Reprogramado':'prev', 'Aprovado':'prev',
+  'Comprometido':'comp', 'Pago':'real'
+};
+function gerencialLinhas(){
+  const por = {};
+  SOL.forEach(s=>{
+    const col = EST_UI[s.st];
+    if(!col) return;
+    const k = s.cod || '(sem conta)';
+    if(!por[k]) por[k] = {cod:k, cls:s.cls||'(sem classificação)', prev:0, comp:0, real:0, itens:0};
+    por[k][col] += s.val;
+    por[k].itens++;
+  });
+  return Object.keys(por).map(k=>por[k]).sort((a,b)=>(b.prev+b.comp+b.real)-(a.prev+a.comp+a.real));
 }
 function vGerencial(){
-  const G=[['3.01.001','Combustível / Diesel',85000,0,0,77100],['3.01.002','Peças e Manutenção',38000,9400,26020,0],
-   ['3.01.003','Pneus e Recapagem',35000,31800,0,0],['3.02.001','Freteiro / Agregado',59000,0,26400,27950],
-   ['3.03.002','Energia Elétrica',16500,0,0,15100],['3.04.001','Folha de Pagamento',453000,0,0,412000],
-   ['3.05.001','Equipamentos de TI',15000,0,13500,0],['3.05.003','Benfeitorias e Obras',94500,0,0,0]];
-  return head(`<select class="btn" style="padding:7px 11px"><option>Setembro / 2026</option><option>Outubro / 2026</option></select>`)+`
+  const G = gerencialLinhas();
+  const som = c => G.reduce((a,g)=>a+g[c],0);
+  if(!G.length){
+    return head()+semDados('Nada lançado ainda para consolidar',
+      'O painel soma as solicitações por conta contábil, separando previsto, comprometido e realizado. ' +
+      'Assim que a primeira sair do rascunho, ela aparece aqui.',
+      '<b>Orçado:</b> a coluna fica em branco até a aba <b>ORCAMENTO</b> da planilha ter linha. ' +
+      'Sem orçamento carregado a resposta é "não sei", nunca um número estimado.');
+  }
+  return head()+`
   <div class="grid g4" style="margin-bottom:16px">
-    <div class="card kpi a"><div class="l">Orçado do mês</div><div class="v">1.024.500</div></div>
-    <div class="card kpi b"><div class="l">Previsto</div><div class="v">73.830</div></div>
-    <div class="card kpi b"><div class="l">Comprometido</div><div class="v">39.900</div></div>
-    <div class="card kpi c"><div class="l">Realizado</div><div class="v">717.020</div></div>
+    <div class="card kpi a"><div class="l">Orçado</div><div class="v">—</div><div class="d">aba ORCAMENTO ainda vazia</div></div>
+    <div class="card kpi b"><div class="l">Previsto</div><div class="v">${m0(som('prev'))}</div><div class="d">ainda sem nota fiscal</div></div>
+    <div class="card kpi b"><div class="l">Comprometido</div><div class="v">${m0(som('comp'))}</div><div class="d">NF recebida</div></div>
+    <div class="card kpi c"><div class="l">Realizado</div><div class="v">${m0(som('real'))}</div><div class="d">pago</div></div>
   </div>
-  <div class="card"><div class="card-h"><h3>DRE gerencial por classificação</h3></div><div class="tw"><table><thead><tr>
+  <div class="note" style="margin-bottom:14px">Clique em qualquer linha para ver as solicitações que compõem o número — <b>conta por conta, uma a uma</b>.</div>`+`
+  <div class="card"><div class="card-h"><h3>DRE gerencial por conta contábil</h3></div><div class="tw"><table><thead><tr>
     <th>Código</th><th>Classificação</th><th style="text-align:right">Orçado</th><th style="text-align:right">Previsto</th>
     <th style="text-align:right">Comprometido</th><th style="text-align:right">Realizado</th><th style="text-align:right">Total</th>
-    <th style="text-align:right">% do orçado</th></tr></thead><tbody>
-    ${G.map(g=>{const t=g[3]+g[4]+g[5];const p=g[2]?t/g[2]:0;return `<tr onclick="toast('Drill-down: lançamentos de ${g[1]} em setembro')">
-      <td class="id">${g[0]}</td><td>${g[1]}</td><td class="n">${m0(g[2])}</td><td class="n">${g[3]?m0(g[3]):'–'}</td>
-      <td class="n">${g[4]?m0(g[4]):'–'}</td><td class="n">${g[5]?m0(g[5]):'–'}</td><td class="n"><b>${m0(t)}</b></td>
-      <td class="n" style="color:${p>1?'var(--crit)':'var(--ink-2)'}">${(p*100).toFixed(1)}%</td></tr>`}).join('')}
+    <th style="text-align:right">Lançamentos</th></tr></thead><tbody>
+    ${G.map(g=>{const t=g.prev+g.comp+g.real;return `<tr onclick="drillConta('${g.cod}')">
+      <td class="id">${g.cod}</td><td>${g.cls}</td><td class="n" style="color:var(--ink-3)">—</td>
+      <td class="n">${g.prev?m0(g.prev):'–'}</td>
+      <td class="n">${g.comp?m0(g.comp):'–'}</td><td class="n">${g.real?m0(g.real):'–'}</td>
+      <td class="n"><b>${m0(t)}</b></td>
+      <td class="n" style="color:var(--ink-3)">${g.itens}</td></tr>`}).join('')}
   </tbody></table></div></div>`;
 }
+
+/**
+ * O analítico de uma conta: cada solicitação que formou o número, com o estágio em que
+ * ela entrou. Os subtotais por estágio fecham o total da linha — se não fecharem, a tela
+ * avisa em vez de deixar passar.
+ */
+function drillConta(cod){
+  const list = SOL.filter(s=>(s.cod||'(sem conta)')===cod && EST_UI[s.st]);
+  if(!list.length){ toast('Nenhum lançamento nesta conta.'); return; }
+  const som = c => list.filter(s=>EST_UI[s.st]===c).reduce((a,s)=>a+s.val,0);
+  const tot = list.reduce((a,s)=>a+s.val,0);
+  const ROT = {prev:'Previsto', comp:'Comprometido', real:'Realizado'};
+  openDrawer(`Conta ${cod}`, `${list[0].cls} · ${list.length} lançamento(s) · ${money(tot)}`,
+    `<div class="grid g4" style="margin-bottom:14px">
+      ${['prev','comp','real'].map(c=>`<div class="card kpi"><div class="l">${ROT[c]}</div><div class="v">${m0(som(c))}</div></div>`).join('')}
+     </div>
+     <div class="tw"><table><thead><tr><th>Nº</th><th>Fornecedor</th><th>Área</th><th>Filial</th>
+       <th>Estágio</th><th>Prev. pgto</th><th style="text-align:right">Valor</th></tr></thead><tbody>
+     ${list.sort((a,b)=>b.val-a.val).map(s=>`<tr onclick="closeDrawer();openSol('${s.id}')">
+       <td class="id">${s.id.slice(-5)}</td>
+       <td>${s.forn}<div style="font-size:11px;color:var(--ink-3)">${s.desc||''}</div></td>
+       <td>${s.area}</td><td>${s.fil}</td>
+       <td><span class="tag ${STMAP[s.st]}">${s.st}</span></td>
+       <td class="n">${s.prev}</td><td class="n">${money(s.val)}</td></tr>`).join('')}
+     <tr class="tot"><td colspan="6"><b>Total da conta</b></td><td class="n"><b>${money(tot)}</b></td></tr>
+     </tbody></table></div>
+     <div class="note" style="margin-top:14px">Cada solicitação aparece em <b>um</b> estágio só —
+     é o que impede o mesmo dinheiro de ser contado duas vezes. Clique em qualquer linha para abrir a ficha.</div>`);
+}
 function vOrcamento(){
-  return head(btnImport('ORCAMENTO'))+`<div class="card"><div class="tw"><table><thead><tr>
-    <th>Código</th><th>Classificação</th><th style="text-align:right">Ago/26</th><th style="text-align:right">Set/26</th>
-    <th style="text-align:right">Out/26</th><th style="text-align:right">Nov/26</th><th style="text-align:right">Dez/26</th></tr></thead><tbody>
-    ${[['3.01.001','Combustível / Diesel',85000,85000,85000,88000,88000],['3.01.002','Peças e Manutenção',38000,38000,38000,38000,38000],
-       ['3.01.003','Pneus e Recapagem',35000,35000,35000,35000,35000],['3.04.001','Folha de Pagamento',453000,453000,457000,457000,690000]]
-      .map(r=>`<tr onclick="toast('Editar orçamento — permitido só para Diretoria')"><td class="id">${r[0]}</td><td>${r[1]}</td>
-      ${r.slice(2).map(v=>`<td class="n">${m0(v)}</td>`).join('')}</tr>`).join('')}
-  </tbody></table></div></div>`;
+  return head()+semDados('Nenhum orçamento carregado',
+    'O orçado é a trava do gerencial: é contra ele que previsto, comprometido e realizado são comparados. ' +
+    'Enquanto a aba <b>ORCAMENTO</b> da planilha estiver vazia, o painel mostra o gasto sem teto de comparação.',
+    '<b>Como carregar:</b> preencha a aba <b>ORCAMENTO</b> da planilha FC_DADOS com conta, mês e valor, ' +
+    'e use <b>FC Salomé → Recarregar no app</b>. Enquanto não houver orçamento, o painel responde ' +
+    '"não sei" em vez de estimar — estimativa de teto de gasto vira meta por engano.');
 }
 function vPlano(){
   const usadas={}; CAT.forEach(c=>{[c[4],c[5]].filter(Boolean).forEach(k=>usadas[k]=(usadas[k]||[]).concat(c[2]))});
@@ -1595,16 +1879,17 @@ function vFiliais(){
 }
 function vUsuarios(){
   return head(btnImport('USUARIO'))+`<div class="card"><div class="tw"><table><thead><tr>
-    <th>ID</th><th>Nome</th><th>E-mail (login)</th><th>Perfil</th><th>Escopo de filial</th>
+    <th>ID</th><th>Nome</th><th>Usuário</th><th>E-mail (avisos)</th><th>Perfil</th><th>Escopo de filial</th>
     <th style="text-align:right">Limite de alçada</th><th>Status</th><th>Último acesso</th><th></th></tr></thead><tbody>
     ${USUARIOS.map(u=>`<tr onclick="openUser('${u[0]}')"><td class="id">${u[0]}</td><td>${u[1]}</td>
-      <td class="mono" style="font-size:12px">${u[2]}</td><td><span class="tag t-nv">${u[3]}</span></td><td>${u[4]}</td>
+      <td class="mono" style="font-size:12px"><b>${u[8]||'—'}</b></td>
+      <td class="mono" style="font-size:11.5px;color:var(--ink-3)">${u[2]||'—'}</td>
+      <td><span class="tag t-nv">${u[3]}</span></td><td>${u[4]}</td>
       <td class="n">${u[5]}</td><td><span class="tag ${u[6]==='ATIVO'?'t-ok':'t-mu'}"><i class="dot"></i>${u[6]}</span></td>
       <td class="mono" style="font-size:11.5px;color:var(--ink-3)">${u[7]}</td>
       <td style="text-align:right;white-space:nowrap" onclick="event.stopPropagation()">
         ${can('alterar','USUARIO')||can('alterar','*')
-          ?`<button class="btn sm" onclick="toast('Senha temporária gerada e enviada por e-mail. Troca obrigatória no 1º acesso.')">Resetar senha</button>
-            <button class="btn sm" onclick="toast('${u[0]} ${u[6]==='ATIVO'?'inativado':'reativado'}. Sessões ativas encerradas.')">${u[6]==='ATIVO'?'Inativar':'Reativar'}</button>`
+          ?`<span class="lock" style="font-size:11px">edite na planilha</span>`
           :`<span class="lock">${svg('M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z')} somente Administrador</span>`}
       </td></tr>`).join('')}
   </tbody></table></div></div>`;
@@ -1622,7 +1907,7 @@ function vPerfis(){
         Usuário:['V','I','A','X'],Perfil:['V','I','A','X'],Log:['V','X']}};
     return (map[p]?.[r]||[]).includes(a);
   };
-  return head(`<button class="btn pri" onclick="toast('Alterações gravadas na aba PERMISSOES e registradas no log.')">Salvar permissões</button>`)+`
+  return head()+`
   <div class="note" style="margin-bottom:14px"><b>V</b> ver · <b>I</b> incluir · <b>A</b> alterar · <b>X</b> inativar (nunca excluir) · <b>P</b> aprovar · <b>E</b> exportar. Além disso cada perfil tem <b>escopo de filial</b> e <b>limite de alçada</b>, e a aba <b>PERMISSOES_CAMPO</b> controla quais campos ficam editáveis em cada status do registro.</div>
   <div class="card"><div class="tw"><table class="perm"><thead><tr><th rowspan="2">Recurso</th>
     ${P.map(p=>`<th colspan="4" style="text-align:center;border-left:1px solid var(--line-2)">${p}</th>`).join('')}</tr>
@@ -1633,57 +1918,28 @@ function vPerfis(){
   ${ROLE!=='ADMIN'?`<div class="note" style="margin-top:14px">Somente o perfil <b>Administrador</b> edita esta matriz. Troque o perfil no topo para testar.</div>`:''}`;
 }
 function vImport(){
-  const SM={'CONCLUIDA':'t-ok','CONCLUIDA COM ERROS':'t-wa','REJEITADA':'t-cr'};
-  return head()+`
-  <div class="grid g3" style="margin-bottom:16px">
-    ${['Plano de contas','Fornecedores','Filiais','Orçamento','Usuários','Saldos iniciais'].map(c=>`
-      <div class="card"><div class="card-b" style="display:flex;flex-direction:column;gap:9px">
-        <div style="font-weight:600">${c}</div>
-        <div style="font-size:12px;color:var(--ink-3)">Modelo com os cabeçalhos exatos, tipos e valores aceitos em cada coluna.</div>
-        <div style="display:flex;gap:7px;margin-top:2px">
-          <button class="btn sm" onclick="toast('Baixando modelo_${c.toLowerCase().replace(/ /g,'_')}.xlsx')">Baixar modelo</button>
-          <button class="btn sm pri" onclick="toast('Selecione o arquivo — a prévia mostra os erros antes de gravar.')">Importar</button>
-        </div></div></div>`).join('')}
-  </div>
-  <div class="card"><div class="card-h"><h3>Histórico de importações</h3></div><div class="tw"><table><thead><tr>
-    <th>Nº</th><th>Data</th><th>Cadastro</th><th>Arquivo</th><th style="text-align:right">Linhas</th>
-    <th style="text-align:right">OK</th><th style="text-align:right">Erros</th><th>Status</th><th>Usuário</th></tr></thead><tbody>
-    ${IMPORTS.map(i=>`<tr onclick="toast('Abrindo o relatório de validação de ${i[0]}')"><td class="id">${i[0].slice(-4)}</td>
-      <td class="mono" style="font-size:12px">${i[1]}</td><td>${i[2]}</td><td class="mono" style="font-size:12px">${i[3]}</td>
-      <td class="n">${i[4]}</td><td class="n" style="color:var(--ok)">${i[5]}</td>
-      <td class="n" style="color:${i[6]?'var(--crit)':'var(--ink-3)'}">${i[6]}</td>
-      <td><span class="tag ${SM[i[7]]}">${i[7]}</span></td>
-      <td class="mono" style="font-size:11.5px;color:var(--ink-3)">${i[8]}</td></tr>`).join('')}
-  </tbody></table></div></div>`;
+  return head()+semDados('Importação por planilha ainda não está ligada',
+    'A tela existe e o desenho está de pé, mas o motor que lê o arquivo e mostra a prévia ' +
+    'de erros antes de gravar ainda não foi escrito.',
+    'Enquanto isso, carga em lote se faz pela planilha <b>FC_DADOS</b> e pelo ' +
+    '<b>conferirCadastros()</b>, que acusa chave repetida, campo obrigatório vazio e ' +
+    'referência para registro que não existe.');
 }
 function vLogs(){
-  const AM={'INCLUIR':'t-nv','ALTERAR':'t-wa','INATIVAR':'t-cr','APROVAR':'t-ok','LOGIN_OK':'t-ok','LOGIN_FALHA':'t-cr'};
-  return head(`<select class="btn" style="padding:7px 11px"><option>Semana 2026-S39 (21 a 27/09)</option><option>Semana 2026-S38</option><option>Semana 2026-S37</option></select>
-    <button class="btn" onclick="toast('Exportando a aba LOG_ATIV_2026-S39 para XLSX…')">Exportar</button>`)+`
-  <div class="note" style="margin-bottom:14px"><b>Uma aba por semana.</b> O sistema cria <span class="mono">LOG_ATIV_2026-S39</span> e <span class="mono">LOG_ACESSO_2026-S39</span> automaticamente na primeira gravação da semana, e arquiva abas com mais de 12 semanas numa planilha separada.</div>
-  <div class="card"><div class="card-h"><h3>Trilha de auditoria — LOG_ATIV_2026-S39</h3></div><div class="tw"><table><thead><tr>
-    <th>Timestamp</th><th>Usuário</th><th>Perfil</th><th>Recurso</th><th>Ação</th><th>Registro</th><th>Campo</th>
-    <th>Valor antes</th><th>Valor depois</th><th>Origem</th></tr></thead><tbody>
-    ${LOGATIV.map(l=>`<tr onclick="${l[5].startsWith('SOL')?`openSol('${l[5]}')`:`toast('Registro ${l[5]}')`}">
-      <td class="mono" style="font-size:11.5px">${l[0]}</td><td class="mono" style="font-size:11.5px">${l[1]}</td><td>${l[2]}</td>
-      <td class="mono" style="font-size:11.5px">${l[3]}</td><td><span class="tag ${AM[l[4]]||'t-mu'}">${l[4]}</span></td>
-      <td class="id">${l[5]}</td><td style="font-size:11.5px">${l[6]}</td>
-      <td style="font-size:11.5px;color:var(--ink-3)">${l[7]}</td><td style="font-size:11.5px">${l[8]}</td>
-      <td><span class="tag ${l[9]==='MOBILE'?'t-in':'t-mu'}">${l[9]}</span></td></tr>`).join('')}
-  </tbody></table></div></div>`;
+  return head()+`<div class="note" style="margin-bottom:14px"><b>Uma aba por semana.</b> O sistema cria
+  <span class="mono">LOG_ATIV_AAAA-Sww</span> e <span class="mono">LOG_ACESSO_AAAA-Sww</span> automaticamente
+  na primeira gravação da semana, e arquiva abas com mais de 12 semanas numa planilha separada.</div>`+
+  semDados('A trilha de auditoria está sendo gravada',
+    'Todo acesso e toda alteração de campo já vão para a planilha <b>FC_LOG</b>, com valor antes e ' +
+    'depois, autor, data e origem. O que ainda não existe é esta tela lendo de lá.',
+    'Para consultar hoje: abra a planilha <b>FC_LOG</b> e a aba da semana. É a mesma informação, ' +
+    'sem o filtro bonito.');
 }
 function vParams(){
-  const rows=[['Saldo inicial de caixa','R$ 385.000,00','Financeiro'],['Saldo mínimo de segurança','R$ 150.000,00','Diretoria'],
-   ['Horizonte do fluxo','12 semanas','Financeiro'],['Dias de pagamento','Segunda, quarta e sexta','Financeiro'],
-   ['Reunião de aprovação','Terça-feira, 09h00','Diretoria'],['Semana travada','1ª do mês — folha e encargos','Diretoria'],
-   ['Duração da sessão','8 horas','Administrador'],['Tentativas de login antes do bloqueio','5','Administrador'],
-   ['Validade da senha','90 dias','Administrador'],['Pasta de anexos no Drive','/FC Salomé/Anexos/{ano}/{nº}','Administrador'],
-   ['E-mail remetente','fc@salome.com.br','Administrador'],['Backup automático','Diário, 23h00','Administrador']];
-  return head(`<button class="btn pri" onclick="toast('Parâmetros gravados e registrados no log.')">Salvar</button>`)+`
-  <div class="card"><div class="tw"><table><thead><tr><th>Parâmetro</th><th>Valor</th><th>Quem altera</th></tr></thead><tbody>
-    ${rows.map(r=>`<tr onclick="toast('Editar: ${r[0]}')"><td>${r[0]}</td><td class="mono">${r[1]}</td>
-      <td><span class="tag t-mu">${r[2]}</span></td></tr>`).join('')}
-  </tbody></table></div></div>`;
+  return head()+semDados('Os parâmetros se editam na planilha',
+    'Saldo mínimo, horizonte do fluxo, dias de pagamento, alíquotas de retenção, duração da sessão — ' +
+    'tudo mora na aba <b>PARAMETROS</b> da planilha FC_DADOS.',
+    'Cadastro e parâmetro se mantêm direto na planilha <b>FC_DADOS</b>. Depois de editar, use o menu <b>FC Salomé → Recarregar no app</b> na própria planilha — senão o app leva até dez minutos para enxergar a mudança.');
 }
 
 /* ==========================================================================
@@ -1727,7 +1983,8 @@ const MOVE_PERFIL = {
 
 let HOJE_KB = new Date(); HOJE_KB.setHours(0,0,0,0);
 
-let KB = {f:{q:'',area:'',fil:'',centro:'',bloco:'',per:'',vmin:''}, abertos:{}, arrastando:null};
+let KB = {f:{q:'',area:'',fil:'',centro:'',bloco:'',per:'',vmin:''}, abertos:{},
+          recolhidas:{}, arrastando:null};
 
 /** Enriquece os dados do protótipo com o que o quadro precisa. */
 function kbDados(){
@@ -1808,8 +2065,12 @@ function vKanban(){
   const ativos = Object.keys(KB.f).filter(k=>KB.f[k]);
   const ROT={q:'Busca',area:'Área',fil:'Filial',centro:'Centro',bloco:'Tipo',per:'Prazo',vmin:'Valor ≥'};
 
+  const nRec = ETAPAS.filter(e=>KB.recolhidas[e.k]).length;
   return head(`<button class="btn" onclick="kbTudo(true)" data-tip="Abre o detalhe de todos os cards de uma vez">Expandir cards</button>
-    <button class="btn" onclick="kbTudo(false)" data-tip="Volta todos os cards ao formato compacto">Recolher cards</button>`)+`
+    <button class="btn" onclick="kbTudo(false)" data-tip="Volta todos os cards ao formato compacto">Recolher cards</button>
+    <button class="btn" onclick="kbColunas(${nRec?'false':'true'})"
+      data-tip="${nRec?'Abre todas as colunas de volta':'Recolhe as seis colunas para uma faixa estreita'}">
+      ${nRec?'Abrir colunas':'Recolher colunas'}</button>`)+`
 
   <div class="kb-bar">
     <input placeholder="Buscar nº, fornecedor, item…" value="${KB.f.q}" oninput="KB.f.q=this.value;kbRender()"
@@ -1852,9 +2113,16 @@ function kbCol(e, cards, total){
   const meus = cards.filter(c=>c.etapa===e.k);
   const v = meus.reduce((a,c)=>a+c.val,0);
   const pct = total ? (v/total*100) : 0;
-  return `<section class="kb-col" id="col-${e.k}"
+  const min = KB.recolhidas[e.k];
+  return `<section class="kb-col ${min?'min':''}" id="col-${e.k}"
      ondragover="kbOver(event,'${e.k}')" ondragleave="kbLeave('${e.k}')" ondrop="kbDrop(event,'${e.k}')">
     <header class="kb-h">
+      <button class="kb-min-btn" onclick="kbToggleCol('${e.k}')"
+        data-tip="${min?'Abrir':'Recolher'} a coluna ${e.t}" aria-label="${min?'Abrir':'Recolher'}">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+             stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="${min?'M9 6l6 6-6 6':'M15 6l-6 6 6 6'}"/></svg>
+      </button>
       <div class="t" data-tip="${e.tip}">${e.t}<span class="n">${meus.length}</span></div>
       <div class="v" data-tip="Soma dos valores brutos parados nesta coluna">${v?'R$ '+m0(v):'—'}</div>
       <div class="pct" data-tip="${pct.toFixed(0)}% do valor no quadro"><i style="width:${pct}%"></i></div>
@@ -1865,24 +2133,186 @@ function kbCol(e, cards, total){
   </section>`;
 }
 
+/* ---------- observações do card (v10.0) ----------
+   Cada observação é uma linha própria, com autor e data. Não se edita nem se apaga. */
+let OBS_N = {};   /* quantas observações cada card tem, depois de carregadas */
+function obsEsc(t){
+  return String(t == null ? '' : t).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+async function obsCarregar(id){
+  const el = document.getElementById('obs-'+id);
+  if (!el) return;
+  let l;
+  try { l = await API.chamar('obs.listar', {registroId: id}); }
+  catch (e) {
+    el.innerHTML = `<div class="empty">${/SEM_PERMISSAO|ESCOPO/i.test(e.message)
+      ? 'Esta solicitação está fora do seu escopo.'
+      : 'Não consegui ler as observações: '+obsEsc(e.message)}</div>`;
+    return;
+  }
+  l = l || [];
+  OBS_N[id] = l.length;
+  const itens = l.map(o => `<li><div class="obs-h"><b>${obsEsc(o.autor || '—')}</b>
+      <span>${tlFmt(new Date(o.quando))}</span></div><div class="obs-t">${obsEsc(o.texto)}</div></li>`).join('');
+  el.innerHTML = (itens ? `<ul class="obs-l">${itens}</ul>`
+                        : '<div class="empty">Nenhuma observação ainda.</div>') +
+    `<div class="obs-f">
+       <textarea id="obs-t-${obsEsc(id)}" maxlength="500" rows="3"
+         placeholder="Escreva o que o próximo precisa saber sobre este card…"></textarea>
+       <div class="acts" style="margin-top:8px"><button class="btn sm pri" onclick="obsSalvar('${obsEsc(id)}')">Adicionar observação</button></div>
+     </div>`;
+}
+async function obsSalvar(id){
+  const t = document.getElementById('obs-t-'+id);
+  const texto = (t && t.value || '').trim();
+  if (!texto) { toast('Escreva a observação antes de salvar.', 'cr'); return; }
+  try {
+    await API.chamar('obs.salvar', {registroId: id, texto: texto});
+    toast('Observação registrada.', 'ok');
+    await obsCarregar(id);
+    if (typeof render === 'function' && VIEW === 'kanban') kbRender();
+  } catch (e) { toast('Não consegui salvar: '+e.message, 'cr'); }
+}
+
+/* ---------- linha do tempo do card (v10.0) ----------
+   Cada mudança de STATUS no log vira uma etapa. O tempo de cada etapa é o intervalo até a
+   próxima mudança (a última, até agora). Tempo corrido: dias e horas, sem feriados. */
+const TL_ST_ETAPA = {RASCUNHO:'SOLICITAR', EM_VALIDACAO:'VALIDAR', AGUARDANDO_CAIXA:'CAIXA',
+  AGUARDANDO_APROVACAO:'APROVAR', REPROGRAMADO:'CAIXA', APROVADO:'AUTORIZAR', COMPROMETIDO:'RECEBER',
+  PAGO:'CONCLUIDO', REPROVADO:'REPROVADO', CANCELADO:'CANCELADO'};
+const TL_ROTULO = {SOLICITAR:'Solicitar', VALIDAR:'Validar regra', CAIXA:'Consultar caixa', APROVAR:'Aprovar',
+  AUTORIZAR:'Autorizar', RECEBER:'Receber NF', CONCLUIDO:'Pago', REPROVADO:'Reprovado', CANCELADO:'Cancelado'};
+
+function tlData(x){
+  const v = x.ts || x.QUANDO || x.DATA;
+  if (!v) return null;
+  const d = new Date(v);
+  return isNaN(d) ? null : d;
+}
+function tlFmt(d){
+  if (!d) return '—';
+  return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+' '+
+         String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+function tlDur(ms){
+  if (ms == null || ms < 0) return '—';
+  const h = Math.round(ms / 36e5), d = Math.floor(h / 24), r = h % 24;
+  return d ? d+'d '+r+'h' : r+'h';
+}
+function tlRender(id, log, concluido){
+  const mud = log.filter(x => (x.campo || x.CAMPO) === 'STATUS')
+    .map(x => ({d: tlData(x), etapa: TL_ST_ETAPA[String(x.depois || x.VALOR_DEPOIS || '').toUpperCase()] || null,
+                quem: x.email || x.USUARIO_EMAIL || '', motivo: x.MOTIVO || ''}))
+    .filter(m => m.d && m.etapa)
+    .sort((a, b) => a.d - b.d);
+  if (!mud.length) return '<div class="empty">Ainda não há movimentos registrados para este card.</div>';
+
+  const agora = new Date();
+  const linhas = mud.map((m, i) => {
+    const ultima = i === mud.length - 1;
+    const fim = ultima ? (concluido ? null : agora) : mud[i+1].d;
+    return Object.assign({}, m, {fim, ms: fim ? fim - m.d : null, ultima});
+  });
+  const fechadas = linhas.filter(l => !l.ultima);
+  const maisLenta = fechadas.length ? fechadas.reduce((a, b) => b.ms > a.ms ? b : a) : null;
+  const ciclo = (linhas[linhas.length-1].fim || agora) - linhas[0].d;
+
+  const itens = linhas.map(l => {
+    const aberta = l.ultima && !concluido;
+    const cls = aberta ? 'now' : (l === maisLenta ? 'slow' : 'done');
+    const tempo = aberta ? 'em andamento há '+tlDur(l.ms) : 'ficou '+tlDur(l.ms);
+    return `<li class="tl2-${cls}">
+      <div class="tl2-h"><b>${TL_ROTULO[l.etapa] || l.etapa}</b> <span>${tlFmt(l.d)}</span></div>
+      <div class="tl2-s">${tempo}${l.quem?' · '+l.quem:''}${l.motivo?' · '+l.motivo:''}
+        ${l === maisLenta ? ' <span class="kb-t wa">etapa mais demorada</span>' : ''}</div>
+    </li>`;
+  }).join('');
+
+  const brutos = log.map(tlLinhaLog).join('');
+  return `<div class="note" style="margin-bottom:10px">Ciclo total: <b>${tlDur(ciclo)}</b> desde ${tlFmt(linhas[0].d)}.
+      Tempo corrido, sem descontar feriados.</div>
+    <ol class="tl2">${itens}</ol>
+    <details style="margin-top:12px"><summary style="cursor:pointer;color:var(--ink-3);font-size:12px">
+      Histórico completo (${log.length} registro${log.length>1?'s':''})</summary>
+      <ul class="tl">${brutos}</ul></details>`;
+}
+async function tlCarregar(id){
+  const el = document.getElementById('tl-'+id);
+  if (!el) return;
+  const c = kbDados().find(x => x.id === id) || {};
+  let log;
+  try { log = await API.chamar('log.historico', {registroId: id}); }
+  catch (e) {
+    el.innerHTML = `<div class="empty">${/PERMISSAO/i.test(e.message)
+      ? 'Seu perfil não tem permissão para ler o log. Financeiro, Diretoria e Administrador têm.'
+      : 'Não consegui montar a linha do tempo: '+e.message}</div>`;
+    return;
+  }
+  const concluido = ['CONCLUIDO','REPROVADO','CANCELADO'].indexOf(c.etapa) >= 0;
+  el.innerHTML = tlRender(id, log || [], concluido);
+}
+
+/* ---------- painel lateral do card (v10.0) ----------
+   Um clique no card abre o detalhe completo na lateral: dados, pendências,
+   observação e histórico. O quadro continua visível e o card não cresce mais. */
+function kbPainel(id, aba){
+  const c = kbDados().find(x=>x.id===id); if(!c) return;
+  const NOMES = {anexo:'Orçamento anexado',rateio:'Rateio fechando 100%',placa:'Placa do veículo',
+                 caixa:'Semana com saldo',alcada:'Alçada suficiente',pedido:'Número do pedido'};
+  const faltando = kbFaltam(c);
+  const u = kbUrg(c);
+  const aut = AUTORIZ.find(a=>a.id===id);
+  const temCapa = !!(aut && aut.chave);
+  const dados = `<dl class="kb-dl">
+      <dt>Item</dt><dd>${c.desc}</dd>
+      <dt>Fornecedor</dt><dd>${c.forn}</dd>
+      <dt>Classificação</dt><dd>${c.cls}</dd>
+      <dt>Área · Solicitante</dt><dd>${c.area} · ${c.sol}</dd>
+      <dt>Filial · centro de custo</dt><dd>${c.fil} · ${c.centro}</dd>
+      <dt>Condição</dt><dd>${c.cond}</dd>
+      <dt>Alçada</dt><dd>${c.alc}</dd>
+      <dt>Semana e saldo projetado</dt><dd>${c.sem||'—'} · saldo ${m0(c.saldo)}</dd>
+      <dt>Situação do prazo</dt><dd><span class="kb-t ${u.cls}">${u.t}</span></dd>
+    </dl>
+    <div class="acts" style="margin-top:12px">
+      <button class="btn sm" onclick="closeDrawer();openSol('${c.id}')">Ficha completa</button>
+      ${temCapa?`<button class="btn sm" onclick="autVerCapa('${c.id}')">Ver a capa da autorização</button>`:''}
+    </div>`;
+  const pend = faltando.length
+    ? `<ul class="kb-lista">${faltando.map(k=>`<li><span class="n">✗</span> ${NOMES[k]}</li>`).join('')}</ul>
+       <div class="note" style="margin-top:10px">Quem resolve é o solicitante. O card só anda quando estas pendências forem atendidas.</div>`
+    : '<div class="note">Nada pendente: este card pode seguir no fluxo.</div>';
+  const obs = `<div id="obs-${c.id}"><div class="empty">Carregando as observações…</div></div>`;
+  const body = `<div class="tabs" style="margin-bottom:12px">
+      <button class="tab ${aba===1||aba===2||aba===3?'':'on'}" onclick="drTab(this,0)">Dados</button>
+      <button class="tab ${aba===1?'on':''}" onclick="drTab(this,1)">Pendências${faltando.length?' ('+faltando.length+')':''}</button>
+      <button class="tab ${aba===2?'on':''}" onclick="drTab(this,2)">Observação</button>
+      <button class="tab ${aba===3?'on':''}" onclick="drTab(this,3)">Linha do tempo</button>
+    </div>
+    <div id="drt0" ${aba&&aba!==0?'hidden':''}>${dados}</div>
+    <div id="drt1" ${aba===1?'':'hidden'}>${pend}</div>
+    <div id="drt2" ${aba===2?'':'hidden'}>${obs}</div>
+    <div id="drt3" ${aba===3?'':'hidden'}><div id="tl-${c.id}"><div class="empty">Montando a linha do tempo…</div></div></div>`;
+  openDrawer(c.id.slice(-5)+' · '+c.forn, 'R$ '+money(c.val)+' · previsto para '+c.prev, body);
+  tlCarregar(c.id);
+  obsCarregar(c.id);
+}
+
 function kbCard(c, morto){
   const u = kbUrg(c);
   const aberto = KB.abertos[c.id];
   const faltando = kbFaltam(c);
   const NOMES = {anexo:'Orçamento anexado',rateio:'Rateio fechando 100%',placa:'Placa do veículo',
                  caixa:'Semana com saldo',alcada:'Alçada suficiente',pedido:'Número do pedido'};
-  return `<article class="kb-card u-${u.k} ${aberto?'open':''}" id="kc-${c.id}"
+  const aut = AUTORIZ.find(a=>a.id===c.id);
+  const temCapa = !!(aut && aut.chave);
+  return `<article class="kb-card u-${u.k}" id="kc-${c.id}" onclick="kbPainel('${c.id}')"
      ${morto?'':'draggable="true"'} ondragstart="kbStart(event,'${c.id}')" ondragend="kbEnd()"
-     data-tip="${c.desc.replace(/"/g,'&quot;')}">
+     data-tip="${c.desc.replace(/"/g,'&quot;')} · clique para ver o detalhe">
     <div class="kb-c1">
       <b>${c.id.slice(-5)}</b>
       ${c.orc?'<span class="kb-t cr" data-tip="Estourou o orçamento da conta no mês">estouro</span>':''}
       <span class="val">${m0(c.val)}</span>
-      <button class="kb-exp" onclick="event.stopPropagation();kbTog('${c.id}')" aria-label="Detalhes"
-        data-tip="${aberto?'Recolher':'Abrir'} o detalhe deste card">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-             stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
     </div>
     <div class="kb-forn">${c.forn}</div>
     <div class="kb-meta">
@@ -1890,28 +2320,13 @@ function kbCard(c, morto){
       <span class="kb-t ${u.cls}" data-tip="Data prevista de pagamento: ${c.prev}">${u.t}</span>
       ${faltando.length?`<span class="kb-t wa" data-tip="Falta: ${faltando.map(k=>NOMES[k]).join(', ')}">${faltando.length} pendência${faltando.length>1?'s':''}</span>`:''}
     </div>
-    <div class="kb-det">
-      <dl>
-        <dt>Item</dt><dd>${c.desc}</dd>
-        <dt>Classificação</dt><dd>${c.cls}</dd>
-        <dt>Área</dt><dd>${c.area}</dd>
-        <dt>Solicitante</dt><dd>${c.sol}</dd>
-        <dt>Condição</dt><dd>${c.cond}</dd>
-        <dt>Alçada</dt><dd>${c.alc}</dd>
-        <dt>Semana</dt><dd>${c.sem} · saldo ${m0(c.saldo)}</dd>
-      </dl>
-      <div class="kb-pre">
-        ${Object.keys(c.pre).map(k=>{
-          const ok=c.pre[k], agora=kbExigidoAgora(c,k);
-          const cl = ok?'y' : (agora?'n':'f');
-          return `<span class="${cl}" data-tip="${ok?'Já atendido':agora?'Trava o próximo passo':'Só vai ser exigido mais adiante no fluxo'}">${ok?'✓':agora?'✗':'○'} ${NOMES[k]}</span>`;
-        }).join('')}
-      </div>
-      ${c.obs?`<div class="note" style="margin-bottom:9px;font-size:11px">${c.obs}</div>`:''}
-      <div class="acts">
-        <button class="btn sm" onclick="event.stopPropagation();openSol('${c.id}')">Abrir ficha</button>
-        <button class="btn sm" onclick="event.stopPropagation();toast('Histórico de ${c.id} — todo movimento fica no log')">Histórico</button>
-      </div>
+    <div class="kb-ico">
+      ${faltando.length?`<button class="kb-ic wa" onclick="event.stopPropagation();kbPainel('${c.id}',1)"
+        data-tip="Pendências: ${faltando.map(k=>NOMES[k]).join(', ')}">⚠ ${faltando.length}</button>`:''}
+      ${(c.obs || OBS_N[c.id])?`<button class="kb-ic" onclick="event.stopPropagation();kbPainel('${c.id}',2)"
+        data-tip="Observação: ${String(c.obs).replace(/"/g,'&quot;')}">✎ obs</button>`:''}
+      ${temCapa?`<button class="kb-ic" onclick="event.stopPropagation();autVerCapa('${c.id}')"
+        data-tip="Ver a capa da autorização">📄 capa</button>`:''}
     </div>
   </article>`;
 }
@@ -1927,6 +2342,13 @@ function kbExigidoAgora(c, chave){
 }
 
 function kbTog(id){ KB.abertos[id]=!KB.abertos[id]; kbRender(); }
+
+/** Recolher uma coluna devolve a largura às outras. O card continua lá, só não ocupa tela. */
+function kbToggleCol(k){ KB.recolhidas[k]=!KB.recolhidas[k]; kbRender(); }
+function kbColunas(recolher){
+  ETAPAS.forEach(e=>{ KB.recolhidas[e.k]=recolher; });
+  kbRender();
+}
 function kbTudo(abrir){
   kbDados().forEach(c=>KB.abertos[c.id]=abrir);
   kbRender();
@@ -1948,7 +2370,14 @@ function kbEnd(){
   ETAPAS.forEach(e=>{const c=document.getElementById('col-'+e.k); if(c) c.classList.remove('drop-ok','drop-no');});
   KB.arrastando=null;
 }
+/** Arrastar sobre uma coluna recolhida abre ela — senão não há onde soltar. */
+function kbAbreSeRecolhida(k){
+  if(!KB.recolhidas[k]) return;
+  KB.recolhidas[k]=false;
+  kbRender();
+}
 function kbOver(ev,alvo){
+  kbAbreSeRecolhida(alvo);
   if(!KB.arrastando) return;
   ev.preventDefault();
   const col=document.getElementById('col-'+alvo);
@@ -2080,12 +2509,12 @@ function ligarTips(){
   });
 }
 
-const VIEWS={inicio:vInicio,minhas:vMinhas,nova:vNova,kanban:vKanban,aprovacoes:vAprov,fluxo:vFluxo,pagar:vPagar,receber:vReceber,
+const VIEWS={dmr:()=>vDMR(),inicio:vInicio,minhas:vMinhas,nova:vNova,kanban:vKanban,aprovacoes:vAprov,autorizacoes:vAutorizacoes,fluxo:vFluxo,pagar:vPagar,receber:vReceber,
  rateio:vRateio,gerencial:vGerencial,orcamento:vOrcamento,plano:vPlano,fornecedores:vFornecedores,filiais:vFiliais,
  usuarios:vUsuarios,perfis:vPerfis,import:vImport,logs:vLogs,params:vParams};
 function render(){
   document.getElementById('view').innerHTML=(VIEWS[VIEW]||vInicio)();
-  if(VIEW==='nova')checar();
+  if(VIEW==='nova'){ preencherPadroes(); checar(); }
   ligarTips();
 }
 
@@ -2155,21 +2584,51 @@ function openSol(id){
     </tbody></table>
     <div class="note" style="margin-top:14px">A soma precisa fechar em 100% — o sistema bloqueia a gravação caso contrário.</div></div>
   <div id="drt2" hidden>
-    <div class="imp">${svg('M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3')}
-      <div><b>3 arquivos</b> — orcamento_recapadora.pdf · orcamento_pneubras.pdf · email_negociacao.pdf<br>
-      <span style="color:var(--ink-3)">Armazenados no Drive em /FC Salomé/Anexos/2026/${s.id}</span></div>
-      <div class="r"><button class="btn sm">Abrir pasta</button></div></div></div>
-  <div id="drt3" hidden>
-    <ul class="tl">
-      <li><time>21/09 08:47</time><div><b>Consulta de caixa</b> <span>— saldo da semana ${s.sem} recalculado: R$ ${m0(s.saldo)}</span></div></li>
-      <li><time>${s.dt} 16:41</time><div><b>Solicitação criada</b> <span>por ${s.sol} · origem WEB</span></div></li>
-      <li><time>${s.dt} 16:41</time><div><b>Regra aplicada</b> <span>— antecedência mínima da classificação ${s.cod}</span></div></li>
-      ${s.st==='Reprogramado'?`<li><time>09/09 09:12</time><div><b>Reprogramada</b> <span>por Carlos Salomé — sem caixa na data pedida</span></div></li>`:''}
-      ${s.st==='Comprometido'?`<li><time>16/09 08:12</time><div><b>NF recebida</b> <span>— valor alterado de R$ ${money(s.val)} para R$ ${money(s.val+400)}</span></div></li>`:''}
-    </ul>
-    <div class="note" style="margin-top:14px">Este histórico é a leitura da aba <span class="mono">LOG_ATIV</span> filtrada por este registro.</div></div>`;
+    <div class="note">O anexo de orçamento ainda não está ligado ao Drive — é a parte que falta
+      para a categoria que exige cotação travar de verdade. Até lá, guarde os arquivos na pasta
+      <span class="mono">/FC Salomé/Anexos/</span> e cite o número ${s.id} no nome.</div></div>
+  <div id="drt3" hidden><div id="hist-${s.id}"><div class="empty">Carregando o histórico…</div></div>
+    <div class="note" style="margin-top:14px">Este histórico é a leitura da aba <span class="mono">LOG_ATIV</span>
+    filtrada por este registro — uma linha por campo alterado, com valor antes e depois.</div></div>`;
   openDrawer(s.id,`${s.forn} · R$ ${money(s.val)} · previsto para ${s.prev}`,body);
+  carregarHistorico(s.id);
 }
+/**
+ * O histórico vem do log de verdade, não de uma lista escrita à mão.
+ *
+ * Perfil sem permissão de LOG recebe a recusa do servidor — e o certo é dizer isso, não
+ * mostrar um histórico vazio como se nada tivesse acontecido com o registro.
+ */
+async function carregarHistorico(id){
+  const alvo = document.getElementById('hist-'+id);
+  if(!alvo) return;
+  let l;
+  try{ l = await API.chamar('log.historico',{registroId:id}); }
+  catch(e){
+    alvo.innerHTML = `<div class="empty">${/PERMISSAO/i.test(e.message)
+      ? 'Seu perfil não tem permissão para ler o log. Financeiro, Diretoria e Administrador têm.'
+      : 'Não consegui ler o histórico: '+e.message}</div>`;
+    return;
+  }
+  if(!l || !l.length){
+    alvo.innerHTML = '<div class="empty">Nenhuma alteração registrada além da criação.</div>';
+    return;
+  }
+  alvo.innerHTML = '<ul class="tl">'+l.map(tlLinhaLog).join('')+'</ul>';
+}
+
+/* Campos do log: o servidor devolve ts, email, acao, campo, antes, depois (Log.gs). */
+function tlLinhaLog(x){
+  const q = x.ts || x.QUANDO || '';
+  const campo = x.campo || x.CAMPO || '';
+  const antes = x.antes !== undefined ? x.antes : x.VALOR_ANTES;
+  const depois = x.depois !== undefined ? x.depois : x.VALOR_DEPOIS;
+  const quem = x.email || x.USUARIO_EMAIL || '';
+  return `<li><time>${tlFmt(tlData(x)) || q}</time>
+    <div><b>${x.acao || x.ACAO || ''}</b> <span>— ${campo?campo+': ':''}${antes||'—'} → ${depois||'—'}
+    ${quem?' · '+quem:''}${x.MOTIVO?' · '+x.MOTIVO:''}</span></div></li>`;
+}
+
 function drTab(btn,i){
   [...btn.parentElement.children].forEach((b,j)=>b.classList.toggle('on',j===i));
   for(let j=0;j<4;j++){const e=document.getElementById('drt'+j);if(e)e.hidden=(j!==i)}
@@ -2192,21 +2651,17 @@ function openPC(cod){
 }
 function openUser(id){
   const u=USUARIOS.find(x=>x[0]===id);
-  openDrawer(u[1],`${u[2]} · ${u[3]}`,`
+  openDrawer(u[1],`${u[8]?'login '+u[8]:'(sem login)'} · ${u[3]}`,`
    <dl class="dl">
+     <dt>Usuário (login)</dt><dd class="mono"><b>${u[8]||'—'}</b></dd>
      <dt>ID</dt><dd class="mono">${u[0]}</dd><dt>Perfil</dt><dd>${u[3]}</dd>
      <dt>Escopo de filial</dt><dd>${u[4]}</dd><dt>Limite de alçada</dt><dd>${u[5]}</dd>
      <dt>Status</dt><dd><span class="tag ${u[6]==='ATIVO'?'t-ok':'t-mu'}">${u[6]}</span></dd>
      <dt>Último acesso</dt><dd class="mono">${u[7]}</dd>
      <dt>Senha</dt><dd>Hash SHA-256 + salt por usuário. Nunca visível, nem para o Administrador.</dd>
    </dl>
-   <h3 style="font-size:14px;margin:20px 0 10px">Últimos acessos — LOG_ACESSO</h3>
-   <ul class="tl">
-     <li><time>21/09 08:12</time><div><b>LOGIN_OK</b> <span>— Chrome/Windows · sessão 8h</span></div></li>
-     <li><time>20/09 16:39</time><div><b>LOGIN_FALHA</b> <span>— senha incorreta (1/5)</span></div></li>
-     <li><time>20/09 07:55</time><div><b>LOGIN_OK</b> <span>— Safari/iPhone · origem MOBILE</span></div></li>
-     <li><time>19/09 18:02</time><div><b>LOGOUT</b> <span>— encerrado pelo usuário</span></div></li>
-   </ul>`);
+   <div class="note" style="margin-top:18px">Os acessos desta pessoa estão na planilha <b>FC_LOG</b>,
+   na aba <span class="mono">LOG_ACESSO</span> da semana — com data, origem e o motivo de cada falha.</div>`);
 }
 
 /* ============================================================
@@ -2267,6 +2722,18 @@ document.getElementById('gsearch').oninput=e=>{
   if(hit&&q.length>3){toast('Encontrado: '+hit.id+' — Enter para abrir');
     document.getElementById('gsearch').onkeydown=k=>{if(k.key==='Enter')openSol(hit.id)}}
 };
+
+/**
+ * Tela que ainda não lê a base. Dizer isso é melhor que inventar número.
+ */
+function semDados(titulo, texto, onde){
+  return `<div class="card" style="padding:38px 28px;text-align:center">
+    <div style="font-size:15px;font-weight:600;margin-bottom:8px">${titulo}</div>
+    <div style="font-size:13px;color:var(--ink-2);max-width:560px;margin:0 auto;line-height:1.6">${texto}</div>
+    ${onde?`<div class="note" style="margin:18px auto 0;max-width:560px;text-align:left">${onde}</div>`:''}
+  </div>`;
+}
+
 /* ==========================================================================
    PONTE COM O SERVIDOR
    --------------------------------------------------------------------------
@@ -2278,16 +2745,48 @@ document.getElementById('gsearch').oninput=e=>{
    dentro de uma página servida pelo HtmlService — por isso este app nunca
    roda abrindo o HTML direto do GitHub Pages.
    ========================================================================== */
+/* Endereço da implantação do Apps Script (…/exec). Usado quando a página não
+   roda dentro do HtmlService (ex.: GitHub Pages). */
+const EXEC_URL = 'https://script.google.com/macros/s/AKfycbycauMlLQ8bDq5IQbt4O-npHnEf5q4h7e1zn8E4xsOPN5c28FNDGpWGoTwp3DGmKjaY/exec';
+
 const API = {
   token: null,
 
   chamar(acao, payload) {
+    /* Modo protótipo: tudo é resolvido na base de teste, nada vai ao servidor. */
+    if (PROTO) return protoChamar(acao, payload);
+    /* Sem ponte (página do GitHub Pages): chama o /exec por fetch. */
+    if (typeof google === 'undefined' || !google.script || !google.script.run) {
+      /* Mesmo protocolo do app que já funciona: POST text/plain com {fn, arg}. */
+      const controller = new AbortController();
+      const tmo = setTimeout(() => controller.abort(), 60000);
+      return fetch(EXEC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ fn: acao, arg: payload || {}, token: API.token }),
+        signal: controller.signal
+      })
+      .then(resp => { clearTimeout(tmo); return resp.text(); })
+      .then(txt => {
+        let r;
+        try { r = JSON.parse(txt); }
+        catch (_) { throw new Error('Servidor indisponível (resposta inválida). Verifique o acesso da implantação.'); }
+        return r;
+      })
+      .then(r => {
+        if (!r) throw new Error('O servidor não respondeu.');
+        if (r.ok) return r.dados;
+        const e = new Error(r.mensagem || 'Falha no servidor.');
+        e.codigo = r.codigo;
+        throw e;
+      })
+      .catch(e => {
+        if (e && e.name === 'AbortError') throw new Error('O servidor demorou para responder. Tente de novo em alguns segundos.');
+        if (e && e.name === 'TypeError') throw new Error('Sem conexão com o servidor. Verifique a internet e tente de novo.');
+        throw e; /* erro vindo do servidor (senha, bloqueio etc.): mostra a mensagem original */
+      });
+    }
     return new Promise((ok, falhou) => {
-      if (typeof google === 'undefined' || !google.script || !google.script.run) {
-        falhou(new Error('Esta página precisa ser aberta pela URL do app (…/exec). ' +
-          'Abrindo o arquivo direto, não existe ponte com o servidor.'));
-        return;
-      }
       google.script.run
         .withSuccessHandler(r => {
           if (!r) { falhou(new Error('O servidor não respondeu.')); return; }
@@ -2334,13 +2833,13 @@ function erroLogin(msg) {
 
 async function entrar() {
   const btn = document.getElementById('lgBtn');
-  const email = document.getElementById('lgMail').value.trim();
+  const usuario = document.getElementById('lgMail').value.trim();
   const senha = document.getElementById('lgSenha').value;
-  if (!email || !senha) { erroLogin('Informe e-mail e senha.'); return; }
+  if (!usuario || !senha) { erroLogin('Informe usuário e senha.'); return; }
 
   btn.disabled = true; btn.textContent = 'Entrando…'; erroLogin('');
   try {
-    const r = await API.chamar('auth.login', { email, senha, origem: 'WEB', userAgent: navigator.userAgent });
+    const r = await API.chamar('auth.login', { usuario, senha, origem: 'WEB', userAgent: navigator.userAgent });
     API.guardar(r.token);
     document.getElementById('lgSenha').value = '';
     if (r.trocarSenha) {
@@ -2417,13 +2916,15 @@ function aplicar(d) {
                                           x.CENTRO_PADRAO, x.EXIGE_PLACA, x.EXIGE_ANEXO, x.RETENCAO, x.ANTECEDENCIA_MIN_DIAS]);
   CENTROS = (c.centros || []).map(x => [x.CENTRO_ID, x.NOME, x.DESCRICAO]);
   USUARIOS = (c.usuarios || []).map(x => [x.USUARIO_ID, x.NOME, x.EMAIL, x.PERFIL_ID,
-                                          x.FILIAIS || 'Todas', x.LIMITE_ALCADA || '—', x.STATUS, x.ULTIMO_ACESSO || '—']);
+                                          x.FILIAIS || x.ESCOPO_FILIAL || 'Todas', x.LIMITE_ALCADA || '—',
+                                          x.STATUS, x.ULTIMO_ACESSO || '—', x.LOGIN || '']);
   FILIAIS_CAD = c.filiais || [];
   AREAS_CAD   = c.areas || [];
   CONDICOES_CAD = c.condicoes || [];
   FORMAS_CAD  = c.formas || [];
 
   SOL = d.solicitacoes || [];
+  AUTORIZ = d.autorizacoes || [];
   ALC = d.alcadas || [];
   FLUXO_SRV = d.fluxo || {};
   WEEKS = FLUXO_SRV.semanas || [];
@@ -2458,7 +2959,7 @@ function normalizarPermissoes(p) {
   if (p.limite !== undefined) base.limite = Number(p.limite) || 0;
 
   const TELA = {
-    SOLICITACAO:['inicio','minhas','nova','kanban'], APROVACAO:['aprovacoes'],
+    SOLICITACAO:['inicio','minhas','nova','kanban'], APROVACAO:['aprovacoes','autorizacoes'],
     TITULO_PAGAR:['pagar'], TITULO_RECEBER:['receber'], RATEIO:['rateio'],
     ORCAMENTO:['orcamento','gerencial'], PLANO_CONTAS:['plano'], CATEGORIA:['plano'],
     CENTRO_CUSTO:['filiais'], FORNECEDOR:['fornecedores'], FILIAL:['filiais'], AREA:['filiais'],
@@ -2486,6 +2987,7 @@ async function recarregar(msg) {
   try {
     const d = await API.chamar('vista.atualizar', {});
     SOL = d.solicitacoes || SOL;
+    if (d.autorizacoes) AUTORIZ = d.autorizacoes;
     if (d.fluxo) { FLUXO_SRV = d.fluxo; FLOW = d.fluxo; WEEKS = d.fluxo.semanas; WDATE = d.fluxo.datas; }
     recalcular();
     render();
@@ -2507,6 +3009,389 @@ async function moverNoServidor(id, etapa, pedido) {
   }
 }
 
+/* ==========================================================================
+   MODO PROTÓTIPO — base de teste paralela.
+   Liga pelo botão PROTÓTIPO. Os dados são fictícios, ficam só na memória desta
+   aba e NUNCA vão ao servidor: toda ação de gravação é resolvida aqui.
+   Os cadastros (categorias, fornecedores, filiais) continuam sendo os reais,
+   para o teste usar o mesmo vocabulário do dia a dia.
+   ========================================================================== */
+let PROTO = false, PROTO_SNAP = null, PROTO_SEQ = 9100;
+const PROTO_ETAPA_ST = {SOLICITAR:'Rascunho', VALIDAR:'Rascunho', CAIXA:'Aguardando caixa',
+  APROVAR:'Aguardando Aprovação', AUTORIZAR:'Aprovado', RECEBER:'Comprometido',
+  CONCLUIDO:'Pago', REPROVADO:'Reprovado', CANCELADO:'Cancelado'};
+
+/** Nome da alçada que cobre o valor, como a tela mostra (cadastro ALCADAS da FC_DADOS). */
+function protoAlc(v){
+  if (v <= 2000) return 'Alçada 1 · Supervisão';
+  if (v <= 10000) return 'Alçada 2 · Gerência';
+  if (v <= 50000) return 'Alçada 3 · Diretoria Financeira';
+  return 'Alçada 4 · Diretoria';
+}
+function protoDDMM(iso){ const d = new Date(iso + 'T12:00:00'); return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'); }
+function protoSemanaDe(prev){
+  const [d, m] = String(prev).split('/').map(Number);
+  const dias = Math.floor((new Date(2026, m-1, d) - new Date(2026, 9, 19)) / 864e5);
+  return Math.min(11, Math.max(0, Math.floor(dias / 7)));
+}
+
+/** Seis semanas de compromissos: cada etapa do fluxo aparece pelo menos uma vez. */
+function protoSemente(){
+  const pre = (o) => Object.assign({anexo:true, rateio:true, placa:true, caixa:true, alcada:true, pedido:false}, o);
+  const base = (o) => Object.assign({sol:'Kleber Zumiotti', obs:'', rec:'LIBERAR', ant:'OK', cond:'28 dias', orc:false, desc:'', pag:'', sem:'', saldo:0}, o);
+  return [
+    base({id:'SOL-2026-9001', st:'Rascunho', etapa:'SOLICITAR', prev:'28/10', cod:'2.08.006', cls:'Pneus, câmaras e recapagem', val:6800,
+          forn:'P. P. CARVALHO COMERCIO DE PNEUS', area:'Manutenção / Frota', fil:'RP', centro:'OPE', bloco:'FROTA',
+          desc:'Jogo de 6 pneus 295/80 R22.5', cond:'15 dias', rec:'AVALIAR', pre:pre({anexo:false, placa:true, caixa:false})}),
+    base({id:'SOL-2026-9002', st:'Rascunho', etapa:'VALIDAR', prev:'30/10', cod:'2.08.003', cls:'Peças e acessórios', val:3150,
+          forn:'AGROMOLAS IND E COM DE MOLAS E PECAS LTDA', area:'Manutenção / Frota', fil:'CPQ', centro:'OPE', bloco:'FROTA',
+          desc:'Peças para compressor do caminhão 3', rec:'AVALIAR', pre:pre({anexo:false, placa:false, caixa:false})}),
+    base({id:'SOL-2026-9003', st:'Aguardando caixa', etapa:'CAIXA', prev:'23/10', cod:'2.08.001', cls:'Combustível e lubrificante', val:12480,
+          forn:'Posto Exemplo Ltda (fictício)', area:'Operação Armazém', fil:'RP', centro:'OPE', bloco:'FROTA',
+          desc:'Diesel para 4 tanques de 1.000 L · rota Rio Preto–Campinas', placa:'GHJ-1A22', pre:pre({caixa:false})}),
+    base({id:'SOL-2026-9004', st:'Reprogramado', etapa:'CAIXA', prev:'21/10', cod:'2.08.025', cls:'Borracharia', val:2300,
+          forn:'Borracharia Exemplo (fictícia)', area:'Manutenção / Frota', fil:'OSA', centro:'OPE', bloco:'FROTA',
+          desc:'Conserto de pneus da carreta 1', placa:'FKL-2B18', rec:'REPROGRAMAR', ant:'FORA DO PRAZO', obs:'Sem caixa na semana de 21/10',
+          pre:pre({caixa:false})}),
+    base({id:'SOL-2026-9005', st:'Aguardando Aprovação', etapa:'APROVAR', prev:'27/10', cod:'2.08.001', cls:'Frete contratado', val:8900,
+          forn:'AILTON APARECIDO CAMARGO - ME', area:'Operação Armazém', fil:'CPQ', centro:'OPE', bloco:'CARGA',
+          desc:'Frete Campinas → Rio Preto, 2 viagens', cond:'30/60 dias', pre:pre({caixa:true})}),
+    base({id:'SOL-2026-9006', st:'Aguardando Aprovação', etapa:'APROVAR', prev:'03/11', cod:'2.08.009', cls:'Oficina de terceiros', val:18700,
+          forn:'APS EQUIPAMENTOS E MENUTANCAO LTDA', area:'Manutenção / Frota', fil:'OSA', centro:'OPE', bloco:'FROTA',
+          desc:'Retífica do motor do caminhão 5 — valor acima da alçada 1', placa:'HJK-9C40', rec:'AVALIAR', cond:'30/60 dias', pre:pre({caixa:true})}),
+    base({id:'SOL-2026-9007', st:'Aprovado', etapa:'AUTORIZAR', prev:'26/10', cod:'2.03.008', cls:'Material de escritório e expediente', val:640,
+          forn:'Papelaria Exemplo Ltda (fictícia)', area:'Administrativo', fil:'RP', centro:'ADM', bloco:'ESTRUTURA',
+          desc:'Resmas, canetas e pastas', pre:pre({caixa:true})}),
+    base({id:'SOL-2026-9008', st:'Aprovado', etapa:'AUTORIZAR', prev:'29/10', cod:'2.08.012', cls:'Documentação e seguro do veículo', val:4200,
+          forn:'ASL TRUCK CENTER LTDA', area:'Manutenção / Frota', fil:'RP', centro:'OPE', bloco:'FROTA',
+          desc:'Seguro anual do caminhão 2', placa:'DEF5G67', pre:pre({caixa:true})}),
+    base({id:'SOL-2026-9009', st:'Comprometido', etapa:'RECEBER', prev:'30/10', cod:'2.08.001', cls:'Combustível e lubrificante', val:9300,
+          forn:'Posto Exemplo Ltda (fictício)', area:'Operação Armazém', fil:'CPQ', centro:'OPE', bloco:'FROTA',
+          desc:'Diesel para a rota Campinas', placa:'LMN3D45', pre:pre({caixa:true, pedido:true})}),
+    base({id:'SOL-2026-9010', st:'Comprometido', etapa:'RECEBER', prev:'04/11', cod:'2.03.004', cls:'Energia, água, aluguel e condomínio', val:3480,
+          forn:'Concessionária Exemplo (fictícia)', area:'Administrativo', fil:'SPO', centro:'ADM', bloco:'ESTRUTURA',
+          desc:'Energia do galpão de São Paulo — outubro', pre:pre({caixa:true, pedido:true})}),
+    base({id:'SOL-2026-9011', st:'Pago', etapa:'CONCLUIDO', prev:'09/10', pag:'13/10', cod:'2.08.001', cls:'Combustível e lubrificante', val:11200,
+          forn:'Posto Exemplo Ltda (fictício)', area:'Operação Armazém', fil:'RP', centro:'OPE', bloco:'FROTA',
+          desc:'Óleo diesel — OP', placa:'GHJ-1A22', pre:pre({})}),
+    base({id:'SOL-2026-9012', st:'Pago', etapa:'CONCLUIDO', prev:'06/10', pag:'09/10', cod:'2.08.006', cls:'Pneus, câmaras e recapagem', val:5400,
+          forn:'P. P. CARVALHO COMERCIO DE PNEUS', area:'Manutenção / Frota', fil:'CPQ', centro:'OPE', bloco:'FROTA',
+          desc:'Pneus da carreta 3', placa:'KLM8N90', pre:pre({})}),
+    base({id:'SOL-2026-9013', st:'Pago', etapa:'CONCLUIDO', prev:'02/10', pag:'05/10', cod:'2.02.002', cls:'Frete contratado', val:8400,
+          forn:'AR LOGISTICA LTDA', area:'Operação Armazém', fil:'OSA', centro:'OPE', bloco:'CARGA',
+          desc:'Frete avulso Osasco → Santos', pre:pre({})}),
+    base({id:'SOL-2026-9014', st:'Reprovado', etapa:'REPROVADO', prev:'25/10', cod:'2.08.020', cls:'Viagem e estadia', val:1900,
+          forn:'Hotel Exemplo (fictício)', area:'Operação Armazém', fil:'SPO', centro:'OPE', bloco:'CARGA',
+          desc:'Hospedagem extra sem pedido prévio', obs:'Fora da política de viagens', pre:pre({})})
+  ].map(s => { s.placa = s.placa || ''; s.sem = ''; s.alc = protoAlc(s.val); return s; });
+}
+
+/** Recalcula o fluxo de caixa das seis semanas a partir das solicitações da base de teste. */
+function protoFluxo(){
+  const N = 12, ini = new Date(2026, 9, 19);
+  const semanas = [], datas = [];
+  for (let i = 0; i < N; i++) {
+    const d = new Date(ini.getTime() + i * 7 * 864e5);
+    semanas.push('Semana ' + (i+1));
+    datas.push(String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'));
+  }
+  const zero = () => Array(N).fill(0);
+  const blocos = {FROTA: zero(), CARGA: zero(), ESTRUTURA: zero(), SERVICOS: zero()};
+  const comp = zero(), prev = zero();
+  SOL.forEach(s => {
+    if (['Pago', 'Reprovado', 'Cancelado'].includes(s.st)) return;
+    const k = protoSemanaDe(s.prev);
+    s.sem = semanas[k];
+    if (s.st === 'Aprovado' || s.st === 'Comprometido') comp[k] += s.val; else prev[k] += s.val;
+    if (blocos[s.bloco]) blocos[s.bloco][k] += s.val;
+  });
+  const entradas = [['Recebimentos de clientes', Array(N).fill(95000)]];
+  const tres = [['Tributos e folha', Array(N).fill(38000)]];
+  const saidas = Object.keys(blocos).map(b => [b.charAt(0) + b.slice(1).toLowerCase(), blocos[b]]);
+  const saldoIni = [], saldoAcu = [];
+  let saldo = 60000;
+  for (let i = 0; i < N; i++) {
+    saldoIni.push(saldo);
+    const out = saidas.reduce((a, r) => a + r[1][i], 0);
+    saldo = saldo + entradas[0][1][i] - out - tres[0][1][i];
+    saldoAcu.push(saldo);
+  }
+  const sit = saldoAcu.map(v => v >= SALDO_MINIMO ? 'OK' : (v >= 0 ? 'ATENÇÃO' : 'CRÍTICO'));
+  SOL.forEach(s => { if (s.sem) s.saldo = saldoAcu[protoSemanaDe(s.prev)]; });
+  return {semanas, datas, saldoIni, saldoAcu, entradas, saidas, tres, sit,
+          comprometido: comp, previsto: prev, realizado: zero()};
+}
+function protoAtualizarFluxo(){
+  const f = protoFluxo();
+  FLUXO_SRV = f; FLOW = f; WEEKS = f.semanas; WDATE = f.datas;
+}
+
+function protoGarantirAut(reg){
+  let a = AUTORIZ.find(x => x.id === reg.id);
+  if (!a) {
+    a = {id: reg.id, chave: '', pedido: '', fornecedor: reg.forn, descricao: reg.desc,
+         filial: reg.fil, previsto: reg.prev, valor: reg.val};
+    AUTORIZ.push(a);
+  }
+  return a;
+}
+/** Mesma matriz do servidor: a sandbox também recusa o que o perfil não pode fazer. */
+function protoPode(acao, recurso){
+  const lista = (PERMS[ROLE] && PERMS[ROLE].acao && PERMS[ROLE].acao[acao]) || [];
+  return lista.indexOf(recurso) >= 0;
+}
+function protoExigePerm(acao, recurso){
+  if (!protoPode(acao, recurso)) throw new Error('SEM_PERMISSAO: o seu perfil não pode ' + acao + ' ' + recurso + '.');
+}
+function protoPedirAlcada(valor){
+  const lim = (PERMS[ROLE] && PERMS[ROLE].limite) || 0;
+  if (lim && valor > lim) throw new Error('SEM_ALCADA: o valor de R$ ' + valor + ' passa do seu limite de aprovação.');
+}
+function protoMudarEtapa(reg, etapa){
+  reg.etapa = etapa;
+  reg.st = PROTO_ETAPA_ST[etapa] || reg.st;
+  if (etapa === 'CAIXA' || etapa === 'APROVAR') reg.pre.caixa = etapa === 'APROVAR' ? true : reg.pre.caixa;
+  if (etapa === 'AUTORIZAR') protoGarantirAut(reg);
+}
+function protoReg(id){
+  const r = SOL.find(s => s.id === id);
+  if (!r) throw new Error('Solicitação ' + id + ' não encontrada na base de teste.');
+  return r;
+}
+
+/* Status como o servidor grava (Fluxo.gs), para o log da base de teste ter o mesmo formato. */
+const PROTO_STATUS_SRV = {SOLICITAR:'RASCUNHO', VALIDAR:'EM_VALIDACAO', CAIXA:'AGUARDANDO_CAIXA',
+  APROVAR:'AGUARDANDO_APROVACAO', AUTORIZAR:'APROVADO', RECEBER:'COMPROMETIDO', CONCLUIDO:'PAGO',
+  REPROVADO:'REPROVADO', CANCELADO:'CANCELADO'};
+let PROTO_LOG = [];
+
+/** Histórico inicial: cada solicitação percorre as etapas até a atual, com horários espaçados. */
+function protoSementeLog(){
+  const caminho = {
+    SOLICITAR:['SOLICITAR'], VALIDAR:['SOLICITAR','VALIDAR'], CAIXA:['SOLICITAR','VALIDAR','CAIXA'],
+    APROVAR:['SOLICITAR','VALIDAR','CAIXA','APROVAR'], AUTORIZAR:['SOLICITAR','VALIDAR','CAIXA','APROVAR','AUTORIZAR'],
+    RECEBER:['SOLICITAR','VALIDAR','CAIXA','APROVAR','AUTORIZAR','RECEBER'],
+    CONCLUIDO:['SOLICITAR','VALIDAR','CAIXA','APROVAR','AUTORIZAR','RECEBER','CONCLUIDO'],
+    REPROVADO:['SOLICITAR','VALIDAR','CAIXA','APROVAR','REPROVADO'], CANCELADO:['SOLICITAR','CANCELADO']};
+  const pausas = [20, 30, 26, 50, 18, 40];
+  const agora = Date.now();
+  const log = [];
+  SOL.forEach((r, i) => {
+    let t = new Date(2026, 9, 12, 8 + (i % 4), 0).getTime() + i * 7 * 36e5;
+    const passos = caminho[r.etapa] || ['SOLICITAR'];
+    passos.forEach((etapa, j) => {
+      if (j > 0) t += pausas[(i + j) % pausas.length] * 36e5;
+      t = Math.min(t, agora - 36e5);
+      log.push({reg: r.id, ts: new Date(t).toISOString(), email: 'teste@exemplo.com', perfil: 'ADMIN',
+                recurso: 'SOLICITACAO', acao: 'MOVER', campo: 'STATUS',
+                antes: j === 0 ? '' : PROTO_STATUS_SRV[passos[j-1]], depois: PROTO_STATUS_SRV[etapa], origem: 'WEB'});
+    });
+  });
+  return log;
+}
+
+/** Compara as etapas antes e depois de cada ação e grava o que mudou, como o servidor faz. */
+function protoChamar(acao, p){
+  const antes = new Map(SOL.map(s => [s.id, s.etapa]));
+  const r = protoChamarAcao(acao, p);
+  const agora = new Date().toISOString();
+  SOL.forEach(s => {
+    const era = antes.get(s.id);
+    if (era === s.etapa) return;
+    PROTO_LOG.push({reg: s.id, ts: agora, email: (EU && EU.email) || 'teste@exemplo.com', perfil: ROLE,
+                    recurso: 'SOLICITACAO', acao: era ? 'MOVER' : 'INCLUIR', campo: 'STATUS',
+                    antes: era ? PROTO_STATUS_SRV[era] : '', depois: PROTO_STATUS_SRV[s.etapa], origem: 'WEB'});
+  });
+  return r;
+}
+
+let PROTO_OBS = [];
+function protoSementeObs(){
+  const agora = Date.now();
+  return [
+    {id:'OBS-2026-9001', registroId:'SOL-2026-9003', texto:'Fornecedor pediu para pagar até quinta. Confirmar com o financeiro antes de autorizar.',
+     autor:'teste@exemplo.com', quando:new Date(agora - 26*36e5).toISOString()},
+    {id:'OBS-2026-9002', registroId:'SOL-2026-9006', texto:'Aguardando o orçamento revisado da oficina. O valor atual pode mudar.',
+     autor:'teste@exemplo.com', quando:new Date(agora - 5*36e5).toISOString()}
+  ];
+}
+
+function protoChamarAcao(acao, p){
+  p = p || {};
+  try {
+    switch (acao) {
+      case 'vista.atualizar':
+        return Promise.resolve({solicitacoes: SOL, autorizacoes: AUTORIZ, fluxo: protoFluxo()});
+
+      case 'sol.salvar': {
+        protoExigePerm('incluir', 'SOLICITACAO');
+        const cat = CAT_MAP[p.categoriaId];
+        const forn = FORN_MAP[p.fornecedorId];
+        const valor = Number(p.valorBruto);
+        if (!cat) throw new Error('CATEGORIA_OBRIGATORIA: escolha o que vai ser comprado.');
+        if (!forn) throw new Error('FORNECEDOR_OBRIGATORIO: escolha de quem é a compra.');
+        if (!valor) throw new Error('VALOR_OBRIGATORIO: informe o valor bruto estimado.');
+        if (cat.placa && !String(p.placa || '').trim()) {
+          throw new Error('PLACA_OBRIGATORIA: "' + cat.nome + '" é gasto de frota. Sem placa não há como apurar custo por veículo.');
+        }
+        let reg = p.id ? SOL.find(s => s.id === p.id) : null;
+        const novo = !reg;
+        if (novo) { reg = {id: 'SOL-2026-' + (++PROTO_SEQ), sol: EU.nome, st: 'Rascunho', etapa: 'SOLICITAR',
+                           obs: '', rec: '', orc: false, pag: '', sem: '', saldo: 0, pre: {}}; SOL.push(reg); }
+        else if (reg.etapa !== 'SOLICITAR' && reg.etapa !== 'VALIDAR') {
+          throw new Error('ESTADO_INVALIDO: esta solicitação já segue no fluxo e não pode mais ser editada.');
+        }
+        Object.assign(reg, {
+          cod: forn.tipo === 'PF' ? cat.pf : cat.pj, cls: cat.nome, forn: forn.nome,
+          area: p.areaId || reg.area || '', fil: p.filialEmissao || reg.fil || '',
+          centro: p.centroCusto || cat.centro, bloco: cat.bloco, desc: p.descricao || '',
+          val: valor, prev: p.dataPrevista ? protoDDMM(p.dataPrevista) : (reg.prev || protoDDMM('2026-10-30')),
+          placa: p.placa || '', rec: reg.rec || 'LIBERAR', ant: reg.ant || 'OK',
+          cond: p.condicaoId || reg.cond || '—', alc: protoAlc(valor)
+        });
+        reg.pre = Object.assign({anexo: true, rateio: true, placa: !cat.placa || !!p.placa,
+                                 caixa: false, alcada: true, pedido: false});
+        if (p.enviar) {
+          reg.etapa = 'CAIXA'; reg.st = 'Aguardando caixa';
+        } else if (novo) {
+          reg.etapa = 'SOLICITAR'; reg.st = 'Rascunho';
+        }
+        protoAtualizarFluxo();
+        return Promise.resolve({id: reg.id, mensagem: p.enviar ? reg.id.split('-').pop() + ' enviada para o caixa da semana.' : 'Rascunho salvo.'});
+      }
+
+      case 'sol.decidir': {
+        protoExigePerm('aprovar', 'SOLICITACAO');
+        const reg = protoReg(p.id);
+        if (['APROVAR', 'CAIXA'].indexOf(reg.etapa) < 0) throw new Error('ESTADO_INVALIDO: esta solicitação não está aguardando decisão.');
+        protoPedirAlcada(reg.val);
+        if (['REPROGRAMAR', 'REPROVAR'].indexOf(p.decisao) >= 0 && !(p.justificativa || p.motivo)) {
+          throw new Error('JUSTIFICATIVA_OBRIGATORIA: explique o motivo da decisão.');
+        }
+        const motivo = p.justificativa || p.motivo || '';
+        if (motivo) reg.obs = [reg.obs, motivo].filter(Boolean).join(' · ');
+        if (p.decisao === 'APROVAR') { reg.pre.caixa = true; protoMudarEtapa(reg, 'AUTORIZAR'); }
+        else if (p.decisao === 'REPROGRAMAR') {
+          reg.rec = 'REPROGRAMAR'; reg.pre.caixa = false;
+          if (p.novaData) reg.prev = protoDDMM(p.novaData);
+          reg.etapa = 'CAIXA'; reg.st = 'Reprogramado';
+        }
+        else if (p.decisao === 'REPROVAR') { reg.etapa = 'REPROVADO'; reg.st = 'Reprovado'; }
+        else throw new Error('Decisão desconhecida.');
+        protoAtualizarFluxo();
+        return Promise.resolve({id: reg.id, mensagem: 'Decisão registrada na base de teste.'});
+      }
+
+      case 'fluxo.mover': {
+        protoExigePerm('alterar', 'SOLICITACAO');
+        const reg = protoReg(p.id);
+        if (p.etapa === 'AUTORIZAR' && reg.etapa === 'APROVAR') reg.pre.alcada = true;
+        if (p.etapa === 'RECEBER' && p.pedido) {
+          const a = protoGarantirAut(reg); a.pedido = p.pedido; reg.pre.pedido = true;
+        }
+        protoMudarEtapa(reg, p.etapa);
+        protoAtualizarFluxo();
+        return Promise.resolve({mensagem: 'Card movido para ' + p.etapa + ' (base de teste).'});
+      }
+
+      case 'aut.emitir': {
+        protoExigePerm('alterar', 'SOLICITACAO');
+        const reg = protoReg(p.id);
+        const a = protoGarantirAut(reg);
+        if (!a.chave) a.chave = 'CHV-TESTE-' + reg.id.split('-').pop();
+        const capa = 'Fornecedor: ' + reg.forn + '\nItem: ' + reg.desc + '\nValor: R$ ' + reg.val +
+                     '\nPrevisão de pagamento: ' + reg.prev + '\nChave de autorização: ' + a.chave + ' (teste)';
+        protoAtualizarFluxo();
+        return Promise.resolve({id: reg.id, chave: a.chave, capa: capa, reemissao: false, mensagem: 'Autorização emitida (base de teste).'});
+      }
+
+      case 'aut.pedido': {
+        protoExigePerm('alterar', 'SOLICITACAO');
+        const reg = protoReg(p.id);
+        const a = protoGarantirAut(reg);
+        if (!a.chave) throw new Error('Emita a autorização antes de registrar o pedido.');
+        a.pedido = p.pedido; reg.pre.pedido = true;
+        protoMudarEtapa(reg, 'RECEBER');
+        protoAtualizarFluxo();
+        return Promise.resolve({mensagem: 'Pedido ' + p.pedido + ' registrado (base de teste).'});
+      }
+
+      case 'obs.listar':
+        return Promise.resolve(PROTO_OBS.filter(o => o.registroId === p.registroId)
+          .map(o => ({id: o.id, texto: o.texto, autor: o.autor, quando: o.quando})));
+
+      case 'obs.salvar': {
+        protoExigePerm('alterar', 'SOLICITACAO');
+        const texto = String(p.texto || '').trim();
+        if (!texto) throw new Error('TEXTO_OBRIGATORIO: escreva a observação.');
+        if (texto.length > 500) throw new Error('TEXTO_LONGO: são no máximo 500 caracteres.');
+        protoReg(p.registroId);
+        const o = {id: 'OBS-2026-' + (++PROTO_SEQ), registroId: p.registroId, texto: texto,
+                   autor: (EU && EU.email) || 'teste@exemplo.com', quando: new Date().toISOString()};
+        PROTO_OBS.push(o);
+        return Promise.resolve({id: o.id, mensagem: 'Observação registrada.'});
+      }
+
+      case 'log.historico':
+        return Promise.resolve(PROTO_LOG.filter(x => x.reg === p.registroId)
+          .map(({reg, ...linha}) => linha));
+
+      default:
+        return Promise.reject(new Error('Esta ação grava no servidor e não existe no protótipo.'));
+    }
+  } catch (e) { return Promise.reject(e); }
+}
+
+function protoBarra(on){
+  let b = document.getElementById('protoBar');
+  if (!on) { if (b) b.remove(); return; }
+  if (!b) { b = document.createElement('div'); b.id = 'protoBar'; document.body.appendChild(b); }
+  b.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:250;background:#E0AA08;color:#141C26;' +
+    'padding:8px 14px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between;' +
+    'box-shadow:0 -4px 16px -8px rgba(0,0,0,.4)';
+  b.innerHTML = '<span><b>MODO PROTÓTIPO</b> · base de teste paralela, só nesta aba. Nada vai ao servidor; anexos e pagamentos são simulados.</span>' +
+    '<span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="protoResetar()">Restaurar base de teste</button>' +
+    '<button class="btn sm" onclick="protoSair()">Sair do protótipo</button></span>';
+}
+
+/** Autorizações já emitidas na base de teste: uma aguardando pedido, outra com pedido registrado. */
+function protoSementeAut(){
+  const dados = [['SOL-2026-9008','CHV-TESTE-9008',''], ['SOL-2026-9010','CHV-TESTE-9010','PED-55790']];
+  return dados.map(([id, chave, pedido]) => {
+    const r = SOL.find(x => x.id === id);
+    return {id, chave, pedido, fornecedor: r.forn, descricao: r.desc, filial: r.fil, previsto: r.prev, valor: r.val};
+  });
+}
+function protoResetar(){
+  if (!PROTO) return;
+  SOL = protoSemente(); AUTORIZ = protoSementeAut(); PROTO_SEQ = 9100;
+  PROTO_LOG = protoSementeLog();
+  PROTO_OBS = protoSementeObs(); OBS_N = {};
+  SALDO_MINIMO = 110000;
+  protoAtualizarFluxo();
+  recalcular(); go('inicio');
+  toast('Base de teste restaurada.', 'ok');
+}
+
+function protoEntrar(){
+  if (PROTO) { go('inicio'); return; }
+  PROTO_SNAP = {SOL, AUTORIZ, FLUXO_SRV, WEEKS, WDATE, FLOW, SALDO_MINIMO};
+  PROTO = true;
+  protoResetar();
+  protoBarra(true);
+}
+
+function protoSair(){
+  if (!PROTO) return;
+  PROTO = false;
+  SOL = PROTO_SNAP.SOL; AUTORIZ = PROTO_SNAP.AUTORIZ; FLUXO_SRV = PROTO_SNAP.FLUXO_SRV;
+  WEEKS = PROTO_SNAP.WEEKS; WDATE = PROTO_SNAP.WDATE; FLOW = PROTO_SNAP.FLOW; SALDO_MINIMO = PROTO_SNAP.SALDO_MINIMO;
+  PROTO_SNAP = null;
+  protoBarra(false);
+  recalcular(); go('inicio');
+  toast('Voltou para a base real.', 'ok');
+}
+
 /* ---------- abertura da página ---------- */
 async function abrirApp() {
   renderMenu();
@@ -2518,6 +3403,233 @@ async function abrirApp() {
 function fitMob(){document.getElementById('mobBtn').style.display=innerWidth<=860?'grid':'none'}
 addEventListener('resize',fitMob);fitMob();
 abrirApp();
+</script>
+<script>
+var OLHO_ABERTO='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+var OLHO_FECHADO='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-11-7-11-7a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/></svg>';
+function olhoSenha(id,btn){
+  var i=document.getElementById(id); var mostrar=i.type==='password';
+  i.type=mostrar?'text':'password';
+  btn.innerHTML=mostrar?OLHO_FECHADO:OLHO_ABERTO;
+  btn.setAttribute('aria-label',mostrar?'Ocultar senha':'Mostrar senha');
+}
+</script>
+
+<div id="busyBar" style="position:fixed;top:0;left:0;right:0;height:3px;z-index:9999;display:none;
+     background:linear-gradient(90deg,transparent,#1F91D1,transparent);background-size:200% 100%;
+     animation:busyMove 1.1s linear infinite"></div>
+<div id="busyTxt" role="status" aria-live="polite" style="position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+     z-index:9999;display:none;background:#141C26;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;
+     box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap">Processando…</div>
+<style>@keyframes busyMove{0%{background-position:200% 0}100%{background-position:-200% 0}}</style>
+<script>
+/* Indicador de andamento: aparece em qualquer chamada ao servidor que demore mais de 250 ms,
+   para que o sistema nunca pareça travado. */
+(function () {
+  var pendentes = 0, ultimaMsg = 'Processando…', timer = null;
+  var MENSAGENS = {
+    'auth.login': 'Entrando…',
+    'auth.logout': 'Saindo…',
+    'auth.trocarSenha': 'Salvando a nova senha…',
+    'vista.abrir': 'Carregando a base…',
+    'vista.atualizar': 'Atualizando…',
+    'sol.salvar': 'Salvando solicitação…',
+    'sol.decidir': 'Registrando decisão…',
+    'sol.incluir': 'Enviando solicitação…',
+    'sol.simular': 'Calculando…',
+    'cash.fluxo': 'Montando o fluxo de caixa…',
+    'cash.detalhe': 'Buscando detalhes…',
+    'fluxo.mover': 'Movendo…',
+    'fluxo.quadro': 'Carregando o quadro…',
+    'aut.emitir': 'Emitindo autorização…',
+    'aut.pedido': 'Registrando pedido…',
+    'cad.salvar': 'Salvando cadastro…',
+    'cad.inativar': 'Inativando…',
+    'cad.listar': 'Carregando cadastro…',
+    'log.historico': 'Buscando histórico…'
+  };
+  function mostrar() {
+    document.getElementById('busyBar').style.display = pendentes > 0 ? 'block' : 'none';
+    var t = document.getElementById('busyTxt');
+    t.textContent = ultimaMsg;
+    t.style.display = pendentes > 0 ? 'block' : 'none';
+  }
+  function ocupado(delta, acao) {
+    pendentes += delta;
+    if (delta > 0) ultimaMsg = MENSAGENS[acao] || 'Processando…';
+    if (pendentes <= 0) { pendentes = 0; clearTimeout(timer); timer = null; mostrar(); return; }
+    if (!timer) timer = setTimeout(function () { timer = null; mostrar(); }, 250);
+    else if (pendentes > 0) mostrar();
+  }
+  var original = API.chamar;
+  API.chamar = function (acao, payload) {
+    ocupado(+1, acao);
+    return original.call(API, acao, payload).then(
+      function (r) { ocupado(-1); return r; },
+      function (e) { ocupado(-1); throw e; });
+  };
+})();
+</script>
+
+<div id="exWrap" onclick="if(event.target===this)fecharExemplo()" style="position:fixed;inset:0;background:rgba(10,16,24,.6);display:none;align-items:flex-start;justify-content:center;z-index:200;overflow:auto;padding:28px 14px">
+  <div style="background:var(--surface,#fff);color:var(--ink,#141C26);border-radius:10px;max-width:760px;width:100%;padding:22px 22px 26px;box-shadow:0 18px 48px -18px rgba(0,0,0,.5)">
+    <div style="display:flex;align-items:flex-start;gap:12px">
+      <div style="flex:1">
+        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8A6508;font-weight:700">Exemplo de protótipo · dados fictícios</div>
+        <h2 style="margin:4px 0 2px;font-size:19px">Óleo diesel para a frota (OP)</h2>
+        <div style="font-size:12.5px;color:var(--ink-3,#7A8798)">Nada é gravado. Serve para entender o caminho de uma solicitação do início ao pagamento.</div>
+      </div>
+      <button onclick="fecharExemplo()" aria-label="Fechar" style="background:transparent;border:0;font-size:22px;cursor:pointer;color:inherit;line-height:1">×</button>
+    </div>
+
+    <h3 style="font-size:13px;margin:18px 0 8px;color:#015180;text-transform:uppercase;letter-spacing:.08em">Você responde três coisas</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:13.5px">
+      <tr><td style="padding:8px;border-bottom:1px solid var(--line,#D8DEE7);width:34%;color:var(--ink-3,#7A8798)">1. O que comprou</td><td style="padding:8px;border-bottom:1px solid var(--line,#D8DEE7)"><b>Óleo diesel</b><br><span style="color:var(--ink-3,#7A8798)">Descrição: 4 tanques de 1.000 L para a rota Rio Preto · Campinas</span></td></tr>
+      <tr><td style="padding:8px;border-bottom:1px solid var(--line,#D8DEE7);color:var(--ink-3,#7A8798)">2. De quem</td><td style="padding:8px;border-bottom:1px solid var(--line,#D8DEE7)"><b>Posto Exemplo Ltda (fictício)</b><br><span style="color:var(--ink-3,#7A8798)">Pessoa jurídica · Simples Nacional · sem retenção</span></td></tr>
+      <tr><td style="padding:8px;color:var(--ink-3,#7A8798)">3. Quanto e até quando</td><td style="padding:8px"><b>R$ 12.480,00</b> · pagar em <b>23/10/2026</b></td></tr>
+    </table>
+
+    <h3 style="font-size:13px;margin:20px 0 8px;color:#015180;text-transform:uppercase;letter-spacing:.08em">O sistema preenche sozinho</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:13.5px">
+      <tr><td style="padding:6px 8px;width:34%;color:var(--ink-3,#7A8798)">Conta contábil</td><td style="padding:6px 8px"><span style="font-family:monospace">2.08.001</span> · COMBUSTÍVEIS</td></tr>
+      <tr><td style="padding:6px 8px;color:var(--ink-3,#7A8798)">Centro de custo</td><td style="padding:6px 8px">OP · Frota (custo operacional)</td></tr>
+      <tr><td style="padding:6px 8px;color:var(--ink-3,#7A8798)">Filial que paga</td><td style="padding:6px 8px">RP · Rio Preto (Matriz) — a sua filial</td></tr>
+      <tr><td style="padding:6px 8px;color:var(--ink-3,#7A8798)">Retenção</td><td style="padding:6px 8px">Nenhuma (PJ optante do Simples)</td></tr>
+      <tr><td style="padding:6px 8px;color:var(--ink-3,#7A8798)">Antecedência</td><td style="padding:6px 8px">Combustível: sem prazo mínimo · pedido hoje, OK</td></tr>
+      <tr><td style="padding:6px 8px;color:var(--ink-3,#7A8798)">Aprovador</td><td style="padding:6px 8px">Conforme a alçada do valor (quem aparece aqui é o responsável)</td></tr>
+    </table>
+
+    <div style="margin-top:16px;padding:12px 14px;border-radius:8px;background:#E6F2E6;color:#1E6B21">
+      <b>Veredito do caixa: LIBERAR.</b> A semana de pagamento tem saldo acima do mínimo de segurança.
+    </div>
+
+    <h3 style="font-size:13px;margin:20px 0 8px;color:#015180;text-transform:uppercase;letter-spacing:.08em">Depois que você envia</h3>
+    <ol style="margin:0;padding-left:20px;font-size:13.5px;line-height:1.8">
+      <li><b>Aprovado</b> pelo responsável da alçada.</li>
+      <li><b>Autorizado</b>: o financeiro envia a autorização ao fornecedor e registra o número do pedido dele.</li>
+      <li><b>Recebido</b>: a nota fiscal chega e vira título a pagar, conferido contra o valor autorizado.</li>
+      <li><b>Pago</b>: a baixa entra no realizado e aparece na análise (OP, 2.08.001, mês 10/2026).</li>
+    </ol>
+
+    <div style="margin-top:18px;font-size:12.5px;color:var(--ink-3,#7A8798)">Quer lançar uma de verdade? Clique em <b>Nova solicitação</b>. A tela já começa pelas três respostas.</div>
+  </div>
+</div>
+<script>
+function abrirExemplo(){ var w=document.getElementById('exWrap'); w.style.display='flex'; }
+function fecharExemplo(){ document.getElementById('exWrap').style.display='none'; }
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') fecharExemplo(); });
+</script>
+<script>
+
+/* ============================================================
+   AUTOMAÇÃO v10.0 — padrões, histórico do fornecedor e análise DMR
+   ============================================================ */
+
+/** Preenche o que dá para saber sem perguntar: filial do usuário e centro da categoria. */
+function preencherPadroes(){
+  const ff=document.getElementById('fFil');
+  if(ff && !ff.value){
+    const minha = (FILIAIS_CAD||[]).find(f=>f.FILIAL_ID===EU.escopoFilial);
+    if(minha) ff.value=minha.FILIAL_ID;
+    else if((FILIAIS_CAD||[]).length===1) ff.value=FILIAIS_CAD[0].FILIAL_ID;
+  }
+  const fo=document.getElementById('fForn');
+  if(fo && !fo.dataset.ligado){
+    fo.dataset.ligado='1';
+    fo.addEventListener('change', sugerirPeloFornecedor);
+  }
+  const c=CAT_MAP[val('fCat')];
+  const ce=document.getElementById('fCentro');
+  if(ce && c && c.centro && !ce.value) ce.value=c.centro;
+}
+
+/** Última compra deste fornecedor: mostra o valor e oferece usar. */
+function sugerirPeloFornecedor(){
+  const info=document.getElementById('fFornInfo');
+  if(!info) return;
+  const id=val('fForn');
+  const nome=(FORN_MAP[id]||{}).nome;
+  const ult=(SOL||[]).filter(s=>nome && s.forn===nome && s.val>0)
+                     .sort((a,b)=>String(b.id).localeCompare(String(a.id)))[0];
+  if(!ult){ return; }
+  info.innerHTML=`<div class="note" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+     <span>Última compra com este fornecedor: <b>R$ ${money(ult.val)}</b> (nº ${String(ult.id).slice(-5)}).</span>
+     <button class="btn sm" type="button" onclick="usarValorSugerido(${Number(ult.val)})">Usar este valor</button></div>`;
+}
+function usarValorSugerido(v){
+  const e=document.getElementById('fVal'); if(!e) return;
+  e.value=money(v); FORM.tocado.fVal=true; checar();
+}
+
+/** Conta → centro de custo, pela categoria que usa aquela conta. */
+function centroDeConta(cod){
+  const c=Object.values(CAT_MAP).find(x=>x.pj===cod||x.pf===cod);
+  return c && c.centro ? c.centro : '(sem centro)';
+}
+function nomeCentro(id){
+  const c=(CENTROS||[]).find(x=>x[0]===id);
+  return c ? c[1] : id;
+}
+/** Converte o prazo da solicitação em 'mm/aaaa' (aproximação até o servidor mandar a data de baixa). */
+function mesDe(txt){
+  const m=String(txt||'').match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
+  if(!m) return null;
+  let ano=m[3]?Number(m[3]):new Date().getFullYear();
+  if(ano<100) ano+=2000;
+  return String(m[2]).padStart(2,'0')+'/'+ano;
+}
+function ordemMes(m){ const [mm,aa]=m.split('/'); return Number(aa)*100+Number(mm); }
+
+/** Matriz DMR: realizado (status Pago) por centro × conta × mês. */
+function linhasDMR(){
+  const meses={}, linhas={};
+  (SOL||[]).forEach(s=>{
+    if(s.st!=='Pago') return;
+    // Mês do realizado = data da baixa (pag). Sem baixa, usa a data prevista.
+    const mes=mesDe(s.pag||s.prev); if(!mes) return;
+    const cod=s.cod||'(sem conta)';
+    const cc=centroDeConta(cod);
+    const k=cc+'|'+cod;
+    linhas[k]=linhas[k]||{cc, cod, cls:s.cls||cod, m:{}};
+    linhas[k].m[mes]=(linhas[k].m[mes]||0)+Number(s.val||0);
+    meses[mes]=true;
+  });
+  const lista=Object.keys(meses).sort((a,b)=>ordemMes(a)-ordemMes(b));
+  return {meses:lista, linhas:Object.values(linhas)};
+}
+function vDMR(){
+  const d=linhasDMR();
+  if(!d.linhas.length){
+    return head('')+`<div class="empty">Ainda não há solicitações pagas para montar a matriz. Quando um pagamento for registrado, a conta aparece aqui na coluna do mês.</div>`;
+  }
+  const grupos={};
+  d.linhas.forEach(l=>{ (grupos[l.cc]=grupos[l.cc]||[]).push(l); });
+  const totMes={}; d.meses.forEach(m=>totMes[m]=0);
+  let corpo='';
+  Object.keys(grupos).forEach(cc=>{
+    corpo+=`<tr class="sec"><td colspan="${d.meses.length+2}" style="font-weight:700;background:var(--surface-2,#F5F7FA)">${nomeCentro(cc)}</td></tr>`;
+    let subt={}; d.meses.forEach(m=>subt[m]=0);
+    grupos[cc].sort((a,b)=>a.cod.localeCompare(b.cod)).forEach(l=>{
+      const valores=d.meses.map(m=>l.m[m]||0).filter(v=>v>0);
+      const mediana=valores.length>=3 ? valores.slice().sort((a,b)=>a-b)[Math.floor(valores.length/2)] : null;
+      corpo+=`<tr><td style="font-family:monospace;font-size:12px">${l.cod}<div style="font-family:inherit;font-size:11.5px;color:var(--ink-3)">${l.cls}</div></td>`;
+      d.meses.forEach(m=>{
+        const v=l.m[m]||0; subt[m]+=v; totMes[m]+=v;
+        const fora = mediana && v>1.5*mediana;
+        corpo+=`<td class="n" style="${fora?'background:#FAEDCE;color:#8A6508;font-weight:600':''}" title="${fora?'Fora do padrão: acima de 1,5× a mediana desta conta':''}">${v?money(v):'—'}</td>`;
+      });
+      corpo+=`<td class="n" style="font-weight:600">${money(d.meses.reduce((a,m)=>a+(l.m[m]||0),0))}</td></tr>`;
+    });
+    corpo+=`<tr class="tot"><td>Subtotal ${nomeCentro(cc)}</td>${d.meses.map(m=>`<td class="n">${money(subt[m])}</td>`).join('')}<td class="n">${money(d.meses.reduce((a,m)=>a+subt[m],0))}</td></tr>`;
+  });
+  corpo+=`<tr class="tot"><td>Total geral</td>${d.meses.map(m=>`<td class="n">${money(totMes[m])}</td>`).join('')}<td class="n">${money(d.meses.reduce((a,m)=>a+totMes[m],0))}</td></tr>`;
+  return head('')+
+    `<div class="note" style="margin-bottom:14px"><b>Realizado (pago) por centro e conta.</b> Destaque em âmbar: mês acima de 1,5× a mediana daquela conta. O mês vem do prazo de pagamento até o servidor enviar a data da baixa.</div>
+     <div class="card"><div class="tw"><table class="mtx" style="min-width:${360+d.meses.length*110}px">
+       <thead><tr><th>Conta</th>${d.meses.map(m=>`<th style="text-align:right">${m}</th>`).join('')}<th style="text-align:right">Total</th></tr></thead>
+       <tbody>${corpo}</tbody></table></div></div>`;
+}
+
 </script>
 </body>
 </html>

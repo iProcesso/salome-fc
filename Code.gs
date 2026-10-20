@@ -164,7 +164,11 @@ const ROTAS = {
   'cad.salvar':        { recursoDe: true, acao: 'ALTERAR',  fn: function (d, s) { return Repo.salvar(d.tabela, d.registro, s); } },
   'cad.inativar':      { recursoDe: true, acao: 'INATIVAR', fn: function (d, s) { return Repo.inativar(d.tabela, d.id, d.motivo, s); } },
 
-  'log.historico':     { recurso: 'LOG', acao: 'VER', fn: function (d) { return Log.historico(d.registroId); } }
+  'log.historico':     { recurso: 'LOG', acao: 'VER', fn: function (d) { return Log.historico(d.registroId); } },
+
+  // observações do card
+  'obs.listar':        { recurso: 'SOLICITACAO', acao: 'VER',     fn: function (d, s) { return Obs.listar(d, s); } },
+  'obs.salvar':        { recurso: 'SOLICITACAO', acao: 'ALTERAR', fn: function (d, s) { return Obs.salvar(d, s); } }
 };
 
 /**

@@ -1,3 +1,28 @@
+## Protótipo (index.html) 10.0 — 2026-10-20 · Observações do card, app oficial regenerado
+
+### Servidor (`Obs.gs`, novo)
+- Tabela `OBSERVACOES` (FC_DADOS), com prefixo `OBS`. Uma linha por observação, com autor e data.
+  Não se edita nem se apaga: quem errou escreve outra, e a anterior fica.
+- Ações `obs.listar` (perfil com VER em SOLICITACAO) e `obs.salvar` (perfil com ALTERAR).
+  Texto obrigatório, até 500 caracteres. Cada registro vai ao log como `OBSERVAR`.
+- **Para ativar:** criar a aba `OBSERVACOES` na FC_DADOS com os cabeçalhos da `Schema.gs`
+  (ou rodar `Setup.criarBases()`, se ele já criar abas que faltam) e publicar a nova versão.
+
+### Protótipo
+- Aba **Observação** do painel: lista com autor e data, e formulário para adicionar.
+- Ícone ✎ no card aparece quando há observação (no campo da solicitação ou já carregada no painel).
+- Base de teste com duas observações e registro das novas.
+
+### App oficial (`app.html`)
+- Regenerado a partir do index. O `build_app.py` antigo foi substituído: ele era escrito para
+  uma versão anterior e já não casava com o código. O novo só tira o botão PROTÓTIPO e põe o
+  título oficial. O backup do script antigo está em `backups/`.
+
+### Pendente
+- Ícone ✎ depende de carregar as observações; o card só sabe do total depois que o painel abre.
+- Dias úteis na linha do tempo (FERIADOS no front).
+- PDF da autorização (Files.gs).
+
 ## Protótipo (index.html) 9.0 — 2026-10-20 · Fluxo do processo: painel, pendências e linha do tempo
 
 Versões do protótipo que mudaram a tela do Fluxo do processo. A interface oficial (`app.html`)
