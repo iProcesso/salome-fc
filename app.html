@@ -3104,6 +3104,10 @@ function normalizarPermissoes(p) {
   // O escopo mora no recurso SOLICITACAO: é ele que diz se a pessoa vê só o que lançou.
   const sol = recursos.SOLICITACAO || {};
   base.escopo = sol.escopo || sol.ESCOPO || p.escopo || 'PROPRIO';
+  // O Fluxo de caixa é a visão da empresa inteira: aparece no menu só para quem vê todas as
+  // solicitações (escopo diferente de PROPRIO). Sem isso, a tela nunca entrava no menu.
+  const podeVerSol = !!(sol.VER || sol.ver);
+  if (podeVerSol && base.escopo !== 'PROPRIO' && base.ver.indexOf('fluxo') < 0) base.ver.push('fluxo');
   return base;
 }
 
