@@ -568,7 +568,21 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
 /* no celular some o nome do app, mas a versão continua visível */
 @media(max-width:480px){ .appdesc{display:none} }
 
-/* visão em faixas (v11.02) */
+/* cadastros: manutenção (v11.03) */
+.cad-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.cad-bar input:not([type=checkbox]){padding:8px 10px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface);color:var(--ink);font-size:13px;min-width:220px}
+.cad-chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2)}
+.cad-ov{position:fixed;inset:0;background:rgba(10,16,24,.45);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+.cad-box{background:var(--surface);border-radius:12px;box-shadow:var(--sh-3);width:min(580px,100%);max-height:90vh;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+.cad-box > header{display:flex;justify-content:space-between;align-items:center}
+.cad-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cad-campo{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--ink-2)}
+.cad-campo input,.cad-campo select{padding:8px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface);color:var(--ink);font-size:13px}
+.cad-box > footer{display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
+.cad-id{margin-right:auto;font-family:monospace;font-size:12px;color:var(--ink-3)}
+@media(max-width:560px){.cad-form{grid-template-columns:1fr}}
+
+/* visão em faixas (v11.03) */
 .fx-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);margin:6px 0 12px}
 .fx-sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px}
 .fx-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh-1)}
@@ -600,7 +614,7 @@ button[data-tip],select[data-tip],input[data-tip],.kb-card[data-tip]{cursor:inhe
   <div class="login-card">
     <div class="lg-brand">
       <div class="logo-plate" style="padding:6px 12px"><img src="data:image/png;base64,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" alt="Expresso Salomé" style="height:30px"></div>
-      <div><div style="font-size:11.5px;color:var(--ink-3)">FC · Apontamento Financeiro de Compras · <b>v11.02</b></div></div>
+      <div><div style="font-size:11.5px;color:var(--ink-3)">FC · Apontamento Financeiro de Compras · <b>v11.03</b></div></div>
     </div>
     <form id="lgForm" onsubmit="event.preventDefault();entrar()">
       <div class="f"><label for="lgMail">Usuário</label>
@@ -661,7 +675,7 @@ Entre com o <b>usuário</b>, não com o e-mail. Use a senha que a administraçã
       <img src="data:image/png;base64,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" alt="iProcesso">
     </div>
   </div>
-  <div class="appname"><span class="appdesc"><b>FC</b> · Apontamento Financeiro</span> <span class="appver">v11.02</span></div>
+  <div class="appname"><span class="appdesc"><b>FC</b> · Apontamento Financeiro</span> <span class="appver">v11.03</span></div>
   <div class="spacer"></div>
   <div class="search">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -777,7 +791,9 @@ const PERMS = {
 let ROLE='SOLICITANTE';
 let EU={nome:'',iniciais:'–',perfil:''};
 const can = (a,r)=>{const p=PERMS[ROLE].acao[a]||[];return p.includes('*')||p.includes(r)};
-const sees = v => PERMS[ROLE].ver==='*'||PERMS[ROLE].ver.includes(v);
+/* Telas restritas por papel, além da matriz: o cadastro de rateio é de ADMIN e DIRETORIA. */
+const SOMENTE = {rateio:['ADMIN','DIRETORIA']};
+const sees = v => (!SOMENTE[v] || SOMENTE[v].includes(ROLE)) && (PERMS[ROLE].ver==='*'||PERMS[ROLE].ver.includes(v));
 const podeAprovar = valor => PERMS[ROLE].acao.aprovar.includes('SOLICITACAO') && valor<=PERMS[ROLE].limite;
 
 const PERFIL_NOME={SOLICITANTE:'Solicitante',FINANCEIRO:'Financeiro',DIRETORIA:'Diretoria',ADMIN:'Administrador'};
@@ -1714,15 +1730,10 @@ function vReceber(){
     'As entradas entram quando a integração com o ERP existir.');
 }
 function vRateio(){
-  return head()+`<div class="note" style="margin-bottom:14px"><b>O rateio da Salomé tem dois eixos, e eles não são a mesma coisa.</b>
-  A <b>filial</b> diz qual unidade consome. O <b>centro de custo</b> diz qual natureza consome —
-  os "18% distribuição / 82% transferência" da reunião são centro, não filial.
-  Cada eixo tem de fechar 100% por conta própria.</div>`+
-  semDados('Nenhum rateio lançado ainda',
-    'Esta tela mostra a distribuição das solicitações que foram marcadas com rateio. ' +
-    'Assim que a primeira for lançada com rateio, os dois eixos aparecem aqui.',
-    '<b>Como se lança:</b> no formulário da solicitação, marque <b>Tem rateio</b> e distribua ' +
-    'os percentuais. A soma de cada eixo tem de fechar 100% — o sistema recusa o envio se não fechar.');
+  return head(btnImport('RATEIO')) + cadTela('RATEIO',
+    `<div class="note" style="margin-top:14px"><b>O rateio da Salomé tem dois eixos, e eles não são a mesma coisa.</b>
+     A <b>filial</b> diz qual unidade consome. O <b>centro de custo</b> diz qual natureza consome.
+     Cada solicitação precisa fechar 100% no seu eixo. Rateio inativo sai do cálculo, mas fica no histórico.</div>`)
 }
 /**
  * DRE gerencial montado da base, conta por conta.
@@ -1872,36 +1883,204 @@ async function salvarTexto(cod){
   }catch(err){ toast('Não consegui gravar: '+err.message,'cr'); }
 }
 
+/* ---------- cadastros: manutenção sem apagar (v11.03) ----------
+   Nada é apagado. "Excluir" grava STATUS = INATIVO: o cadastro sai das listas de ativos e
+   dos formulários de lançamento, mas o histórico continua apontando para ele.
+   A lista carrega tudo (inclusive inativos) e o filtro "Mostrar inativos" é só visual. */
+const CAD = {FORNECEDORES:{lista:null, inativos:false, busca:'', carregando:false},
+             FILIAIS:{lista:null, inativos:false, busca:'', carregando:false},
+             RATEIO:{lista:null, inativos:false, busca:'', carregando:false}};
+const CAD_REC = {FORNECEDORES:'FORNECEDOR', FILIAIS:'FILIAL', RATEIO:'RATEIO'};
+const CAD_KEY = {FORNECEDORES:'FORNECEDOR_ID', FILIAIS:'FILIAL_ID', RATEIO:'RATEIO_ID'};
+/** Tela de cada cadastro, para checar a permissão de ver. */
+const CAD_TELA = {FORNECEDORES:'fornecedores', FILIAIS:'filiais', RATEIO:'rateio'};
+const CAD_COLUNAS = {
+  FORNECEDORES:[['Código', r=>r.FORNECEDOR_ID], ['Razão social', r=>r.RAZAO_SOCIAL],
+    ['CNPJ', r=>r.CNPJ||'<span class="tag t-wa">a preencher</span>'],
+    ['Tipo', r=>r.TIPO==='PF'?'Pessoa física':'Pessoa jurídica'],
+    ['Simples', r=>r.OPTANTE_SIMPLES==='SIM'?'optante':'não']],
+  FILIAIS:[['Código', r=>r.CODIGO||r.FILIAL_ID], ['Nome', r=>r.NOME],
+    ['UF', r=>r.UF||'—'], ['Tipo', r=>r.TIPO||'—'], ['Centro de custo padrão', r=>r.CENTRO_CUSTO_PADRAO||'—']],
+  RATEIO:[['Rateio', r=>r.RATEIO_ID], ['Solicitação', r=>r.SOLICITACAO_ID],
+    ['Filial destino', r=>r.FILIAL_DESTINO||'—'], ['Centro de custo', r=>r.CENTRO_CUSTO||'—'],
+    ['%', r=>(r.PERCENTUAL!=null&&r.PERCENTUAL!=='' ? r.PERCENTUAL+'%' : '—')],
+    ['Valor', r=>(r.VALOR!=null&&r.VALOR!=='' ? 'R$ '+Number(r.VALOR).toLocaleString('pt-BR') : '—')]]
+};
+const CAD_CAMPOS = {
+  FORNECEDORES:[
+    {c:'RAZAO_SOCIAL', t:'Razão social', obr:true}, {c:'NOME_FANTASIA', t:'Nome fantasia'},
+    {c:'CNPJ', t:'CNPJ'}, {c:'TIPO', t:'Tipo', sel:['PJ','PF']},
+    {c:'OPTANTE_SIMPLES', t:'Optante pelo Simples', sel:['SIM','NAO']},
+    {c:'CATEGORIAS', t:'Categorias (códigos separados por |)'}, {c:'CONTA_PADRAO', t:'Conta padrão'}],
+  FILIAIS:[
+    {c:'CODIGO', t:'Código', obr:true}, {c:'NOME', t:'Nome', obr:true}, {c:'UF', t:'UF'},
+    {c:'TIPO', t:'Tipo', sel:['Matriz','Filial']}, {c:'CNPJ', t:'CNPJ'},
+    {c:'CENTRO_CUSTO_PADRAO', t:'Centro de custo padrão'}],
+  RATEIO:[
+    {c:'SOLICITACAO_ID', t:'Solicitação', obr:true}, {c:'FILIAL_DESTINO', t:'Filial destino', obr:true},
+    {c:'CENTRO_CUSTO', t:'Centro de custo'}, {c:'PERCENTUAL', t:'Percentual', obr:true},
+    {c:'VALOR', t:'Valor (R$)'}]
+};
+/** Regras de negócio além dos campos obrigatórios. Devolve a mensagem de erro, ou ''. */
+const CAD_VALIDA = {
+  RATEIO:(reg, lista) => {
+    const pct = Number(reg.PERCENTUAL);
+    if (!(pct > 0 && pct <= 100)) return 'O percentual tem de ficar entre 0 e 100.';
+    const outros = lista.filter(r => r.SOLICITACAO_ID === reg.SOLICITACAO_ID && cadAtivo(r)
+                                     && r.RATEIO_ID !== reg.RATEIO_ID)
+                        .reduce((a, r) => a + Number(r.PERCENTUAL||0), 0);
+    if (outros + pct > 100.0001) return 'Os rateios desta solicitação passariam de 100% ('+(outros+pct)+'%).';
+    return '';
+  }
+};
+const cadAtivo = r => r.STATUS !== 'INATIVO';
+const cadEsc = v => String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/** Carrega a lista completa do servidor e redesenha a tela. */
+function cadCarregar(t){
+  const c = CAD[t];
+  if (c.carregando) return Promise.resolve();
+  c.carregando = true;
+  return API.chamar('cad.listar', {tabela:t, inativos:true})
+    .then(l => { c.lista = l || []; })
+    .catch(e => { toast('Não consegui carregar: '+e.message, 'cr'); c.lista = c.lista || []; })
+    .finally(() => { c.carregando = false; render(); });
+}
+
+/** Depois de salvar ou inativar: atualiza o que os formulários de lançamento usam. */
+function cadAposMudar(t){
+  const ativos = (CAD[t].lista||[]).filter(cadAtivo);
+  if (t === 'FORNECEDORES') {
+    FORN = ativos.map(x => [x.FORNECEDOR_ID, x.RAZAO_SOCIAL, x.TIPO||'PJ', x.OPTANTE_SIMPLES||'', x.CATEGORIAS||'']);
+    FORN_MAP = {}; FORN.forEach(f => FORN_MAP[f[0]] = {nome:f[1], tipo:f[2], simples:f[3], cats:f[4]});
+  }
+  if (t === 'FILIAIS') FILIAIS_CAD = ativos;
+  render();
+}
+
+function cadVisiveis(t){
+  const c = CAD[t], q = c.busca.trim().toLowerCase();
+  return (c.lista||[]).filter(r => (c.inativos || cadAtivo(r)) &&
+    (!q || JSON.stringify(r).toLowerCase().includes(q)));
+}
+
+function cadCorpo(t){
+  const c = CAD[t], cols = CAD_COLUNAS[t];
+  if (c.lista === null) return `<tr><td colspan="${cols.length+1}">Carregando…</td></tr>`;
+  const linhas = cadVisiveis(t);
+  if (!linhas.length) return `<tr><td colspan="${cols.length+1}">Nenhum cadastro com este filtro.</td></tr>`;
+  return linhas.map(r => `<tr onclick="cadFicha('${t}','${cadEsc(r[CAD_KEY[t]])}')" style="${cadAtivo(r)?'':'opacity:.6'}">
+      <td class="id">${cadEsc(cols[0][1](r))}</td>
+      ${cols.slice(1).map(k => `<td>${k[1](r)}</td>`).join('')}
+      <td>${cadAtivo(r) ? '<span class="tag t-ok"><i class="dot"></i>ativo</span>'
+                        : '<span class="tag t-mu"><i class="dot"></i>inativo</span>'}</td></tr>`).join('');
+}
+
+/** Só o corpo da tabela muda ao digitar ou marcar o filtro: o campo de busca não perde o foco. */
+function cadRedesenhaCorpo(t){
+  const el = document.getElementById('cadCorpo-'+t);
+  if (el) el.innerHTML = cadCorpo(t);
+}
+
+function cadTela(t, nota){
+  const c = CAD[t];
+  if (c.lista === null && !c.carregando) setTimeout(() => cadCarregar(t), 0);
+  const cols = CAD_COLUNAS[t];
+  const pode = can('incluir', CAD_REC[t]);
+  return `<div class="cad-bar">
+      <input placeholder="Buscar…" value="${cadEsc(c.busca)}" aria-label="Buscar"
+             oninput="CAD['${t}'].busca=this.value;cadRedesenhaCorpo('${t}')">
+      <label class="cad-chk"><input type="checkbox" ${c.inativos?'checked':''}
+             onchange="CAD['${t}'].inativos=this.checked;cadRedesenhaCorpo('${t}')"> Mostrar inativos</label>
+      ${pode ? `<button class="btn pri" onclick="cadFicha('${t}',null)">Novo cadastro</button>`
+             : `<span class="lock">sem permissão de inclusão</span>`}
+    </div>
+    <div class="card"><div class="tw"><table><thead><tr>
+      ${cols.map(k => `<th>${k[0]}</th>`).join('')}<th>Status</th></tr></thead>
+      <tbody id="cadCorpo-${t}">${cadCorpo(t)}</tbody></table></div></div>
+    ${nota || ''}`;
+}
+
 function vFornecedores(){
-  const nome=c=>(CAT_MAP[c]||{}).nome||c;
-  const semCnpj=FORN.length;
-  return head(btnImport('FORNECEDOR'))+`
-  <div class="imp" style="margin-bottom:14px">
-    ${svg(I.up)}<div><b>${FORN.length} fornecedores carregados da planilha PEÇAS E SERVIÇOS.</b>
-    Todos os ${semCnpj} vieram <b>sem CNPJ</b> — entram assim e o CNPJ é preenchido depois, aqui ou por importação.
-    O que já veio é o que decide a retenção: pessoa física ou jurídica, e optante do Simples ou não.</div>
-  </div>
-  <div class="card"><div class="tw"><table><thead><tr>
-    <th>Código</th><th>Razão social</th><th>CNPJ</th><th>Tipo</th><th>Simples</th><th>Categorias</th><th>Status</th></tr></thead><tbody>
-    ${FORN.map(f=>`<tr onclick="toast('Ficha do fornecedor ${f[0]} — o CNPJ é preenchido aqui.')"><td class="id">${f[0]}</td><td>${f[1]}</td>
-      <td><span class="tag t-wa"><i class="dot"></i>a preencher</span></td>
-      <td>${f[2]==='PF'?'Pessoa física':'Pessoa jurídica'}</td>
-      <td>${f[3]==='SIM'?'<span class="tag t-ok"><i class="dot"></i>optante</span>':'<span class="tag t-mu"><i class="dot"></i>não</span>'}</td>
-      <td>${(f[4]||'').split('|').filter(Boolean).map(c=>`<span class="tag t-mu" style="margin:0 4px 4px 0">${nome(c)}</span>`).join('')||'—'}</td>
-      <td><span class="tag t-ok"><i class="dot"></i>ATIVO</span></td></tr>`).join('')}
-  </tbody></table></div></div>
-  <div class="note" style="margin-top:14px"><b>Por que o Simples importa:</b> prestador optante é dispensado de IRRF e CSRF.
-  Marcar errado significa reter imposto de quem não devia — ou deixar de reter de quem devia.</div>`;
+  return head(btnImport('FORNECEDOR')) + cadTela('FORNECEDORES',
+    `<div class="note" style="margin-top:14px"><b>Por que o Simples importa:</b> prestador optante é dispensado de IRRF e CSRF.
+     Marcar errado significa reter imposto de quem não devia — ou deixar de reter de quem devia.
+     Cadastro inativo some dos lançamentos, mas o histórico continua legível.</div>`);
 }
+
 function vFiliais(){
-  const F=[['RP','Rio Preto (Matriz)','SP','Matriz','OP-RP','ATIVO'],['CPQ','Campinas','SP','Filial','OP-CPQ','ATIVO'],
-   ['OSA','Osasco','SP','Filial','OP-OSA','ATIVO'],['SPO','São Paulo','SP','Filial','OP-SPO','ATIVO']];
-  return head(btnImport('FILIAL'))+`<div class="card"><div class="tw"><table><thead><tr>
-    <th>Código</th><th>Filial</th><th>UF</th><th>Tipo</th><th>Centro de custo padrão</th><th>Status</th></tr></thead><tbody>
-    ${F.map(f=>`<tr onclick="toast('Ficha da filial ${f[0]}')"><td class="id">${f[0]}</td><td>${f[1]}</td><td>${f[2]}</td><td>${f[3]}</td>
-      <td class="mono" style="font-size:12px">${f[4]}</td><td><span class="tag t-ok"><i class="dot"></i>${f[5]}</span></td></tr>`).join('')}
-  </tbody></table></div></div>`;
+  return head(btnImport('FILIAL')) + cadTela('FILIAIS',
+    `<div class="note" style="margin-top:14px">Filial inativa não aparece nos formulários de lançamento.
+     O histórico de solicitações e o escopo de acesso continuam usando o cadastro.</div>`);
 }
+
+/** Abre a ficha num painel sobre a tela. Sem id = cadastro novo. */
+function cadFicha(t, id){
+  cadFechar();
+  const reg = id ? (CAD[t].lista||[]).find(r => r[CAD_KEY[t]] === id) : null;
+  if (id && !reg) return toast('Cadastro não encontrado. Atualize a tela.', 'cr');
+  const edita = reg ? can('alterar', CAD_REC[t]) : can('incluir', CAD_REC[t]);
+  const inativo = !!reg && !cadAtivo(reg);
+  const ro = !edita || inativo;
+  const campos = CAD_CAMPOS[t].map(f => {
+    const v = reg ? (reg[f.c]||'') : '';
+    const entrada = f.sel
+      ? `<select data-c="${f.c}" ${ro?'disabled':''}>${f.sel.map(o => `<option ${o===v?'selected':''}>${o}</option>`).join('')}</select>`
+      : `<input data-c="${f.c}" value="${cadEsc(v)}" ${ro?'disabled':''}>`;
+    return `<label class="cad-campo"><span>${f.t}${f.obr?' *':''}</span>${entrada}</label>`;
+  }).join('');
+  const acoes = [];
+  if (reg && edita && !inativo && can('inativar', CAD_REC[t]))
+    acoes.push(`<button class="btn" onclick="cadInativar('${t}','${cadEsc(id)}')">Inativar</button>`);
+  if (edita && !inativo)
+    acoes.push(`<button class="btn pri" onclick="cadSalvar('${t}',${id ? `'${cadEsc(id)}'` : 'null'})">Salvar</button>`);
+  const ov = document.createElement('div');
+  ov.className = 'cad-ov'; ov.id = 'cadOv';
+  ov.onclick = e => { if (e.target === ov) cadFechar(); };
+  ov.innerHTML = `<div class="cad-box" role="dialog" aria-modal="true">
+      <header><b>${reg ? 'Ficha do cadastro' : 'Novo cadastro'}</b>
+        <button class="btn" onclick="cadFechar()">Fechar</button></header>
+      ${inativo ? '<div class="note">Cadastro inativo: não aparece nas listas de lançamento. Fica para consulta do histórico.</div>' : ''}
+      ${!edita && reg ? '<div class="note">Seu perfil pode consultar, mas não alterar este cadastro.</div>' : ''}
+      <div class="cad-form">${campos}</div>
+      <footer>${reg ? `<span class="cad-id">${cadEsc(id)}</span>` : ''}${acoes.join('')}</footer></div>`;
+  ov._reg = reg || {};
+  document.body.appendChild(ov);
+}
+
+function cadFechar(){
+  const ov = document.getElementById('cadOv');
+  if (ov) ov.remove();
+}
+
+async function cadSalvar(t, id){
+  const ov = document.getElementById('cadOv'); if (!ov) return;
+  const reg = Object.assign({}, ov._reg);
+  ov.querySelectorAll('[data-c]').forEach(el => { reg[el.dataset.c] = el.value.trim(); });
+  const falta = CAD_CAMPOS[t].find(f => f.obr && !reg[f.c]);
+  if (falta) return toast(falta.t + ' é obrigatório.', 'cr');
+  if (id) reg[CAD_KEY[t]] = id;
+  if (CAD_VALIDA[t]) {
+    const erro = CAD_VALIDA[t](reg, CAD[t].lista||[]);
+    if (erro) return toast(erro, 'cr');
+  }
+  try {
+    await API.chamar('cad.salvar', {tabela:t, registro:reg});
+    cadFechar(); toast('Cadastro salvo.', 'ok');
+    await cadCarregar(t); cadAposMudar(t);
+  } catch (e) { toast(e.message, 'cr'); }
+}
+
+async function cadInativar(t, id){
+  const motivo = prompt('Motivo da inativação (fica registrado no log):');
+  if (!motivo || !motivo.trim()) return;
+  try {
+    await API.chamar('cad.inativar', {tabela:t, id:id, motivo:motivo.trim()});
+    cadFechar(); toast('Cadastro inativado. O histórico continua.', 'ok');
+    await cadCarregar(t); cadAposMudar(t);
+  } catch (e) { toast(e.message, 'cr'); }
+}
+
 function vUsuarios(){
   return head(btnImport('USUARIO'))+`<div class="card"><div class="tw"><table><thead><tr>
     <th>ID</th><th>Nome</th><th>Usuário</th><th>E-mail (avisos)</th><th>Perfil</th><th>Escopo de filial</th>
@@ -2384,7 +2563,7 @@ function kbRender(){
   if(el){ el.innerHTML=vKanban(); ligarTips(); }
 }
 
-/* ---------- visão em faixas (v11.02) ----------
+/* ---------- visão em faixas (v11.03) ----------
    Uma faixa por card, com as seis etapas lado a lado, no mesmo alinhamento.
    Verde: a etapa já passou, com o tempo que levou de verdade quando o log tem.
    Âmbar: a etapa em que o card está agora, com o tempo corrido.
@@ -3467,6 +3646,37 @@ function protoChamarAcao(acao, p){
         return Promise.resolve(PROTO_LOG.filter(x => x.reg === p.registroId)
           .map(({reg, ...linha}) => linha));
 
+      case 'cad.listar': {
+        if (!sees(CAD_TELA[p.tabela]))
+          throw new Error('SEM_PERMISSAO: o seu perfil não pode ver este cadastro.');
+        const base = (PROTO_CAD && PROTO_CAD[p.tabela]) || [];
+        return Promise.resolve(JSON.parse(JSON.stringify(p.inativos ? base : base.filter(cadAtivo))));
+      }
+      case 'cad.salvar': {
+        const rec = CAD_REC[p.tabela], key = CAD_KEY[p.tabela], lista = PROTO_CAD[p.tabela];
+        const reg0 = p.registro || {};
+        const novo = !reg0[key];
+        if (!can(novo ? 'incluir' : 'alterar', rec)) throw new Error('SEM_PERMISSAO: o seu perfil não pode alterar este cadastro.');
+        const i = novo ? -1 : lista.findIndex(x => x[key] === reg0[key]);
+        if (!novo && i < 0) throw new Error('REGISTRO_NAO_ENCONTRADO: cadastro não existe mais.');
+        if (i >= 0 && Number(reg0.VERSAO) !== Number(lista[i].VERSAO))
+          throw new Error('CONFLITO: outro usuário alterou este cadastro. Recarregue a tela.');
+        const ant = i >= 0 ? lista[i] : {STATUS:'ATIVO', VERSAO:0};
+        const grav = Object.assign({}, ant, reg0, {VERSAO: Number(ant.VERSAO)+1, STATUS: ant.STATUS});
+        if (novo) { grav[key] = ({FILIAIS:'FIL-', RATEIO:'RAT-'}[p.tabela] || 'FOR-') + (9000 + lista.length + 1); lista.push(grav); }
+        else lista[i] = grav;
+        return Promise.resolve(JSON.parse(JSON.stringify(grav)));
+      }
+      case 'cad.inativar': {
+        const rec = CAD_REC[p.tabela], key = CAD_KEY[p.tabela], lista = PROTO_CAD[p.tabela];
+        if (!can('inativar', rec)) throw new Error('SEM_PERMISSAO: o seu perfil não pode inativar este cadastro.');
+        const i = lista.findIndex(x => x[key] === p.id);
+        if (i < 0) throw new Error('REGISTRO_NAO_ENCONTRADO: cadastro não existe mais.');
+        lista[i] = Object.assign({}, lista[i], {STATUS:'INATIVO', MOTIVO_INATIVACAO:p.motivo||'',
+                   INATIVADO_POR:(EU&&EU.email)||'teste@exemplo.com', INATIVADO_EM:new Date().toISOString(),
+                   VERSAO: Number(lista[i].VERSAO)+1});
+        return Promise.resolve(JSON.parse(JSON.stringify(lista[i])));
+      }
       default:
         return Promise.reject(new Error('Esta ação grava no servidor e não existe no protótipo.'));
     }
@@ -3493,11 +3703,26 @@ function protoSementeAut(){
     return {id, chave, pedido, fornecedor: r.forn, descricao: r.desc, filial: r.fil, previsto: r.prev, valor: r.val};
   });
 }
+/** Base de cadastros do protótipo: fornecedores e filiais, em memória, como a planilha. */
+let PROTO_CAD = null;
+const FILIAIS_BASE = [['RP','Rio Preto (Matriz)','SP','Matriz','OP-RP','ATIVO'],['CPQ','Campinas','SP','Filial','OP-CPQ','ATIVO'],
+   ['OSA','Osasco','SP','Filial','OP-OSA','ATIVO'],['SPO','São Paulo','SP','Filial','OP-SPO','ATIVO']];
+function protoSementeCad(){
+  return {
+    FORNECEDORES: FORN.map(f => ({FORNECEDOR_ID:f[0], RAZAO_SOCIAL:f[1], TIPO:f[2], OPTANTE_SIMPLES:f[3],
+                                  CATEGORIAS:f[4], NOME_FANTASIA:'', CNPJ:'', CONTA_PADRAO:'', STATUS:'ATIVO', VERSAO:1})),
+    FILIAIS: FILIAIS_BASE.map(f => ({FILIAL_ID:f[0], CODIGO:f[0], NOME:f[1], UF:f[2], TIPO:f[3], CNPJ:'',
+                                     CENTRO_CUSTO_PADRAO:f[4], STATUS:f[5]==='ATIVO'?'ATIVO':'INATIVO', VERSAO:1})),
+    RATEIO: []
+  };
+}
+
 function protoResetar(){
   if (!PROTO) return;
   SOL = protoSemente(); AUTORIZ = protoSementeAut(); PROTO_SEQ = 9100;
   PROTO_LOG = protoSementeLog();
   PROTO_OBS = protoSementeObs(); OBS_N = {};
+  PROTO_CAD = protoSementeCad();
   SALDO_MINIMO = 110000;
   protoAtualizarFluxo();
   recalcular(); go('inicio');

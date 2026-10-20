@@ -1,3 +1,16 @@
+## Versão 11.03 — 2026-10-20 · Manutenção de cadastros e rateio
+
+- **Fornecedores, Filiais e Rateio** têm ficha para criar, editar e inativar. Nada é apagado:
+  "Inativar" pede um motivo e grava STATUS = INATIVO. A lista abre só com os ativos; o filtro
+  "Mostrar inativos" mostra os demais.
+- Cadastro inativo sai dos formulários de lançamento, mas o histórico continua apontando para ele.
+- O botão de cada ação aparece só se o perfil tem a permissão (incluir, alterar, inativar).
+- **Rateio:** só ADMIN e DIRETORIA veem a tela no menu. Ao salvar, o sistema recusa percentuais
+  que façam a solicitação passar de 100%.
+- **Para ativar no Apps Script:** colar `Code.gs` (cad.* já existem) e publicar nova versão. Atualizar o HTML.
+- **Pendente:** a restrição do Rateio hoje está no front. Para o servidor recusar FINANCEIRO também,
+  é preciso tirar VER e ALTERAR de RATEIO para FINANCEIRO na aba PERMISSOES (decisão de dados).
+
 ## Versão 11.02 — 2026-10-20 · Cadastros entregues conforme a matriz de permissões
 
 - `bootstrap` deixa de entregar todos os cadastros a qualquer perfil. Cada lista só vai para quem
