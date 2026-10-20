@@ -2554,16 +2554,32 @@ function semDados(titulo, texto, onde){
    dentro de uma página servida pelo HtmlService — por isso este app nunca
    roda abrindo o HTML direto do GitHub Pages.
    ========================================================================== */
+/* Endereço da implantação do Apps Script (…/exec). Usado quando a página não
+   roda dentro do HtmlService (ex.: GitHub Pages). */
+const EXEC_URL = 'https://script.google.com/macros/s/AKfycbz82zY0ATTEvhSM57ecsrnbRVS7o-_iWCxY85YfPyUM2JVhpO341EiLIRNiP51psu--/exec';
+
 const API = {
   token: null,
 
   chamar(acao, payload) {
+    /* Sem ponte (página do GitHub Pages): chama o /exec por fetch. */
+    if (typeof google === 'undefined' || !google.script || !google.script.run) {
+      return fetch(EXEC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ acao, payload: payload || {}, token: API.token })
+      })
+      .then(resp => resp.json())
+      .then(r => {
+        if (!r) throw new Error('O servidor não respondeu.');
+        if (r.ok) return r.dados;
+        const e = new Error(r.mensagem || 'Falha no servidor.');
+        e.codigo = r.codigo;
+        throw e;
+      })
+      .catch(e => { throw new Error(e && e.message ? e.message : 'Sem conexão com o servidor.'); });
+    }
     return new Promise((ok, falhou) => {
-      if (typeof google === 'undefined' || !google.script || !google.script.run) {
-        falhou(new Error('Esta página precisa ser aberta pela URL do app (…/exec). ' +
-          'Abrindo o arquivo direto, não existe ponte com o servidor.'));
-        return;
-      }
       google.script.run
         .withSuccessHandler(r => {
           if (!r) { falhou(new Error('O servidor não respondeu.')); return; }
