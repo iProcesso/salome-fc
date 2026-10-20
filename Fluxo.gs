@@ -72,7 +72,7 @@ const Fluxo = (function () {
     SOLICITANTE: ['VALIDAR', 'CAIXA'],
     FINANCEIRO:  ['VALIDAR', 'CAIXA', 'APROVAR', 'AUTORIZAR', 'RECEBER'],
     DIRETORIA:   ['VALIDAR', 'CAIXA', 'APROVAR', 'AUTORIZAR', 'RECEBER'],
-    ADMIN:       []
+    ADMIN:       ['VALIDAR', 'CAIXA', 'APROVAR', 'AUTORIZAR', 'RECEBER']
   };
 
   /**
@@ -83,7 +83,7 @@ const Fluxo = (function () {
    * e aprovar continua sendo de quem tem alçada. Mandar a capa de algo já aprovado é
    * execução, não decisão.
    */
-  const AUTORIZA_PERFIL = ['SOLICITANTE', 'FINANCEIRO', 'DIRETORIA'];
+  const AUTORIZA_PERFIL = ['SOLICITANTE', 'FINANCEIRO', 'DIRETORIA', 'ADMIN'];
 
   /** A união do que os perfis da pessoa permitem — perfil se soma, nunca se subtrai. */
   function movimentosDe(ses) {

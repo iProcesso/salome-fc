@@ -1,3 +1,11 @@
+## Versão 11.05.3 — 2026-10-20 · Administrador executa todas as etapas
+
+- ADMIN passa a aprovar, autorizar e mover cards em todas as etapas (validar, caixa, aprovar, autorizar, receber),
+  com o mesmo alcance de DIRETORIA. Antes, ADMIN só cadastrava e não movia nada.
+- Limite de aprovação do ADMIN: sem teto (99.999.999), igual à DIRETORIA. Se quiser outro teto, ajustar LIMITE_VALOR.
+- **Para ativar no Apps Script:** colar Setup.gs e Fluxo.gs. Na aba PERMISSOES: ADMIN/SOLICITACAO e ADMIN/APROVACAO com
+  VER, INCLUIR, ALTERAR, APROVAR = SIM, e LIMITE_VALOR = 99999999 em ADMIN/SOLICITACAO.
+
 ## Versão 11.05.2 — 2026-10-20 · Seleção e aprovação em lote
 
 - A caixa de cada linha da aprovação funciona: marque uma ou todas as que o perfil pode aprovar.

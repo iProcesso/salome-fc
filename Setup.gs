@@ -175,7 +175,7 @@ const Setup = (function () {
                      TITULO_RECEBER: 'SNNNNSN', RATEIO: 'SNNNNSN', ORCAMENTO: 'SSSNNSS',
                      PLANO_CONTAS: 'SNNNNSN', FORNECEDOR: 'SNNNNSN', FILIAL: 'SNNNNSN',
                      AREA: 'SNNNNSN', LOG: 'SNNNNSN' },
-      ADMIN:       { SOLICITACAO: 'SSSNNSN', APROVACAO: 'SNNNNSN', TITULO_PAGAR: 'SNNNNSN',
+      ADMIN:       { SOLICITACAO: 'SSSNSSN', APROVACAO: 'SSSNSSN', TITULO_PAGAR: 'SNNNNSN',
                      TITULO_RECEBER: 'SNNNNSN', RATEIO: 'SNNNNSN', ORCAMENTO: 'SNNNNSN',
                      PLANO_CONTAS: 'SSSSNSS', FORNECEDOR: 'SSSSNSS', FILIAL: 'SSSSNSS',
                      AREA: 'SSSSNSS', USUARIO: 'SSSSNSS', PERFIL: 'SSSSNSS', PARAMETRO: 'SNSNNSN',
@@ -186,7 +186,7 @@ const Setup = (function () {
     // Mora aqui e na aba ALCADAS, e os dois têm de contar a mesma história — por isso
     // Migrar.ajustarAlcadas() mexe nos dois de uma vez.
     const TETO_FINANCEIRO = 5000;
-    const LIMITE = { SOLICITANTE: 0, FINANCEIRO: TETO_FINANCEIRO, DIRETORIA: 99999999, ADMIN: 0 };
+    const LIMITE = { SOLICITANTE: 0, FINANCEIRO: TETO_FINANCEIRO, DIRETORIA: 99999999, ADMIN: 99999999 };
 
     const linhas = [];
     Object.keys(P).forEach(function (perfil) {
