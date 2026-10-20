@@ -1,3 +1,24 @@
+## Protótipo (index.html) 9.0 — 2026-10-20 · Fluxo do processo: painel, pendências e linha do tempo
+
+Versões do protótipo que mudaram a tela do Fluxo do processo. A interface oficial (`app.html`)
+ainda não foi regenerada com estas telas.
+
+- **8.0** — Base de teste completa no botão PROTÓTIPO (solicitações de todas as etapas, em
+  memória, sem gravar no servidor). Permissões da matriz aplicadas também na base de teste.
+  Auditoria de telas, ações e perfis.
+- **8.1** — Clicar no card abre o painel lateral (Dados, Pendências, Observação, Histórico).
+  O card ficou mais compacto; o detalhe saiu dele. Ícones de atenção no resumo: pendências,
+  observação e capa da autorização.
+- **9.0** — Linha do tempo no painel: data e hora de cada etapa, tempo em cada uma, ciclo total
+  e a etapa mais demorada, calculados a partir do log (`STATUS`). Tempo corrido, sem feriados.
+  Correção: o histórico lia `QUANDO`/`VALOR_ANTES`, mas o servidor devolve `ts`/`antes`/`depois`
+  (Log.gs), então as linhas apareciam vazias. Agora lê o formato do servidor.
+
+### Pendente
+- Dias úteis: precisa do cadastro de FERIADOS no front.
+- Observações com autor e data (tabela própria).
+- PDF da autorização (depende de Files.gs).
+
 ## 1.0.8 — 2026-09-23 · a URL pública não leva o domínio do dono
 
 O app publicou e o `URL_APP` ficou certo — mas na forma
