@@ -87,15 +87,21 @@ function urlPublica(url) {
     .replace(/^(https:\/\/script\.google\.com)\/a\/[^/]+\/macros\//,    '$1/macros/');
 }
 
-/** Modo GITHUB: busca o HTML no raw e guarda em cache. Trocar a UI vira um git push. */
+/**
+ * Modo GITHUB: busca o HTML no raw e guarda em cache. Trocar a UI vira um git push.
+ * Oficial e protótipo têm arquivos diferentes, então cada um tem seu parâmetro de URL:
+ * GITHUB_RAW (oficial) e GITHUB_RAW_PROTO (protótipo). Antes, ?p=proto buscava o mesmo
+ * arquivo do oficial e só mudava a chave de cache.
+ */
 function uiDoGitHub(rota) {
+  const ehProto = (rota === 'proto' || rota === 'demo');
+  const chave = ehProto ? 'UI_proto' : 'UI_app';
   const cache = CacheService.getScriptCache();
-  const chave = 'UI_' + rota;
   const guardado = cache.get(chave);
   if (guardado) return guardado;
 
-  const base = Cfg.param('GITHUB_RAW', '');
-  if (!base) throw new Error('Defina GITHUB_RAW na aba PARAMETROS.');
+  const base = Cfg.param(ehProto ? 'GITHUB_RAW_PROTO' : 'GITHUB_RAW', '');
+  if (!base) throw new Error('Defina ' + (ehProto ? 'GITHUB_RAW_PROTO' : 'GITHUB_RAW') + ' na aba PARAMETROS.');
   const resp = UrlFetchApp.fetch(base, { muteHttpExceptions: true });
   if (resp.getResponseCode() !== 200) {
     throw new Error('Não consegui buscar a UI no GitHub (HTTP ' + resp.getResponseCode() + ').');
@@ -109,7 +115,7 @@ function uiDoGitHub(rota) {
 
 /** Force a recarga da UI depois de um push, sem esperar o cache expirar. */
 function limparCacheUI() {
-  CacheService.getScriptCache().removeAll(['UI_app', 'UI_mobile']);
+  CacheService.getScriptCache().removeAll(['UI_app', 'UI_proto']);
   return 'cache da UI limpo';
 }
 
@@ -168,7 +174,7 @@ const ROTAS = {
 
   // observações do card
   'obs.listar':        { recurso: 'SOLICITACAO', acao: 'VER',     fn: function (d, s) { return Obs.listar(d, s); } },
-  'obs.salvar':        { recurso: 'SOLICITACAO', acao: 'ALTERAR', fn: function (d, s) { return Obs.salvar(d, s); } }
+  'obs.salvar':        { recurso: 'SOLICITACAO', acao: 'ALTERAR', logaNaApi: false, fn: function (d, s) { return Obs.salvar(d, s); } }
 };
 
 /**
@@ -199,7 +205,9 @@ function api(acao, payload, token) {
 
     const dados = rota.fn(payload, ses, token);
 
-    if (rota.acao && ['ALTERAR', 'INATIVAR', 'APROVAR'].indexOf(rota.acao) >= 0) {
+    // logaNaApi: false = a própria função registra o log (ex.: obs.salvar, que registra
+    // com a solicitação como registro, e não com o id da observação).
+    if (rota.logaNaApi !== false && rota.acao && ['ALTERAR', 'INATIVAR', 'APROVAR'].indexOf(rota.acao) >= 0) {
       Log.ativ(ses, rota.recursoDe ? recursoDaTabela(payload.tabela) : rota.recurso,
                rota.acao, dados && (dados.id || (dados.registro && dados.registro[Object.keys(dados.registro)[0]])),
                dados && dados.diff);
@@ -241,7 +249,8 @@ function bootstrap(ses) {
   return {
     usuario: ses,
     permissoes: Perm.resumo(ses),
-    versao: Cfg.param('VERSAO_APP', '0.1.0'),
+    // VERSAO (Cfg.gs) é a única fonte. Antes lia a aba PARAMETROS e mostrava '0.1.0' fixo.
+    versao: VERSAO,
     parametros: {
       saldoMinimo: Cfg.param('SALDO_MINIMO_SEGURANCA', 0),
       horizonte: Cfg.param('HORIZONTE_SEMANAS', 12)

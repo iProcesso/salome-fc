@@ -1,3 +1,17 @@
+## Backend (Apps Script) — correções pós-10.0 — 2026-10-20
+
+- `Code.gs` — `obs.salvar` deixou de gravar log duplicado: a `api()` ignora a rota com
+  `logaNaApi: false`, e só `Obs.salvar` registra (com a solicitação como registro).
+- `Code.gs` — `bootstrap` devolve `VERSAO` (Cfg.gs) e não mais o parâmetro `VERSAO_APP`
+  (que estava com '0.1.0' fixo).
+- `Code.gs` — modo GITHUB: `?p=proto` busca o arquivo do protótipo pelo parâmetro
+  `GITHUB_RAW_PROTO` (antes buscava o do oficial). `limparCacheUI` limpa `UI_app` e `UI_proto`.
+- `Cfg.gs` — o cache de PARAMETROS guarda as linhas cruas e converte a cada leitura, então
+  um parâmetro DATA tem o mesmo tipo com ou sem cache.
+- **Para ativar:** colar `Code.gs` e `Cfg.gs` no Apps Script e publicar nova versão.
+  Se usar o modo GITHUB com protótipo, criar o parâmetro `GITHUB_RAW_PROTO` na aba PARAMETROS.
+- `VERSAO` continua 1.3.1: a numeração do backend ainda precisa ser decidida.
+
 ## Protótipo (index.html) 10.0 — 2026-10-20 · Observações do card, app oficial regenerado
 
 ### Servidor (`Obs.gs`, novo)

@@ -37,17 +37,31 @@ const Cfg = (function () {
     return (chave in todos) ? todos[chave] : padrao;
   }
 
+  /**
+   * O cache guarda as linhas CRUAS (CHAVE, VALOR, TIPO) e a conversão roda a cada leitura.
+   * Antes guardava o mapa já convertido: uma DATA virava Date na leitura da planilha e
+   * string ISO quando vinha do cache (JSON não tem Date). O mesmo parâmetro tinha tipos
+   * diferentes conforme o cache estivesse quente.
+   */
   function params() {
     const cache = CacheService.getScriptCache();
-    const bruto = cache.get('PARAMETROS');
-    if (bruto) return JSON.parse(bruto);
+    let linhas = null;
+    try {
+      const bruto = cache.get('PARAMETROS');
+      if (bruto) linhas = JSON.parse(bruto);
+    } catch (e) { linhas = null; }
 
-    const linhas = Repo.listar('PARAMETROS');
+    if (!linhas) {
+      linhas = Repo.listar('PARAMETROS').map(function (l) {
+        return { CHAVE: l.CHAVE, VALOR: l.VALOR, TIPO: l.TIPO };
+      });
+      try { cache.put('PARAMETROS', JSON.stringify(linhas), 600); } catch (e) { /* segue sem cache */ }
+    }
+
     const mapa = {};
     linhas.forEach(function (l) {
       mapa[l.CHAVE] = converter(l.VALOR, l.TIPO);
     });
-    try { cache.put('PARAMETROS', JSON.stringify(mapa), 600); } catch (e) { /* segue sem cache */ }
     return mapa;
   }
 
