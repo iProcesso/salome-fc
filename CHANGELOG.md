@@ -1,3 +1,22 @@
+## Versão 11.04 — 2026-10-20 · Frete contratado, rotas e compra para outra unidade
+
+- **Frete contratado (CA-FRE)** pede o tipo: **Transferência** (escolhe a rota origem → destino; um
+  pagamento só; custo fica na rota) ou **Distribuição** (segue o rateio que já existia).
+- **Rotas** são um cadastro novo (aba ROTAS, prefixo ROT). Origem e destino têm de ser unidades diferentes.
+  Inativar rota segue a mesma regra dos demais cadastros.
+- **Compra para outra unidade:** com o parâmetro PERMITE_COMPRA_OUTRA_UNIDADE = SIM, o formulário pede
+  "Compra feita para a unidade" e a solicitação guarda e mostra essa unidade. Com NAO, vale a própria filial.
+- **Filial do campo:** o rótulo passou de "Filial que emite a NF" para "Filial em nome de quem sai a NF",
+  que é quem compra e paga.
+- **Obrigatórios em laranja desde a abertura do formulário**, não só depois de clicar.
+- Filtros do quadro: tipo de frete e rota. Cartão e detalhe mostram rota e unidade de compra.
+- Painel gerencial: bloco "Frete por rota (transferência)", sem cancelados e reprovados.
+- **Para ativar no Apps Script:** colar Schema.gs, Seq.gs, Code.gs, Sol.gs, Vista.gs, Setup.gs.
+  Criar a aba ROTAS (cabeçalho do Schema) e adicionar em SOLICITACOES as colunas TIPO_FRETE, ROTA_ID,
+  UNIDADE_COMPRA_ID no fim. Na aba PARAMETROS, incluir PERMITE_COMPRA_OUTRA_UNIDADE = NAO (ou SIM).
+- **Pendente:** consultas de caixa (detalhe por lançamento) ainda não mostram rota; a composição do
+  custo final da entrega até o cliente não foi modelada.
+
 ## Versão 11.03 — 2026-10-20 · Manutenção de cadastros e rateio
 
 - **Fornecedores, Filiais e Rateio** têm ficha para criar, editar e inativar. Nada é apagado:

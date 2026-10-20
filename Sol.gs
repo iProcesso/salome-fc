@@ -32,6 +32,9 @@ const Sol = (function () {
    * A tela nunca manda CONTA_CODIGO nem alçada: esses são deduzidos aqui, onde a
    * regra mora. Mandar do cliente seria confiar no cliente.
    */
+  /** Categoria de frete contratado (Catalogo.gs). Só ela exige transferência ou distribuição. */
+  const CATEGORIA_FRETE = 'CA-FRE';
+
   function montarRegistro(d, ses) {
     const reg = d.registro || (d.id ? Repo.achar('SOLICITACOES', 'SOLICITACAO_ID', d.id) : {}) || {};
     const campo = function (chave, valor) { if (valor !== undefined && valor !== null) reg[chave] = valor; };
@@ -48,6 +51,9 @@ const Sol = (function () {
     campo('FORMA_ID',          d.formaId);
     campo('JUSTIFICATIVA_PRAZO', d.justificativa);
     campo('EMERGENCIAL',       d.emergencial ? 'SIM' : undefined);
+    campo('TIPO_FRETE',        d.tipoFrete);
+    campo('ROTA_ID',           d.rotaId);
+    campo('UNIDADE_COMPRA_ID', d.unidadeCompra);
     if (d.dataPrevista) reg.DATA_PREVISTA_PGTO = new Date(d.dataPrevista + 'T12:00:00');
     if (d.versao !== undefined) reg.VERSAO = d.versao;
     return reg;
@@ -59,6 +65,30 @@ const Sol = (function () {
     if (!reg.CATEGORIA_ID) throw new Error('CATEGORIA_OBRIGATORIA: escolha o que vai ser comprado.');
     if (!reg.FORNECEDOR_ID) throw new Error('FORNECEDOR_OBRIGATORIO: escolha de quem é a compra.');
     if (!Number(reg.VALOR_BRUTO)) throw new Error('VALOR_OBRIGATORIO: informe o valor bruto estimado.');
+
+    // Frete contratado: transferência (uma rota, um pagamento, custo na rota) ou distribuição (rateio).
+    if (reg.CATEGORIA_ID === CATEGORIA_FRETE) {
+      if (['TRANSFERENCIA', 'DISTRIBUICAO'].indexOf(reg.TIPO_FRETE) < 0) {
+        throw new Error('TIPO_FRETE_OBRIGATORIO: no frete contratado diga se é transferência entre unidades ou distribuição.');
+      }
+      if (reg.TIPO_FRETE === 'TRANSFERENCIA') {
+        if (!reg.ROTA_ID) throw new Error('ROTA_OBRIGATORIA: escolha a rota (origem e destino) da transferência.');
+        const rota = Repo.achar('ROTAS', 'ROTA_ID', reg.ROTA_ID);
+        if (!rota || rota.STATUS === 'INATIVO') throw new Error('ROTA_INVALIDA: a rota escolhida não existe ou está inativa.');
+      } else {
+        reg.ROTA_ID = '';
+      }
+    } else {
+      reg.TIPO_FRETE = '';
+      reg.ROTA_ID = '';
+    }
+
+    // Compra para outra unidade: só quando o parâmetro estiver ligado. Senão, é da própria filial.
+    if (Cfg.param('PERMITE_COMPRA_OUTRA_UNIDADE', 'NAO') === 'SIM') {
+      if (!reg.UNIDADE_COMPRA_ID) throw new Error('UNIDADE_OBRIGATORIA: para qual unidade é esta compra?');
+    } else {
+      reg.UNIDADE_COMPRA_ID = reg.FILIAL_EMISSAO;
+    }
 
     const sim = Rules.simular({
       categoriaId: reg.CATEGORIA_ID, fornecedorId: reg.FORNECEDOR_ID,
@@ -91,7 +121,10 @@ const Sol = (function () {
     reg.ALCADA_ID              = sim.alcadaId;
     reg.SALDO_PROJETADO_SEMANA = sim.saldoProjetado;
     reg.RECOMENDACAO           = sim.recomendacao;
-    reg.TEM_RATEIO             = sim.exigeRateio ? 'SIM' : 'NAO';
+    // Transferência tem um pagamento só e custo na rota: nunca rateia.
+    const transfere = reg.TIPO_FRETE === 'TRANSFERENCIA';
+    reg.TEM_RATEIO             = (sim.exigeRateio && !transfere) ? 'SIM' : 'NAO';
+    const rateio = transfere ? null : d.rateio;
     if (!reg.SOLICITACAO_ID) {
       reg.DATA_SOLICITACAO = new Date();
       reg.SOLICITANTE_ID   = ses.id;
@@ -101,15 +134,15 @@ const Sol = (function () {
       reg.STATUS = 'AGUARDANDO_APROVACAO';
     }
 
-    if (sim.exigeRateio && d.rateio) Rules.validarRateio(d.rateio);
+    if (sim.exigeRateio && rateio) Rules.validarRateio(rateio);
 
     const r = Repo.salvar('SOLICITACOES', reg, ses);
     const id = r.registro.SOLICITACAO_ID;
 
-    if (d.rateio) {
+    if (rateio) {
       Repo.listar('RATEIO', function (x) { return x.SOLICITACAO_ID === id; }, true)
           .forEach(function (x) { Repo.inativar('RATEIO', x.RATEIO_ID, 'substituído', ses); });
-      Repo.inserirLote('RATEIO', d.rateio.map(function (l) {
+      Repo.inserirLote('RATEIO', rateio.map(function (l) {
         return { SOLICITACAO_ID: id, FILIAL_DESTINO: l.filial, CENTRO_CUSTO: l.centroCusto || '',
                  PERCENTUAL: l.percentual, VALOR: Number(reg.VALOR_BRUTO) * Number(l.percentual) / 100 };
       }), ses);

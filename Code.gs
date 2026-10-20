@@ -236,7 +236,7 @@ const TABELA_RECURSO = {
   PLANO_CONTAS: 'PLANO_CONTAS', FORNECEDORES: 'FORNECEDOR', FILIAIS: 'FILIAL', AREAS: 'AREA',
   CATEGORIAS: 'CATEGORIA', CENTROS_CUSTO: 'CENTRO_CUSTO', CENTRO_CONTA: 'CENTRO_CUSTO',
   USUARIOS: 'USUARIO', PERFIS: 'PERFIL', PERMISSOES: 'PERFIL', PERMISSOES_CAMPO: 'PERFIL',
-  PARAMETROS: 'PARAMETRO', ORCAMENTO: 'ORCAMENTO', RATEIO: 'RATEIO',
+  PARAMETROS: 'PARAMETRO', ORCAMENTO: 'ORCAMENTO', RATEIO: 'RATEIO', ROTAS: 'FILIAL',
   TITULOS_PAGAR: 'TITULO_PAGAR', TITULOS_RECEBER: 'TITULO_RECEBER',
   CONDICOES_PGTO: 'PARAMETRO', FORMAS_PGTO: 'PARAMETRO', ALCADAS: 'PARAMETRO', FERIADOS: 'PARAMETRO'
 };
@@ -266,13 +266,16 @@ function bootstrap(ses) {
     versao: VERSAO,
     parametros: {
       saldoMinimo: Cfg.param('SALDO_MINIMO_SEGURANCA', 0),
-      horizonte: Cfg.param('HORIZONTE_SEMANAS', 12)
+      horizonte: Cfg.param('HORIZONTE_SEMANAS', 12),
+      // SIM: o solicitante pode pedir compra para outra unidade e a solicitação mostra qual.
+      permiteOutraUnidade: Cfg.param('PERMITE_COMPRA_OUTRA_UNIDADE', 'NAO') === 'SIM'
     },
     // Cada cadastro só vai para quem tem a permissão dele na matriz (VER no recurso).
     // Condições, formas e alçadas também chegam a quem lança solicitação, porque o
     // formulário usa a alçada para mostrar quem aprova.
     cadastros: {
       filiais:    cadastroSe(ses, 'FILIAL', 'FILIAIS'),
+      rotas:      cadastroSe(ses, 'FILIAL', 'ROTAS'),
       areas:      cadastroSe(ses, 'AREA', 'AREAS'),
       centros:    cadastroSe(ses, 'CENTRO_CUSTO', 'CENTROS_CUSTO'),
       categorias: Catalogo.listar(),

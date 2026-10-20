@@ -10,7 +10,7 @@ const Seq = (function () {
     ANEXOS:          'ANX', NOTIFICACOES:  'NOT', USUARIOS:        'USR',
     FILIAIS:         'FIL', AREAS:         'ARE', PLANO_CONTAS:    'CTA',
     FORNECEDORES:    'FOR', ORCAMENTO:     'ORC', SESSOES:         'SES',
-    OBSERVACOES:     'OBS'
+    OBSERVACOES:     'OBS', ROTAS:           'ROT'
   };
 
   /** Devolve um ID no formato PREFIXO-ANO-NNNNN. */

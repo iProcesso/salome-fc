@@ -76,6 +76,7 @@ const Setup = (function () {
         ['SALDO_INICIAL_CAIXA', '0', 'NUMERO', 'Saldo de caixa no início do horizonte', 'FINANCEIRO'],
         ['SALDO_MINIMO_SEGURANCA', '0', 'NUMERO', 'Abaixo disso o sistema recomenda AVALIAR', 'DIRETORIA'],
         ['HORIZONTE_SEMANAS', '12', 'NUMERO', 'Semanas projetadas no fluxo de caixa', 'FINANCEIRO'],
+        ['PERMITE_COMPRA_OUTRA_UNIDADE', 'NAO', 'TEXTO', 'SIM: o solicitante pode pedir compra para outra unidade', 'FINANCEIRO'],
         ['DIAS_PAGAMENTO', '2,4,6', 'TEXTO', 'Dias da semana em que se paga (1=domingo)', 'FINANCEIRO'],
         ['SESSAO_HORAS', '8', 'NUMERO', 'Duração da sessão do usuário', 'ADMIN'],
         ['LOGIN_TENTATIVAS_MAX', '5', 'NUMERO', 'Bloqueio temporário após N falhas', 'ADMIN'],

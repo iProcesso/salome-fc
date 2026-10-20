@@ -410,6 +410,29 @@ const SCHEMA = {
       "VERSAO",
       "INATIVADO_EM",
       "INATIVADO_POR",
+      "MOTIVO_INATIVACAO",
+      "TIPO_FRETE",
+      "ROTA_ID",
+      "UNIDADE_COMPRA_ID"
+    ]
+  },
+  "ROTAS": {
+    "pl": "FC_DADOS",
+    "desc": "Trechos de frete entre unidades (origem e destino). O custo do frete contratado é corporativo e fica na rota.",
+    "cols": [
+      "ROTA_ID",
+      "CODIGO",
+      "NOME",
+      "ORIGEM_FILIAL_ID",
+      "DESTINO_FILIAL_ID",
+      "STATUS",
+      "CRIADO_EM",
+      "CRIADO_POR",
+      "ALTERADO_EM",
+      "ALTERADO_POR",
+      "VERSAO",
+      "INATIVADO_EM",
+      "INATIVADO_POR",
       "MOTIVO_INATIVACAO"
     ]
   },

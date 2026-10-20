@@ -77,7 +77,13 @@ const Vista = (function () {
   };
 
   /** Solicitações no formato que os cards e as tabelas desenham. */
+  /** Rotas indexadas. Se a aba ROTAS ainda não existir, a lista segue sem elas em vez de cair. */
+  function rotasIndice() {
+    try { return indice(Repo.listar('ROTAS', null, true), 'ROTA_ID'); } catch (e) { return {}; }
+  }
+
   function solicitacoes(ses, cad) {
+    const rotaDe = rotasIndice();
     const usr  = indice(cad.usuarios, 'USUARIO_ID');
     const forn = indice(cad.fornecedores, 'FORNECEDOR_ID');
     const cats = indice(cad.categorias, 'CATEGORIA_ID');
@@ -120,6 +126,12 @@ const Vista = (function () {
         rec: s.RECOMENDACAO || '—',
         obs: s.OBSERVACAO || '',
         placa: s.PLACA || '',
+        tipoFrete: s.TIPO_FRETE || '',
+        rotaId: s.ROTA_ID || '',
+        rota: rotaDe[s.ROTA_ID] ? (rotaDe[s.ROTA_ID].CODIGO || s.ROTA_ID) + ' · ' + (rotaDe[s.ROTA_ID].NOME || '') : '',
+        origem: rotaDe[s.ROTA_ID] ? rotaDe[s.ROTA_ID].ORIGEM_FILIAL_ID : '',
+        destino: rotaDe[s.ROTA_ID] ? rotaDe[s.ROTA_ID].DESTINO_FILIAL_ID : '',
+        unidadeCompra: s.UNIDADE_COMPRA_ID || s.FILIAL_EMISSAO || '',
         chave: s.CHAVE_AUTORIZACAO || '',
         pedido: s.PEDIDO_FORNECEDOR || '',
         pre: pre,
