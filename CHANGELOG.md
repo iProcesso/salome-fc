@@ -1,3 +1,10 @@
+## Versão 11.05.2 — 2026-10-20 · Seleção e aprovação em lote
+
+- A caixa de cada linha da aprovação funciona: marque uma ou todas as que o perfil pode aprovar.
+  "Aprovar N selecionadas" pede confirmação com a soma e aprova uma a uma no servidor.
+- Linha acima do limite do perfil continua bloqueada, com o texto "acima da sua alçada".
+  Perfil sem permissão de aprovar (ex.: Administrador) vê "seu perfil não aprova".
+
 ## Versão 11.05.1 — 2026-10-20 · Administrador lança solicitação
 
 - O perfil ADMIN passa a incluir e alterar solicitações (matriz SOLICITACAO: VER, INCLUIR, ALTERAR, EXPORTAR).
