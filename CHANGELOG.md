@@ -1,3 +1,11 @@
+## Versão 11.05.1 — 2026-10-20 · Administrador lança solicitação
+
+- O perfil ADMIN passa a incluir e alterar solicitações (matriz SOLICITACAO: VER, INCLUIR, ALTERAR, EXPORTAR).
+  Campo do rascunho liberado para ADMIN, igual ao Solicitante. Inativar e aprovar seguem negados.
+- Protótipo: o curinga "*" da permissão agora vale também para o envio.
+- **Para ativar no Apps Script:** na aba PERMISSOES, a linha ADMIN/SOLICITACAO passa a VER, INCLUIR e ALTERAR = SIM;
+  na aba PERMISSOES_CAMPO, incluir ADMIN / SOLICITACAO / * / RASCUNHO / SIM / NAO. Instalações novas já saem assim.
+
 ## Versão 11.05 — 2026-10-20 · Datas pela entrega e parcelas
 
 - **Data prevista de recebimento** (serviço, produto ou compra) é obrigatória. A **data de pagamento**

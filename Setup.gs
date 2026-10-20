@@ -175,7 +175,7 @@ const Setup = (function () {
                      TITULO_RECEBER: 'SNNNNSN', RATEIO: 'SNNNNSN', ORCAMENTO: 'SSSNNSS',
                      PLANO_CONTAS: 'SNNNNSN', FORNECEDOR: 'SNNNNSN', FILIAL: 'SNNNNSN',
                      AREA: 'SNNNNSN', LOG: 'SNNNNSN' },
-      ADMIN:       { SOLICITACAO: 'SNNNNSN', APROVACAO: 'SNNNNSN', TITULO_PAGAR: 'SNNNNSN',
+      ADMIN:       { SOLICITACAO: 'SSSNNSN', APROVACAO: 'SNNNNSN', TITULO_PAGAR: 'SNNNNSN',
                      TITULO_RECEBER: 'SNNNNSN', RATEIO: 'SNNNNSN', ORCAMENTO: 'SNNNNSN',
                      PLANO_CONTAS: 'SSSSNSS', FORNECEDOR: 'SSSSNSS', FILIAL: 'SSSSNSS',
                      AREA: 'SSSSNSS', USUARIO: 'SSSSNSS', PERFIL: 'SSSSNSS', PARAMETRO: 'SNSNNSN',
@@ -213,6 +213,7 @@ const Setup = (function () {
       ['FINANCEIRO', 'SOLICITACAO', '*', 'PAGO', 'NAO', 'NAO'],
       ['DIRETORIA', 'SOLICITACAO', '*', '*', 'SIM', 'NAO'],
       ['DIRETORIA', 'SOLICITACAO', '*', 'PAGO', 'NAO', 'NAO'],
+      ['ADMIN', 'SOLICITACAO', '*', 'RASCUNHO', 'SIM', 'NAO'],
       ['ADMIN', 'SOLICITACAO', '*', '*', 'NAO', 'NAO']
     ];
   }

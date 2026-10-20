@@ -3616,7 +3616,7 @@ function protoGarantirAut(reg){
 /** Mesma matriz do servidor: a sandbox também recusa o que o perfil não pode fazer. */
 function protoPode(acao, recurso){
   const lista = (PERMS[ROLE] && PERMS[ROLE].acao && PERMS[ROLE].acao[acao]) || [];
-  return lista.indexOf(recurso) >= 0;
+  return lista.indexOf('*') >= 0 || lista.indexOf(recurso) >= 0;
 }
 function protoExigePerm(acao, recurso){
   if (!protoPode(acao, recurso)) throw new Error('SEM_PERMISSAO: o seu perfil não pode ' + acao + ' ' + recurso + '.');
