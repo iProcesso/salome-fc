@@ -1,3 +1,55 @@
+## Protótipo (index.html) 11.0 — 2026-10-20 · Visão em faixas no Fluxo
+
+- Botão **Visão em faixas** no Fluxo do processo: uma faixa por card, com as seis etapas lado a lado.
+- Cores: verde = já passou (tempo real quando o log tem); âmbar = etapa atual; vermelho = etapa atual
+  com mais de 1,5× a média; cinza tracejado = previsão pela média.
+- Cabeçalho com o nome de cada etapa e a média de tempo; linhas verticais separam as colunas.
+- Coluna final com a conclusão prevista. Clicar numa faixa abre o painel do card.
+- Médias calculadas pelo histórico de passagens da base de teste. Sem histórico, usa estimativa padrão.
+- Versão do rodapé: 11.0. A versão aparece também no celular (antes sumia junto com o nome do app).
+- app.html regenerado a partir do index (v11.0).
+- Pendente: com dados reais, o servidor precisa devolver o histórico de passagens de todos os cards
+  (hoje a média só existe no protótipo). Etapa RECEBER ainda sem amostras.
+
+## Backend (Apps Script) — correções pós-10.0 — 2026-10-20
+
+- `Code.gs` — `obs.salvar` deixou de gravar log duplicado: a `api()` ignora a rota com
+  `logaNaApi: false`, e só `Obs.salvar` registra (com a solicitação como registro).
+- `Code.gs` — `bootstrap` devolve `VERSAO` (Cfg.gs) e não mais o parâmetro `VERSAO_APP`
+  (que estava com '0.1.0' fixo).
+- `Code.gs` — modo GITHUB: `?p=proto` busca o arquivo do protótipo pelo parâmetro
+  `GITHUB_RAW_PROTO` (antes buscava o do oficial). `limparCacheUI` limpa `UI_app` e `UI_proto`.
+- `Cfg.gs` — o cache de PARAMETROS guarda as linhas cruas e converte a cada leitura, então
+  um parâmetro DATA tem o mesmo tipo com ou sem cache.
+- **Para ativar:** colar `Code.gs` e `Cfg.gs` no Apps Script e publicar nova versão.
+  Se usar o modo GITHUB com protótipo, criar o parâmetro `GITHUB_RAW_PROTO` na aba PARAMETROS.
+- `VERSAO` continua 1.3.1: a numeração do backend ainda precisa ser decidida.
+
+## Protótipo (index.html) 10.0 — 2026-10-20 · Observações do card, app oficial regenerado
+
+### Servidor (`Obs.gs`, novo)
+- Tabela `OBSERVACOES` (FC_DADOS), com prefixo `OBS`. Uma linha por observação, com autor e data.
+  Não se edita nem se apaga: quem errou escreve outra, e a anterior fica.
+- Ações `obs.listar` (perfil com VER em SOLICITACAO) e `obs.salvar` (perfil com ALTERAR).
+  Texto obrigatório, até 500 caracteres. Cada registro vai ao log como `OBSERVAR`.
+- **Para ativar:** criar a aba `OBSERVACOES` na FC_DADOS com os cabeçalhos da `Schema.gs`
+  (ou rodar `Setup.criarBases()`, se ele já criar abas que faltam) e publicar a nova versão.
+
+### Protótipo
+- Aba **Observação** do painel: lista com autor e data, e formulário para adicionar.
+- Ícone ✎ no card aparece quando há observação (no campo da solicitação ou já carregada no painel).
+- Base de teste com duas observações e registro das novas.
+
+### App oficial (`app.html`)
+- Regenerado a partir do index. O `build_app.py` antigo foi substituído: ele era escrito para
+  uma versão anterior e já não casava com o código. O novo só tira o botão PROTÓTIPO e põe o
+  título oficial. O backup do script antigo está em `backups/`.
+
+### Pendente
+- Ícone ✎ depende de carregar as observações; o card só sabe do total depois que o painel abre.
+- Dias úteis na linha do tempo (FERIADOS no front).
+- PDF da autorização (Files.gs).
+
 ## Protótipo (index.html) 9.0 — 2026-10-20 · Fluxo do processo: painel, pendências e linha do tempo
 
 Versões do protótipo que mudaram a tela do Fluxo do processo. A interface oficial (`app.html`)

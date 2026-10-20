@@ -560,6 +560,24 @@ const SCHEMA = {
       "RELATORIO_URL"
     ]
   },
+  "OBSERVACOES": {
+    "pl": "FC_DADOS",
+    "desc": "Observações do card, uma linha por observação, com autor e data. Não se edita nem se apaga.",
+    "cols": [
+      "OBSERVACAO_ID",
+      "SOLICITACAO_ID",
+      "TEXTO",
+      "STATUS",
+      "CRIADO_EM",
+      "CRIADO_POR",
+      "ALTERADO_EM",
+      "ALTERADO_POR",
+      "VERSAO",
+      "INATIVADO_EM",
+      "INATIVADO_POR",
+      "MOTIVO_INATIVACAO"
+    ]
+  },
   "NOTIFICACOES": {
     "pl": "FC_DADOS",
     "desc": "Fila de e-mails. Permite reenvio e evita disparo duplicado.",
