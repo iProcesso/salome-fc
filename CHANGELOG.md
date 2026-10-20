@@ -1,3 +1,14 @@
+## Versão 11.01 — 2026-10-20 · Segurança: Fluxo de caixa protegido no servidor
+
+- **Corrigido:** `cash.fluxo` e `cash.detalhe` só exigiam VER em Solicitação. Qualquer perfil
+  com essa permissão (inclusive Solicitante) conseguia chamar a função direto e ver a posição de
+  caixa da empresa inteira, mesmo com a tela escondida no menu.
+- Agora essas ações exigem escopo TODAS em Solicitação (`Perm.exigirTodas`), na própria `api()`.
+- Front: o menu continua escondendo o item para quem não tem a visão da empresa inteira.
+- **Para ativar:** colar `Code.gs` e `Perm.gs` no Apps Script, publicar nova versão. Atualizar o HTML também.
+- Pendente de revisão: `bootstrap` devolve fornecedores e plano de contas para qualquer perfil
+  logado. Pode ser intencional (cadastros para lançar compra), mas precisa de decisão.
+
 ## Protótipo (index.html) 11.0.1 — 2026-10-20 · Correção: Fluxo de caixa no menu
 
 - O item **Fluxo de caixa** não aparecia no menu de usuários reais: o mapa de telas de

@@ -132,6 +132,19 @@ const Perm = (function () {
   }
 
   /** Devolve ao cliente o que ele precisa para montar menu e botões. */
+  /**
+   * Exige a visão da empresa inteira em um recurso (escopo TODAS). Usada nas telas que
+   * mostram dado de todas as solicitações — como o Fluxo de caixa. O menu esconder a tela
+   * não basta: a função do servidor precisa recusar quem chamar direto.
+   */
+  function exigirTodas(ses, recurso) {
+    const p = mapa(ses.perfilId)[recurso];
+    if (!p || p.ESCOPO !== 'TODAS') {
+      throw new Error('SEM_PERMISSAO: esta visão é só para perfis que enxergam a empresa inteira.');
+    }
+    return p;
+  }
+
   function resumo(ses) {
     const m = mapa(ses.perfilId);
     const out = { limite: limite(ses), recursos: {} };
@@ -146,7 +159,7 @@ const Perm = (function () {
   }
 
   return {
-    exigir: exigir, pode: pode, filtrarEscopo: filtrarEscopo, filtrarCampos: filtrarCampos,
+    exigir: exigir, exigirTodas: exigirTodas, pode: pode, filtrarEscopo: filtrarEscopo, filtrarCampos: filtrarCampos,
     limite: limite, podeAprovar: podeAprovar, resumo: resumo, mapa: mapa, perfisDe: perfisDe
   };
 })();

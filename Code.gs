@@ -141,10 +141,12 @@ const ROTAS = {
   'sol.simular':       { recurso: 'SOLICITACAO', acao: 'VER',      fn: function (d, s) { return Rules.simular(d, s); } },
   'sol.salvar':        { recurso: 'SOLICITACAO', acao: 'ALTERAR',  fn: function (d, s) { return Sol.salvar(d, s); } },
   'sol.decidir':       { recurso: 'SOLICITACAO', acao: 'APROVAR',  fn: function (d, s) { return Sol.decidir(d, s); } },
-  'cash.fluxo':        { recurso: 'SOLICITACAO', acao: 'VER',      fn: function (d, s) { return Cash.fluxo(d, s); } },
+  // todas: exige escopo TODAS em SOLICITACAO. Sem isso, qualquer perfil com VER chamava o
+  // fluxo da empresa inteira direto, mesmo com a tela escondida no menu.
+  'cash.fluxo':        { recurso: 'SOLICITACAO', acao: 'VER', todas: 'SOLICITACAO', fn: function (d, s) { return Cash.fluxo(d, s); } },
   // A composição exata de uma célula do fluxo: linha × coluna, com o valor que cada
   // solicitação contribuiu — que nem sempre é o valor bruto dela.
-  'cash.detalhe':      { recurso: 'SOLICITACAO', acao: 'VER',      fn: function (d, s) { return Cash.detalhe(d, s); } },
+  'cash.detalhe':      { recurso: 'SOLICITACAO', acao: 'VER', todas: 'SOLICITACAO', fn: function (d, s) { return Cash.detalhe(d, s); } },
 
   // Categoria -> conta contábil, centro sugerido e retenção. É o que o formulário chama
   // assim que o usuário escolhe "o que vai comprar" e "de quem".
@@ -201,6 +203,7 @@ function api(acao, payload, token) {
       ses = Auth.validar(token);
       const recurso = rota.recursoDe ? recursoDaTabela(payload.tabela) : rota.recurso;
       if (recurso) Perm.exigir(ses, recurso, rota.acao);
+      if (rota.todas) Perm.exigirTodas(ses, rota.todas);
     }
 
     const dados = rota.fn(payload, ses, token);
