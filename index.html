@@ -2564,12 +2564,22 @@ const API = {
   chamar(acao, payload) {
     /* Sem ponte (página do GitHub Pages): chama o /exec por fetch. */
     if (typeof google === 'undefined' || !google.script || !google.script.run) {
+      /* Mesmo protocolo do app que já funciona: POST text/plain com {fn, arg}. */
+      const controller = new AbortController();
+      const tmo = setTimeout(() => controller.abort(), 25000);
       return fetch(EXEC_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ acao, payload: payload || {}, token: API.token })
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ fn: acao, arg: payload || {}, token: API.token }),
+        signal: controller.signal
       })
-      .then(resp => resp.json())
+      .then(resp => { clearTimeout(tmo); return resp.text(); })
+      .then(txt => {
+        let r;
+        try { r = JSON.parse(txt); }
+        catch (_) { throw new Error('Servidor indisponível (resposta inválida). Verifique o acesso da implantação.'); }
+        return r;
+      })
       .then(r => {
         if (!r) throw new Error('O servidor não respondeu.');
         if (r.ok) return r.dados;
